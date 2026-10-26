@@ -34,6 +34,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
 .masthead{border-top:6px solid var(--navy);padding-top:14px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:end}
 .masthead h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1}
 .date{font-weight:800;color:var(--navy)}
+.grid2.solo{max-width:680px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;align-items:start}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
 .field label{font-weight:600;font-size:.9rem}
@@ -161,7 +162,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
     <div class="date" id="dateLabel"></div>
   </header>
 
-  <div class="grid2">
+  <div class="grid2 solo">
     <div class="card" id="startCard">
       <span class="custom-tag" id="customTag" hidden>Custom class game</span>
       <h2 style="font-size:1.5rem;margin-bottom:6px" id="startTitle"></h2>
@@ -169,8 +170,6 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
       <ol class="rules" id="rules"></ol>
       <div class="ladder" id="ladder" aria-hidden="true"></div>
       <div class="ladder-key note" aria-hidden="true"><span>Question only</span><span>+ Clue 1</span><span>+ Clue 2</span></div>
-      <div class="field"><label for="pName">Your name (shown on the leaderboard)</label><input id="pName" maxlength="30" autocomplete="nickname" placeholder="e.g. Mr. Bishop or Jaylen R."></div>
-      <div class="field"><label for="pGroup">Group (optional)</label><input id="pGroup" maxlength="30" placeholder="e.g. Bishop Period 3"></div>
       <button class="btn primary" id="playBtn">Play</button>
       <span class="muted" id="startMsg" style="margin-left:8px"></span>
     </div>
@@ -181,18 +180,11 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
       <p class="note" id="playedNote"></p>
     </div>
 
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <h2 style="font-size:1.5rem">Today's leaderboard</h2>
-        <button class="btn ghost" id="refreshBtn">Refresh</button>
-      </div>
-      <div id="board"></div>
-    </div>
   </div>
 
   <details class="card teacher" id="teacherPanel">
     <summary>Teacher settings</summary>
-    <p class="muted lead">Choose how many questions and how many points each one is worth, then share the class link. Everyone who opens the link plays the same questions with the same rules, and custom games get their own leaderboard.</p>
+    <p class="muted lead">Choose how many questions and how many points each one is worth, then share the class link. Everyone who opens the link plays the same questions with the same rules.</p>
     <div class="set-grid">
       <div class="field"><label for="setCount">Number of questions</label><input id="setCount" type="number" min="3" max="20" step="1" inputmode="numeric"></div>
       <div class="field"><label for="setP0">Points: question only</label><input id="setP0" type="number" min="1" max="1000" step="1" inputmode="numeric"></div>
@@ -263,7 +255,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
     <div><div class="eyebrow">Today's result</div><h1>Capitol Clues Quick Pick</h1></div>
     <div class="date" id="dateLabel2"></div>
   </header>
-  <div class="grid2">
+  <div class="grid2 solo">
     <div class="card">
       <div class="result-head">
         <div class="big" id="finalScore">0</div>
@@ -272,13 +264,6 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
       <ul class="recap" id="recap"></ul>
       <div class="share" id="shareText"></div>
       <button class="btn" id="copyBtn">Copy result to share</button>
-    </div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <h2 style="font-size:1.5rem">Today's leaderboard</h2>
-        <button class="btn ghost" id="refreshBtn2">Refresh</button>
-      </div>
-      <div id="board2"></div>
     </div>
   </div>
 </section>
@@ -289,9 +274,6 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
 (function(){
 "use strict";
 
-/* ===== SETTINGS: paste your Google Apps Script web app URL between the quotes ===== */
-const SCORES_URL = "";
-/* ================================================================================== */
 
 const TZ = "America/New_York";
 
@@ -839,44 +821,6 @@ function todaysList(d){
   return base.concat(extra.slice(0,PER_DAY-base.length));
 }
 
-/* ---------- leaderboard ---------- */
-let lastBoard=null;
-function renderBoard(el, data, meName){
-  if(!SCORES_URL){ el.innerHTML='<p class="note">The leaderboard isn\'t connected yet. Paste the Google Sheet web app address into SCORES_URL at the top of this file.</p>'; return; }
-  if(!data){ el.innerHTML='<p class="note">Loading scores…</p>'; return; }
-  if(data.error){ el.innerHTML='<p class="note">Couldn\'t load the leaderboard. Check your connection and press Refresh.</p>'; return; }
-  const rows=data.rows||[];
-  if(!rows.length){ el.innerHTML='<p class="note">No scores yet today. Be the first on the board.</p>'; return; }
-  const t=rows[0];
-  let h='<div class="top"><div class="big">'+fmt(t.score)+'</div><div><div class="eyebrow">Top score today</div><div style="font-weight:800">'+esc(t.name)+'</div>'+(t.group?'<div class="muted">'+esc(t.group)+'</div>':'')+'</div></div>';
-  h+='<div class="board-wrap"><table class="board"><thead><tr><th>#</th><th>Player</th><th style="text-align:right">Correct</th><th style="text-align:right">Score</th></tr></thead><tbody>';
-  let rank=0,prev=null;
-  rows.slice(0,25).forEach((r,i)=>{
-    if(r.score!==prev){ rank=i+1; prev=r.score; }
-    const me = meName && String(r.name).toLowerCase()===meName.toLowerCase();
-    h+='<tr'+(me?' class="me"':'')+'><td>'+rank+'</td><td>'+esc(r.name)+(r.group?' <span class="grp">· '+esc(r.group)+'</span>':'')+'</td><td class="n">'+esc(r.correct)+'/'+PER_DAY+'</td><td class="n">'+fmt(r.score)+'</td></tr>';
-  });
-  h+='</tbody></table></div>'+(rows.length>25?'<p class="note">Showing the top 25 of '+rows.length+' players.</p>':'');
-  el.innerHTML=h;
-}
-function loadBoard(){
-  const me=(lsGet("cp_player")||{}).name||"";
-  ["board","board2"].forEach(id=>renderBoard($(id),null,me));
-  if(!SCORES_URL) return Promise.resolve();
-  return Promise.resolve().then(()=>fetch(SCORES_URL+"?date="+encodeURIComponent(TODAY)+"&mode="+encodeURIComponent(MODE)+"&t="+Date.now()))
-    .then(r=>r.json()).then(d=>{ lastBoard=d; })
-    .catch(()=>{ lastBoard={error:true}; })
-    .then(()=>{ ["board","board2"].forEach(id=>renderBoard($(id),lastBoard,me)); });
-}
-function submitScore(res){
-  if(!SCORES_URL){ $("submitMsg").textContent="Leaderboard not connected; score saved on this device."; return; }
-  $("submitMsg").textContent="Sending your score…";
-  const body=JSON.stringify({date:TODAY,mode:MODE,name:res.name,group:res.group,score:res.score,correct:res.correct,secs:res.secs});
-  Promise.resolve().then(()=>fetch(SCORES_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body}))
-    .then(()=>{ $("submitMsg").textContent="Score posted to today's leaderboard."; res.posted=true; lsSet("cp_day_"+TODAY+MODE,res); setTimeout(loadBoard,1500); })
-    .catch(()=>{ $("submitMsg").textContent="Couldn't reach the leaderboard. Your score is saved on this device."; });
-}
-
 /* ---------- game ---------- */
 const TODAY=todayStr();
 const LIST=todaysList(TODAY);
@@ -886,10 +830,7 @@ let G=null, tick=null;
 function showScreen(id){ ["home","play","results"].forEach(s=>{ $(s).hidden=(s!==id); }); window.scrollTo(0,0); }
 
 function start(){
-  const name=$("pName").value.trim(), group=$("pGroup").value.trim();
-  if(!name){ $("startMsg").textContent="Enter your name first."; $("pName").focus(); return; }
-  lsSet("cp_player",{name,group});
-  G={name,group,i:-1,score:0,results:[],t0:performance.now(),pausedMs:0};
+  G={i:-1,score:0,results:[],t0:performance.now(),pausedMs:0};
   showScreen("play"); nextQuestion();
 }
 
@@ -1013,11 +954,10 @@ function shareLines(res){
 function finish(){
   stop();
   const correct=G.results.filter(r=>r.correct).length;
-  const res={date:TODAY,name:G.name,group:G.group,score:G.score,correct,secs:Math.round((performance.now()-G.t0-G.pausedMs)/1000),
+  const res={date:TODAY,score:G.score,correct,secs:Math.round((performance.now()-G.t0-G.pausedMs)/1000),
     marks:G.results.map(r=>r.correct?r.stage:-1),list:G.results.map(r=>({answer:r.answer,pts:r.pts,correct:r.correct,stage:r.stage}))};
   lsSet("cp_day_"+TODAY+MODE,res);
   showResults(res);
-  submitScore(res);
 }
 function showResults(res){
   showScreen("results");
@@ -1027,8 +967,7 @@ function showResults(res){
   const col={0:"var(--good)",1:"var(--brass)",2:"#e08a4f"};
   $("recap").innerHTML=(res.list||[]).map(r=>'<li><i style="background:'+(r.correct?col[r.stage]:"#7a8599")+'"></i><span>'+esc(r.answer)+'</span><b>'+(r.correct?"+"+fmt(r.pts):"—")+'</b></li>').join("");
   $("shareText").textContent=shareLines(res);
-  if(res.posted) $("submitMsg").textContent="Score posted to today's leaderboard.";
-  loadBoard();
+  $("submitMsg").textContent="Saved on this device.";
 }
 
 
@@ -1074,25 +1013,20 @@ function initPanel(){
 function home(){
   $("dateLabel").textContent=prettyDate(TODAY);
   renderRules(); initPanel();
-  const p=lsGet("cp_player"); if(p){ $("pName").value=p.name||""; $("pGroup").value=p.group||""; }
   const done=lsGet("cp_day_"+TODAY+MODE);
   if(done){
     $("startCard").hidden=true; $("playedCard").hidden=false;
     $("playedSummary").innerHTML='<p style="font-size:1.2rem;margin:.2rem 0"><b>'+fmt(done.score)+' pts</b> · '+done.correct+'/'+PER_DAY+' correct</p><button class="btn" id="viewRes">See my result</button>';
     $("viewRes").addEventListener("click",()=>showResults(done));
   }
-  loadBoard();
 }
 
 $("playBtn").addEventListener("click",start);
-$("pName").addEventListener("keydown",e=>{ if(e.key==="Enter") start(); });
 $("choices").addEventListener("click",e=>{ const b=e.target.closest(".choice"); if(b && !b.disabled) pick(Number(b.dataset.k)); });
 $("skipBtn").addEventListener("click",()=>endQuestion(-1,"Skipped."));
 $("pauseBtn").addEventListener("click",()=>{ if(G&&G.paused) resume(); else pause(); });
 $("resumeBtn").addEventListener("click",resume);
 $("nextBtn").addEventListener("click",nextQuestion);
-$("refreshBtn").addEventListener("click",loadBoard);
-$("refreshBtn2").addEventListener("click",loadBoard);
 document.addEventListener("keydown",e=>{
   if($("play").hidden) return;
   if(e.key==="Escape"){ if(G&&G.paused) resume(); else pause(); return; }
