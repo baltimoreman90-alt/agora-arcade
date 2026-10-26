@@ -1,0 +1,8 @@
+BISHOP'S GAME ROOM - uploading to GitHub
+
+All 10 files sit side by side. There are no folders, so don't create any.
+1. Unzip this file.
+2. Open the unzipped folder and select everything inside it (Ctrl + A).
+3. Drag all of the files onto your repository's "Upload files" page, then click Commit changes.
+4. Go to Settings > Pages, choose Branch: main and / (root), then click Save.
+The site opens at https://baltimoreman90-alt.github.io/agora-arcade/

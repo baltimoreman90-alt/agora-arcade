@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You Be the Judge</title>
+<style>
+:root{
+  --paper:#f7f3ea; --card:#fffdf8; --ink:#1d2433; --muted:#5f6675; --line:#ddd5c4;
+  --navy:#1f3a5f; --navy-2:#2c4f7c; --gold:#b8862b; --gold-soft:#f3e6c8;
+  --red:#b3261e; --red-soft:#fbe4e2; --green:#1e7a46; --green-soft:#ddf2e5;
+  --shadow:0 2px 10px rgba(29,36,51,.08);
+  --serif:Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit}
+h1,h2,h3{font-family:var(--serif);margin:0}
+.wrap{max-width:1400px;margin:0 auto;padding:20px 24px}
+[hidden]{display:none!important}
+
+.btn{border:2px solid var(--navy);background:var(--card);color:var(--navy);border-radius:10px;padding:10px 16px;font-weight:700}
+.btn:hover{background:#eef2f8}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary:hover{background:var(--navy-2)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.ghost{border-color:var(--line);color:var(--muted)}
+.btn.sm{padding:6px 10px;font-size:.9rem}
+kbd{font-family:var(--sans);font-size:.75em;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:#fff;color:var(--muted)}
+
+/* masthead */
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:3px double var(--navy);padding-bottom:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:14px}
+.seal{width:52px;height:52px;border-radius:50%;background:var(--navy);color:var(--gold-soft);display:grid;place-items:center;font-size:26px;box-shadow:inset 0 0 0 3px var(--gold)}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;color:var(--gold);font-weight:800}
+.masthead h1{font-size:2rem;color:var(--navy)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px}
+
+/* setup */
+.setup-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:20px}
+.field{margin-bottom:16px}
+.field label.lab{display:block;font-weight:800;margin-bottom:6px}
+.teams-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.teams-list input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.seg{display:inline-flex;border:2px solid var(--navy);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:#fff;color:var(--navy);padding:8px 14px;font-weight:700}
+.seg button.on{background:var(--navy);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;color:var(--muted)}
+.chip.on{border-color:var(--navy);background:#e8eef7;color:var(--navy)}
+.count-note{color:var(--muted);margin-top:8px}
+.rules li{margin-bottom:8px;line-height:1.45}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.95rem}
+details.custom{margin-top:20px}
+details.custom summary{font-family:var(--serif);font-size:1.3rem;color:var(--navy);cursor:pointer;font-weight:700}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.form-grid .full{grid-column:1/-1}
+.form-grid input,.form-grid textarea,.form-grid select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.form-grid textarea{min-height:70px;resize:vertical}
+.form-grid label{font-weight:700;font-size:.9rem;display:block;margin-bottom:4px}
+.custom-list{margin-top:14px;display:grid;gap:8px}
+.custom-item{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff}
+
+/* game */
+.game-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.docket{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.docket .no{font-weight:800;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;font-size:.85rem}
+.tag{font-size:.8rem;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--gold-soft);color:#7a5714}
+.tag.fic{background:#e8eef7;color:var(--navy)}
+.case-title{font-size:2.3rem;color:var(--navy);margin-bottom:12px;line-height:1.15}
+.facts{font-size:1.45rem;line-height:1.55;border-left:5px solid var(--gold);padding:4px 0 4px 18px;margin-bottom:18px}
+.clues{display:grid;gap:10px}
+.clue{display:flex;gap:14px;align-items:flex-start;border:2px dashed var(--line);border-radius:12px;padding:12px 14px;font-size:1.25rem;color:var(--muted);background:#fbf8f1}
+.clue .n{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--line);color:#fff}
+.clue.open{border-style:solid;border-color:var(--navy);background:#fff;color:var(--ink)}
+.clue.open .n{background:var(--navy)}
+.clue.fresh{animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(.97);background:var(--gold-soft)}100%{transform:scale(1)}}
+
+.side{display:grid;gap:16px}
+.timer{display:flex;align-items:center;gap:16px}
+.ring{position:relative;width:110px;height:110px;flex:0 0 110px}
+.ring svg{transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--line);stroke-width:9}
+.ring .bar{fill:none;stroke:var(--navy);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .1s linear}
+.ring.low .bar{stroke:var(--red)}
+.ring .secs{position:absolute;inset:0;display:grid;place-items:center;font-size:2.2rem;font-weight:800;font-family:var(--serif)}
+.worth .pts{font-size:2.6rem;font-weight:800;color:var(--navy);font-family:var(--serif);line-height:1}
+.worth .sub{color:var(--muted);font-weight:600}
+.status{font-weight:700;color:var(--gold);min-height:1.4em}
+.question{background:var(--navy);color:#fff;border-radius:14px;padding:16px 18px}
+.question h3{font-size:1.15rem;margin-bottom:8px;color:var(--gold-soft)}
+.question ol{margin:0;padding-left:22px;font-size:1.15rem;line-height:1.5}
+.question .bonus{opacity:.8;font-size:.9rem;margin-top:8px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.controls .btn{width:100%}
+.buzz-row{display:flex;flex-wrap:wrap;gap:6px}
+.buzz-row .btn{flex:1 1 45%}
+.buzz-row .btn.locked{opacity:.35;text-decoration:line-through}
+
+/* scoreboard */
+.scores{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.team{flex:1 1 150px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:10px}
+.team .key{width:28px;height:28px;border-radius:7px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.9rem}
+.team .nm{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team .sc{font-family:var(--serif);font-size:1.6rem;font-weight:800;color:var(--navy)}
+.team .adj{display:flex;flex-direction:column;gap:2px}
+.team .adj button{border:1px solid var(--line);background:#fff;border-radius:5px;width:24px;height:20px;line-height:1;padding:0;color:var(--muted)}
+.team.lead{border-color:var(--gold)}
+.team.out{opacity:.45}
+.team.flash{animation:flash 1s ease}
+@keyframes flash{0%{background:var(--gold-soft)}100%{background:var(--card)}}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(29,36,51,.55);display:grid;place-items:center;padding:20px;z-index:50}
+.modal{background:var(--card);border-radius:16px;max-width:760px;width:100%;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.25);max-height:92vh;overflow:auto}
+.modal h2{color:var(--navy);font-size:1.8rem;margin-bottom:4px}
+.judge-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);font-size:1.2rem;font-weight:700}
+.yn{display:flex;gap:8px}
+.yn button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 16px;font-weight:800;min-width:90px}
+.yn button.yes.on{background:var(--green);border-color:var(--green);color:#fff}
+.yn button.no.on{background:var(--red);border-color:var(--red);color:#fff}
+.yn button:disabled{opacity:.35;cursor:not-allowed}
+.answer-key{margin-top:12px;background:var(--gold-soft);border-radius:10px;padding:10px 14px;font-size:.95rem}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.preview{font-weight:700;color:var(--navy);margin-top:12px}
+
+/* reveal */
+.reveal-top{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:10px 0 14px}
+.amend-badge{background:var(--navy);color:#fff;border-radius:14px;padding:12px 18px}
+.amend-badge .big{font-family:var(--serif);font-size:2rem;font-weight:800;color:var(--gold-soft)}
+.amend-badge .what{font-size:1rem}
+.stamp{font-family:var(--serif);font-weight:800;font-size:1.6rem;letter-spacing:.06em;border:4px solid currentColor;border-radius:10px;padding:8px 16px;transform:rotate(-4deg);text-transform:uppercase}
+.stamp.yes{color:var(--red);background:var(--red-soft)}
+.stamp.no{color:var(--green);background:var(--green-soft)}
+.why{font-size:1.25rem;line-height:1.5}
+.realcase{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:1.15rem}
+.realcase b{font-family:var(--serif);font-size:1.35rem;color:var(--navy)}
+.result-line{margin-top:14px;font-weight:800;font-size:1.15rem}
+.result-line.good{color:var(--green)}
+.result-line.bad{color:var(--red)}
+.also{color:var(--muted);font-size:.95rem;margin-top:4px}
+
+/* reference */
+.ref-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.ref{display:flex;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.ref .num{flex:0 0 46px;height:46px;border-radius:10px;background:var(--navy);color:var(--gold-soft);display:grid;place-items:center;font-family:var(--serif);font-weight:800;font-size:1.3rem}
+.ref .t{font-weight:800}
+.ref .d{color:var(--muted);font-size:.95rem;line-height:1.35}
+
+/* final */
+.podium{display:grid;gap:10px;margin-top:16px}
+.place{display:flex;align-items:center;gap:16px;border:2px solid var(--line);border-radius:12px;padding:12px 18px;background:var(--card);font-size:1.4rem}
+.place.first{border-color:var(--gold);background:var(--gold-soft)}
+.place .rank{font-family:var(--serif);font-weight:800;width:44px;color:var(--gold)}
+.place .nm{flex:1;font-weight:700}
+.place .sc{font-family:var(--serif);font-weight:800;color:var(--navy)}
+.recap{margin-top:20px;display:grid;gap:6px}
+.recap div{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:#fff;border:1px solid var(--line)}
+.recap .am{font-weight:800;color:var(--navy);min-width:70px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;z-index:60}
+
+@media (max-width:980px){
+  .setup-grid,.game-grid{grid-template-columns:1fr}
+  .ref-grid{grid-template-columns:1fr}
+  .case-title{font-size:1.8rem}.facts{font-size:1.2rem}
+}
+@media (max-width:560px){
+  .wrap{padding:14px 16px}.teams-list,.form-grid{grid-template-columns:1fr}
+  .masthead h1{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== SETUP ===================== -->
+<section id="setup" class="wrap">
+  <header class="masthead">
+    <div class="brand"><div class="seal">⚖</div><div><div class="eyebrow">Bill of Rights Mock Trial</div><h1>You Be the Judge</h1></div></div>
+    <button class="btn ghost" id="refBtn0">Amendment sheet <kbd>A</kbd></button>
+  </header>
+  <div class="setup-grid">
+    <div class="card">
+      <div class="field">
+        <label class="lab">Teams</label>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+          <span>How many?</span>
+          <div class="seg" id="teamCountSeg"></div>
+        </div>
+        <div class="teams-list" id="teamNames"></div>
+      </div>
+      <div class="field">
+        <label class="lab">Which cases?</label>
+        <div class="seg" id="poolSeg">
+          <button data-v="both" class="on">Real + fictional</button>
+          <button data-v="real">Real Supreme Court only</button>
+          <button data-v="fic">Fictional only</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lab">Amendments in play</label>
+        <div class="chips" id="amendChips"></div>
+      </div>
+      <div class="field">
+        <label class="lab">Cases this round</label>
+        <div class="seg" id="countSeg">
+          <button data-v="5">5</button><button data-v="8" class="on">8</button><button data-v="10">10</button><button data-v="15">15</button><button data-v="999">All</button>
+        </div>
+        <div class="count-note" id="countNote"></div>
+      </div>
+      <div class="field">
+        <label class="lab">Seconds per clue</label>
+        <div class="seg" id="secsSeg">
+          <button data-v="15" class="on">15</button><button data-v="20">20</button><button data-v="30">30</button><button data-v="45">45</button>
+        </div>
+      </div>
+      <button class="btn primary" id="startBtn" style="font-size:1.2rem;padding:14px 22px">Court is in session →</button>
+    </div>
+
+    <div class="card">
+      <h2 style="color:var(--navy);margin-bottom:10px">How to play</h2>
+      <ol class="rules">
+        <li>Read the <b>facts</b> aloud, then press <kbd>Space</kbd> to start the clock.</li>
+        <li>A new <b>clue</b> unlocks every few seconds. The earlier a team answers, the more it's worth.</li>
+        <li>A team buzzes in and gives <b>two answers</b>: which amendment is at stake, and was the right <b>violated</b> or <b>not violated</b>?</li>
+        <li>Press that team's number. Mark each answer right or wrong. A wrong amendment locks that team out and the clock keeps going.</li>
+        <li>Then reveal the ruling. Real cases show the actual Supreme Court decision.</li>
+      </ol>
+      <p style="margin:6px 0 10px"><b>Scoring:</b> right amendment = <b>4</b> pts with facts only, <b>3</b> after clue 1, <b>2</b> after clue 2, <b>1</b> after clue 3. Right verdict adds <b>+2</b>.</p>
+      <div class="keys">
+        <kbd>Space</kbd><span>Start / pause the clock</span>
+        <kbd>1–8</kbd><span>A team buzzes in</span>
+        <kbd>H</kbd><span>Unlock the next clue now</span>
+        <kbd>R</kbd><span>Reveal the ruling (no points)</span>
+        <kbd>N</kbd><span>Next case</span>
+        <kbd>A</kbd><span>Amendment sheet</span>
+        <kbd>F</kbd><span>Full screen</span>
+      </div>
+    </div>
+  </div>
+
+  <details class="custom card">
+    <summary>Add your own cases</summary>
+    <p class="count-note">Your cases are saved in this browser and mixed into the game. Use Export to back them up or share them with another teacher.</p>
+    <form id="customForm" class="form-grid">
+      <div class="full"><label for="cTitle">Case title</label><input id="cTitle" required placeholder="The Case of the ..."></div>
+      <div class="full"><label for="cFacts">Facts (read aloud first)</label><textarea id="cFacts" required></textarea></div>
+      <div><label for="cC1">Clue 1</label><input id="cC1" required></div>
+      <div><label for="cC2">Clue 2</label><input id="cC2" required></div>
+      <div class="full"><label for="cC3">Clue 3 (strongest hint)</label><input id="cC3" required></div>
+      <div><label for="cAmend">Amendment</label><select id="cAmend"></select></div>
+      <div><label for="cViol">Verdict</label><select id="cViol"><option value="1">Right violated</option><option value="0">Not violated</option></select></div>
+      <div class="full"><label for="cWhy">Explanation shown at the reveal</label><textarea id="cWhy" required></textarea></div>
+      <div><label for="cReal">Real case name (optional)</label><input id="cReal" placeholder="e.g. Tinker v. Des Moines"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label for="cYear">Year</label><input id="cYear" inputmode="numeric"></div>
+        <div><label for="cVote">Vote</label><input id="cVote" placeholder="7–2"></div>
+      </div>
+      <div class="full" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary" type="submit">Save case</button>
+        <button class="btn" type="button" id="exportBtn">Export my cases</button>
+        <label class="btn" style="display:inline-block">Import cases<input type="file" id="importIn" accept=".json,application/json" hidden></label>
+      </div>
+    </form>
+    <div class="custom-list" id="customList"></div>
+  </details>
+</section>
+
+<!-- ===================== GAME ===================== -->
+<section id="game" class="wrap" hidden>
+  <header class="masthead">
+    <div class="brand"><div class="seal">⚖</div><div><div class="eyebrow" id="caseCounter">Case 1 of 8</div><h1>You Be the Judge</h1></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost sm" id="refBtn">Amendments <kbd>A</kbd></button>
+      <button class="btn ghost sm" id="fsBtn">Full screen <kbd>F</kbd></button>
+      <button class="btn ghost sm" id="endBtn">End game</button>
+    </div>
+  </header>
+  <div class="game-grid">
+    <div class="card">
+      <div class="docket"><span class="no" id="docketNo">Docket No. 1</span><span class="tag" id="caseTag">Real case</span></div>
+      <h2 class="case-title" id="caseTitle"></h2>
+      <div class="facts" id="caseFacts"></div>
+      <div class="clues" id="clues"></div>
+    </div>
+    <aside class="side">
+      <div class="card">
+        <div class="timer">
+          <div class="ring" id="ring">
+            <svg width="110" height="110" viewBox="0 0 110 110" aria-hidden="true">
+              <circle class="track" cx="55" cy="55" r="48"></circle>
+              <circle class="bar" id="ringBar" cx="55" cy="55" r="48" stroke-dasharray="301.59" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="secs" id="secs">15</div>
+          </div>
+          <div class="worth"><div class="pts" id="worthPts">4 + 2</div><div class="sub" id="worthSub">points available</div></div>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+      <div class="question">
+        <h3>The court must decide</h3>
+        <ol><li>Which amendment is at stake?</li><li>Was the right <b>violated</b> or <b>not violated</b>?</li></ol>
+        <div class="bonus">Right verdict = +2 points</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:800;margin-bottom:8px">Who buzzed in?</div>
+        <div class="buzz-row" id="buzzRow"></div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="playBtn">Start clock <kbd>Space</kbd></button>
+        <button class="btn" id="hintBtn">Next clue <kbd>H</kbd></button>
+        <button class="btn" id="revealBtn">Reveal <kbd>R</kbd></button>
+        <button class="btn gold" id="nextBtn">Next case <kbd>N</kbd></button>
+      </div>
+    </aside>
+  </div>
+  <div class="scores" id="scores"></div>
+</section>
+
+<!-- ===================== FINAL ===================== -->
+<section id="final" class="wrap" hidden>
+  <header class="masthead">
+    <div class="brand"><div class="seal">⚖</div><div><div class="eyebrow">Court is adjourned</div><h1>Final Standings</h1></div></div>
+    <button class="btn primary" id="againBtn">New game</button>
+  </header>
+  <div class="card">
+    <div class="podium" id="podium"></div>
+    <h3 style="margin-top:22px;color:var(--navy)">Cases heard</h3>
+    <div class="recap" id="recap"></div>
+  </div>
+</section>
+
+<!-- ===================== MODALS ===================== -->
+<div class="overlay" id="judgeModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="judgeTitle">
+    <div class="eyebrow">Buzzed in</div>
+    <h2 id="judgeTitle">Team</h2>
+    <div class="judge-row"><span>Right amendment?</span><div class="yn"><button class="yes" data-q="am" data-v="1">Yes <kbd>Y</kbd></button><button class="no" data-q="am" data-v="0">No <kbd>X</kbd></button></div></div>
+    <div class="judge-row"><span>Right verdict?</span><div class="yn"><button class="yes" data-q="vd" data-v="1">Yes</button><button class="no" data-q="vd" data-v="0">No</button></div></div>
+    <div class="answer-key" id="answerKey"></div>
+    <div class="preview" id="judgePreview"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="judgeCancel">Cancel <kbd>Esc</kbd></button>
+      <button class="btn primary" id="judgeOk" disabled>Rule <kbd>Enter</kbd></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="revealModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="revealTitle">
+    <div class="eyebrow">The ruling</div>
+    <h2 id="revealTitle"></h2>
+    <div class="reveal-top">
+      <div class="amend-badge"><div class="big" id="rvAmend"></div><div class="what" id="rvAmendWhat"></div></div>
+      <div class="stamp" id="rvStamp"></div>
+    </div>
+    <div class="also" id="rvAlso"></div>
+    <div class="why" id="rvWhy"></div>
+    <div class="realcase" id="rvReal"></div>
+    <div class="result-line" id="rvResult"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="revealClose">Back to case</button>
+      <button class="btn gold" id="revealNext">Next case <kbd>N</kbd></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="refModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="refTitle" style="max-width:980px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h2 id="refTitle">The Amendments</h2>
+      <button class="btn ghost sm" id="refClose">Close <kbd>Esc</kbd></button>
+    </div>
+    <div class="ref-grid" id="refGrid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+const AMEND = {
+  "1":{n:"1st",t:"Religion, Speech, Press, Assembly, Petition",d:"The government can't set up an official religion or stop you from practicing yours. It can't stop you from speaking, publishing, gathering peacefully, or complaining to the government."},
+  "2":{n:"2nd",t:"Right to Bear Arms",d:"People have the right to keep and bear arms. Some reasonable limits are allowed."},
+  "3":{n:"3rd",t:"No Quartering of Soldiers",d:"In peacetime, soldiers can't live in your home without your permission."},
+  "4":{n:"4th",t:"Searches and Seizures",d:"The government can't search you or take your things without a good reason. Police usually need a warrant."},
+  "5":{n:"5th",t:"Rights of the Accused",d:"You can't be forced to testify against yourself or tried twice for the same crime. You get due process. The government must pay fairly if it takes your property."},
+  "6":{n:"6th",t:"Fair Trial in Criminal Cases",d:"A speedy, public trial with a jury, a lawyer, and the right to know the charges and question witnesses."},
+  "7":{n:"7th",t:"Jury in Civil Cases",d:"In federal lawsuits over money (more than $20), you can have a jury."},
+  "8":{n:"8th",t:"Bail, Fines, and Punishment",d:"No excessive bail, no excessive fines, and no cruel and unusual punishment."},
+  "9":{n:"9th",t:"Rights Kept by the People",d:"Just because a right isn't listed in the Constitution doesn't mean people don't have it."},
+  "10":{n:"10th",t:"Powers of the States",d:"Powers not given to the federal government belong to the states or the people."},
+  "14":{n:"14th",t:"Equal Protection and Due Process",d:"States must treat people equally under the law and use fair procedures before taking away life, liberty, or property."}
+};
+const AMEND_KEYS = ["1","2","3","4","5","6","7","8","9","10","14"];
+const AM_PTS = [4,3,2,1], VERDICT_PTS = 2;
+
+const BUILT_IN = [
+/* ===================== REAL SUPREME COURT CASES (names hidden until reveal) ===================== */
+{id:"tinker",real:true,title:"The Case of the Black Armbands",
+ facts:"Three students in Iowa wore black armbands to school to protest the Vietnam War. The principal had made a rule against armbands just days before. The students did not shout, fight, or stop classes. They were suspended anyway.",
+ clues:["The students never said a word. Their message was something they wore.","Courts call this 'symbolic speech.' Actions and symbols can count as expression.","Students do not lose this right 'at the schoolhouse gate.' It protects speech, religion, press, assembly, and petition."],
+ amend:"1",violated:true,
+ why:"The armbands were quiet political speech that did not disrupt school. Schools may limit speech only when it would cause a substantial disruption.",
+ realName:"Tinker v. Des Moines",year:1969,vote:"7–2"},
+
+{id:"fraser",real:true,title:"The Case of the Assembly Speech",
+ facts:"A high school student in Washington gave a speech at a school assembly to support a friend running for student government. The speech was full of sexual jokes and double meanings. About 600 students, some only 14, were in the audience. The school suspended him for 3 days.",
+ clues:["He was punished for how he said it, not for who he supported.","Schools teach students how to behave in public. The audience included young students.","Think about the right that covers what you say. Does it protect every kind of language at a school event?"],
+ amend:"1",violated:false,
+ why:"Schools may punish speech that is vulgar or lewd at a school event. The punishment was about the way he spoke, not his political message.",
+ realName:"Bethel School District v. Fraser",year:1986,vote:"7–2"},
+
+{id:"hazelwood",real:true,title:"The Case of the Missing Newspaper Pages",
+ facts:"Students in a Missouri journalism class wrote the school newspaper. They wrote stories about teen pregnancy and divorce. The principal removed two pages before the paper was printed. The paper was part of a class, and the principal checked each issue before printing.",
+ clues:["The newspaper was printed by the school as part of a class.","When the school is the publisher, it can act like an editor for teaching reasons.","This involves freedom of the press, one of the five freedoms in the same amendment."],
+ amend:"1",violated:false,
+ why:"A school-sponsored newspaper is part of the curriculum. Schools may edit it for reasons related to teaching. An independent student paper would get more protection.",
+ realName:"Hazelwood School District v. Kuhlmeier",year:1988,vote:"5–3"},
+
+{id:"morse",real:true,title:"The Case of the Strange Banner",
+ facts:"During a school-approved event in Alaska, students watched the Olympic torch pass by. One student held up a 14-foot banner with a message that seemed to joke about illegal drugs. The principal took the banner and suspended him.",
+ clues:["The student said the banner was a joke to get on TV. The school saw a message about drugs.","The event happened during school hours and was supervised by teachers.","Schools have more room to limit this right when the message seems to promote illegal drug use."],
+ amend:"1",violated:false,
+ why:"At a school event, a school may limit speech that it reasonably sees as promoting illegal drug use.",
+ realName:"Morse v. Frederick",year:2007,vote:"5–4"},
+
+{id:"mahanoy",real:true,title:"The Case of the Angry Snap",
+ facts:"A Pennsylvania 9th grader did not make the varsity cheer team. On a Saturday at a convenience store, she posted a Snapchat with curse words about school and cheer. It was seen by friends. The school removed her from the JV cheer team for a year.",
+ clues:["The post was made off campus, on a weekend, on her own phone.","The post did not cause a real disruption at school.","Schools have less power over what students say outside of school."],
+ amend:"1",violated:true,
+ why:"Schools have less authority over off-campus speech. Her post was crude but caused no substantial disruption, so the punishment went too far.",
+ realName:"Mahanoy Area School District v. B.L.",year:2021,vote:"8–1"},
+
+{id:"barnette",real:true,title:"The Case of the Silent Students",
+ facts:"During World War II, West Virginia required all public school students to salute the flag and say the Pledge of Allegiance. Some students refused because of their religious beliefs. They were expelled, and their parents were threatened with punishment.",
+ clues:["The students were punished for NOT saying something.","The government cannot force people to say words they do not believe.","This amendment protects both religion and speech."],
+ amend:"1",violated:true,
+ why:"The government cannot force anyone to say the Pledge. Freedom of speech includes the freedom not to speak.",
+ realName:"West Virginia v. Barnette",year:1943,vote:"6–3"},
+
+{id:"engel",real:true,title:"The Case of the Morning Prayer",
+ facts:"New York's state education board wrote a short prayer. Public schools had students say it out loud every morning. Students could stay silent or leave the room. Some parents sued.",
+ clues:["The government itself wrote the prayer.","Think about the line between church and state.","This amendment says the government may not 'establish' a religion."],
+ amend:"1",violated:true,
+ why:"Government-written prayer in public schools is an establishment of religion, even if students can choose not to take part.",
+ realName:"Engel v. Vitale",year:1962,vote:"6–1"},
+
+{id:"johnson",real:true,title:"The Case of the Burning Flag",
+ facts:"During a political convention in Dallas, a protester burned an American flag to protest the government. No one was hurt. He was arrested and convicted under a Texas law against damaging the flag.",
+ clues:["Many people found the act deeply offensive.","Burning the flag was his way of making a political point.","The government cannot ban an idea just because people find it offensive."],
+ amend:"1",violated:true,
+ why:"Flag burning is symbolic political speech. The government cannot punish expression because it disagrees with the message.",
+ realName:"Texas v. Johnson",year:1989,vote:"5–4"},
+
+{id:"kennedy",real:true,title:"The Case of the Coach's Prayer",
+ facts:"A high school football coach in Washington knelt and prayed quietly at midfield after games. Over time, players began to join him. The school district told him to stop. When he kept praying, the district put him on leave and did not renew his contract.",
+ clues:["The coach said the prayer was personal and short.","The district worried it looked like the school supported religion.","This amendment protects the free exercise of religion and free speech."],
+ amend:"1",violated:true,
+ why:"The Court ruled the coach's short, personal prayer was protected. The district punished him for private religious expression.",
+ realName:"Kennedy v. Bremerton School District",year:2022,vote:"6–3"},
+
+{id:"tlo",real:true,title:"The Case of the Searched Purse",
+ facts:"A teacher in New Jersey caught a 14-year-old girl smoking in the bathroom. The girl said she did not smoke. The assistant principal opened her purse and found cigarettes and evidence of selling drugs.",
+ clues:["The school did not have a warrant.","The assistant principal had a good reason to suspect her.","This amendment protects against unreasonable searches and seizures."],
+ amend:"4",violated:false,
+ why:"Schools do not need a warrant or probable cause. They need 'reasonable suspicion.' Catching her smoking gave the school a reasonable reason to search.",
+ realName:"New Jersey v. T.L.O.",year:1985,vote:"6–3"},
+
+{id:"redding",real:true,title:"The Case of the Ibuprofen Search",
+ facts:"A 13-year-old girl in Arizona was accused of having prescription-strength ibuprofen at school. School staff searched her backpack and found nothing. They then made her remove her clothes down to her underwear. They still found nothing.",
+ clues:["The pills were a common pain reliever, not a dangerous drug.","There was no sign she was hiding pills in her clothes.","Schools need reasonable suspicion, and a search must not be too extreme."],
+ amend:"4",violated:true,
+ why:"The strip search was unreasonable. The danger was small and there was no reason to think she hid pills in her underwear.",
+ realName:"Safford Unified School District v. Redding",year:2009,vote:"8–1"},
+
+{id:"riley",real:true,title:"The Case of the Smartphone",
+ facts:"Police in California pulled a man over and arrested him on weapons charges. Without a warrant, an officer looked through the photos and videos on his smartphone. What they found was used to charge him with other crimes.",
+ clues:["Police can search your pockets when they arrest you. Is a phone different?","A phone can hold years of a person's private life.","The answer is simple: get a warrant."],
+ amend:"4",violated:true,
+ why:"Police generally need a warrant to search a phone, even after an arrest. Phones hold too much private information.",
+ realName:"Riley v. California",year:2014,vote:"9–0"},
+
+{id:"mapp",real:true,title:"The Case of the Fake Warrant",
+ facts:"Police in Cleveland forced their way into a woman's home looking for a bombing suspect. They waved a paper they called a warrant, but never showed it in court. They did not find the suspect. They found other items and arrested her for having them.",
+ clues:["The police never proved they had a real warrant.","The question: can evidence taken illegally be used in court?","This amendment protects your home from unreasonable searches."],
+ amend:"4",violated:true,
+ why:"Evidence from an illegal search cannot be used in state courts. This is called the exclusionary rule.",
+ realName:"Mapp v. Ohio",year:1961,vote:"6–3"},
+
+{id:"miranda",real:true,title:"The Case of the Two-Hour Confession",
+ facts:"Police in Arizona arrested a man and questioned him for two hours. No one told him he could stay silent or ask for a lawyer. He signed a confession that was used to convict him.",
+ clues:["He did not know he could refuse to answer.","Today, police read a warning: 'You have the right to remain silent...'","This amendment says no one can be forced to be a witness against themselves."],
+ amend:"5",violated:true,also:["6"],
+ why:"Police must warn suspects of their rights before questioning in custody. Without the warning, the confession could not be used.",
+ realName:"Miranda v. Arizona",year:1966,vote:"5–4"},
+
+{id:"gideon",real:true,title:"The Case of the Handwritten Appeal",
+ facts:"A man in Florida was charged with breaking into a pool hall. He was too poor to pay a lawyer and asked the court to give him one. The judge said no. He defended himself and was sentenced to 5 years. From prison, he wrote an appeal by hand.",
+ clues:["He had to act as his own attorney against a trained prosecutor.","Courts now appoint 'public defenders' for people who cannot pay.","This amendment covers rights at trial, including the right to counsel."],
+ amend:"6",violated:true,also:["14"],
+ why:"States must give a lawyer to people charged with serious crimes who cannot afford one. At his new trial with a lawyer, he was found not guilty.",
+ realName:"Gideon v. Wainwright",year:1963,vote:"9–0"},
+
+{id:"heller",real:true,title:"The Case of the Handgun at Home",
+ facts:"Washington, D.C., banned almost all handguns and required other guns at home to be kept unloaded and locked. A security guard who carried a gun at work wanted to keep a handgun at home for self-defense. The city said no.",
+ clues:["He wanted it for protection inside his own home.","The debate: is this right only for militias, or for individuals too?","This amendment talks about a 'well regulated Militia.'"],
+ amend:"2",violated:true,
+ why:"The right to keep and bear arms belongs to individuals, including for self-defense at home. The Court also said some gun laws are still allowed.",
+ realName:"District of Columbia v. Heller",year:2008,vote:"5–4"},
+
+{id:"kelo",real:true,title:"The Case of the Little Pink House",
+ facts:"A city in Connecticut wanted to take homes in a neighborhood so a private developer could build offices and stores. The city said the project would create jobs and taxes. The owners would be paid, but one woman did not want to sell her home.",
+ clues:["The government offered to pay for the property.","The land would go to a private company, not a road or school.","This amendment says private property cannot be taken for public use without just compensation."],
+ amend:"5",violated:false,
+ why:"The Court said economic development counts as a 'public use,' so the city could take the property if it paid. Many states later passed laws to limit this.",
+ realName:"Kelo v. City of New London",year:2005,vote:"5–4"},
+
+{id:"roper",real:true,title:"The Case of the 17-Year-Old",
+ facts:"A 17-year-old in Missouri committed a murder. He was tried as an adult and sentenced to death. His lawyers argued that executing someone for a crime committed before age 18 goes too far.",
+ clues:["The crime was serious. The question is about the punishment.","Most countries and many states had stopped this practice.","This amendment bans 'cruel and unusual' punishment."],
+ amend:"8",violated:true,
+ why:"The death penalty cannot be used for crimes committed before age 18. Young people are less mature and more able to change.",
+ realName:"Roper v. Simmons",year:2005,vote:"5–4"},
+
+{id:"timbs",real:true,title:"The Case of the Seized Land Rover",
+ facts:"An Indiana man sold a small amount of drugs and pleaded guilty. The highest fine for his crime was $10,000. The state also took his Land Rover, which was worth about $42,000.",
+ clues:["The value taken was about four times the highest fine.","The question is whether a penalty can be too large for the crime.","This amendment bans excessive bail, excessive fines, and cruel punishment."],
+ amend:"8",violated:true,also:["14"],
+ why:"The ban on excessive fines applies to the states, too. Indiana courts later ruled that taking the car was excessive.",
+ realName:"Timbs v. Indiana",year:2019,vote:"9–0"},
+
+{id:"barker",real:true,title:"The Case of the Five-Year Wait",
+ facts:"A man in Kentucky was charged with murder. His trial was delayed for more than five years while prosecutors tried his partner first. For most of that time, the man did not ask for his trial to happen sooner.",
+ clues:["Five years is a long wait. But who caused it, and did anyone object?","The Court made a balancing test with four factors.","This amendment promises a 'speedy and public trial.'"],
+ amend:"6",violated:false,
+ why:"Courts weigh the length of the delay, the reason, whether the defendant asked for a trial, and the harm. He did not want a quick trial, so his right was not violated.",
+ realName:"Barker v. Wingo",year:1972,vote:"9–0"},
+
+{id:"printz",real:true,title:"The Case of the Sheriffs' Paperwork",
+ facts:"A federal law required local sheriffs to run background checks on people buying handguns. Sheriffs in Montana and Arizona sued. They said the federal government cannot order local officers to carry out federal programs.",
+ clues:["This case is not about the sheriffs' personal rights. It's about who has power.","Federal government vs. state government.","This amendment keeps powers not given to the federal government for the states or the people."],
+ amend:"10",violated:true,
+ why:"The federal government cannot order state or local officers to run a federal program. That power belongs to the states.",
+ realName:"Printz v. United States",year:1997,vote:"5–4"},
+
+{id:"dole",real:true,title:"The Case of the Drinking Age Deal",
+ facts:"Congress passed a law that kept some federal highway money from any state that let people under 21 buy alcohol. South Dakota allowed 19-year-olds to buy some beer. The state sued.",
+ clues:["Congress did not order the state to change. It offered money with strings attached.","States could say no and lose only 5% of certain highway funds.","This amendment is about powers reserved to the states."],
+ amend:"10",violated:false,
+ why:"Congress may attach reasonable conditions to federal money. The deal was a choice, not a command, so state power was not violated.",
+ realName:"South Dakota v. Dole",year:1987,vote:"7–2"},
+
+{id:"brown",real:true,title:"The Case of the Long Walk to School",
+ facts:"A Black third grader in Kansas had to walk through a train yard to reach a Black school far away. A school for white children was only a few blocks from her house. Her family and others sued.",
+ clues:["The state said the schools were 'separate but equal.'","Separating children by race sent a message that some were less than others.","This amendment promises 'equal protection of the laws.'"],
+ amend:"14",violated:true,
+ why:"Separate schools for different races are unequal by nature. This ended legal school segregation.",
+ realName:"Brown v. Board of Education",year:1954,vote:"9–0"},
+
+{id:"goss",real:true,title:"The Case of the Suspension Without a Hearing",
+ facts:"During protests in Columbus, Ohio, several high school students were suspended for up to 10 days. They were never told what they were accused of. They had no chance to tell their side.",
+ clues:["Education is something the state gives, so it cannot be taken away unfairly.","The students wanted a basic chance to explain.","This amendment says states cannot take away life, liberty, or property without due process."],
+ amend:"14",violated:true,
+ why:"Before a suspension, students must be told the charges and given a chance to explain. This is due process.",
+ realName:"Goss v. Lopez",year:1975,vote:"5–4"},
+
+{id:"plyler",real:true,title:"The Case of the Schoolhouse Doors",
+ facts:"Texas passed a law that let public schools charge tuition or refuse to enroll children who were not living in the U.S. legally. The children had been brought to the country by their parents.",
+ clues:["The children did not choose to come to the U.S.","Denying school would create a group of people who could not read or write.","This amendment protects 'any person' in a state, not just citizens."],
+ amend:"14",violated:true,
+ why:"States cannot deny children a free public education because of their immigration status. Equal protection covers every person in the state.",
+ realName:"Plyler v. Doe",year:1982,vote:"5–4"},
+
+/* ===================== FICTIONAL CASES ===================== */
+{id:"f-quarter",real:false,title:"The Case of the Uninvited Guests",
+ facts:"During peacetime, an Army commander needed housing for 10 soldiers near a base in Ohio. He ordered the Okafor family to let the soldiers live in their house for 6 months. The family said no, but the soldiers moved in anyway.",
+ clues:["The country is not at war.","The soldiers are eating the family's food and sleeping in their bedrooms.","This amendment is about 'quartering' soldiers."],
+ amend:"3",violated:true,
+ why:"In peacetime, soldiers cannot be housed in a private home without the owner's consent."},
+
+{id:"f-quarter2",real:false,title:"The Case of the Friendly Farmer",
+ facts:"After a flood, National Guard soldiers in Iowa needed a place to sleep. Farmer Lena Brooks offered her barn and spare rooms. She signed a form agreeing to it. Her neighbor later sued, saying the soldiers' stay was unconstitutional.",
+ clues:["Who owns the house, and what did she say?","One word in this amendment matters most here: consent.","This amendment is about housing soldiers in private homes."],
+ amend:"3",violated:false,
+ why:"The owner agreed. Housing soldiers is allowed in peacetime with the owner's consent."},
+
+{id:"f-civiljury",real:false,title:"The Case of the Broken Contract",
+ facts:"Marcus Webb sued a construction company in federal court. He said the company took $60,000 and never built his garage. Both sides asked for a jury. The judge said a jury would take too long and decided the case himself.",
+ clues:["This is not a criminal case. No one is going to jail.","It's a lawsuit about money in a federal court.","This amendment protects the right to a jury in civil cases over $20."],
+ amend:"7",violated:true,
+ why:"In federal court, civil cases over $20 have a right to a jury trial. (This amendment has not been applied to state courts.)"},
+
+{id:"f-double",real:false,title:"The Case of the Second Try",
+ facts:"Dana Reyes was put on trial for stealing a car. The jury found her not guilty. The prosecutor was angry and charged her again for stealing the same car on the same day.",
+ clues:["The first jury already said 'not guilty.'","Being tried twice for the same crime has a special legal name.","This amendment bans 'double jeopardy.'"],
+ amend:"5",violated:true,
+ why:"After a not-guilty verdict, the government cannot try a person again for the same crime."},
+
+{id:"f-selfinc",real:false,title:"The Case of the Forced Testimony",
+ facts:"At his own trial for robbery, Tyrell Grant decided not to testify. The judge ordered him to take the stand and answer the prosecutor's questions. He was told he would go to jail for contempt if he refused.",
+ clues:["He is the person on trial.","People sometimes say 'I plead the Fifth.'","This amendment says no one can be forced to be a witness against themselves."],
+ amend:"5",violated:true,
+ why:"A defendant cannot be forced to testify against themselves. The jury also cannot treat silence as proof of guilt."},
+
+{id:"f-takings",real:false,title:"The Case of the New Highway",
+ facts:"Pennsylvania is building a new highway. It needs part of Mr. Nguyen's land. The state had the land appraised and offered him the full market value. He was paid, but he did not want to move.",
+ clues:["A highway is used by the public.","He was paid a fair price for the land.","This amendment allows the government to take property for public use with 'just compensation.'"],
+ amend:"5",violated:false,
+ why:"The government may take private land for public use if it pays fair value. This power is called eminent domain."},
+
+{id:"f-bail",real:false,title:"The Case of the $5 Million Bail",
+ facts:"Jordan Ellis was arrested for spray-painting a park bench. He has a job, a family, and no criminal record. The judge set his bail at $5 million, so he had to wait in jail for his trial.",
+ clues:["Bail is money paid to get out of jail while waiting for trial.","Compare the crime to the amount.","This amendment bans 'excessive bail.'"],
+ amend:"8",violated:true,
+ why:"Bail must be reasonable. $5 million for a minor crime by someone with no record is excessive."},
+
+{id:"f-cruel",real:false,title:"The Case of the Public Whipping",
+ facts:"A town passed a new law: anyone caught shoplifting would be whipped in the town square. Aisha Bello was caught taking a $15 phone charger. She was sentenced to 10 lashes.",
+ clues:["The problem is not the crime. It's the punishment.","Physical punishments like this are no longer accepted in the U.S.","This amendment bans 'cruel and unusual' punishment."],
+ amend:"8",violated:true,
+ why:"Whipping is cruel and unusual punishment and is far too harsh for the crime."},
+
+{id:"f-fine",real:false,title:"The Case of the Littering Ticket",
+ facts:"Ben Carter threw a fast-food bag out of his car window. A police officer saw it. He was fined $150 under a city law against littering. He said any fine was unfair because it was just one bag.",
+ clues:["Compare the fine to the crime.","The fine follows a clear, published city law.","This amendment bans excessive fines."],
+ amend:"8",violated:false,
+ why:"A $150 fine for littering is reasonable and in proportion to the offense."},
+
+{id:"f-prior",real:false,title:"The Case of the Stopped Presses",
+ facts:"A local newspaper planned to publish a story showing that Mayor Collins gave city contracts to his friends. The mayor got an order that stopped the paper from printing the story at all.",
+ clues:["The story was blocked BEFORE it was published.","This is called 'prior restraint.'","This amendment protects freedom of the press."],
+ amend:"1",violated:true,
+ why:"The government almost never may block a story before it is published, especially to protect itself from criticism."},
+
+{id:"f-permit",real:false,title:"The Case of the Denied March",
+ facts:"A student group wanted a permit to march peacefully in a city park to support clean water. The mayor denied the permit. He said he does not agree with the group. Other groups got permits that same month.",
+ clues:["Cities can make fair rules about time and place for marches.","The reason for the denial was the group's message.","This amendment protects the right to peaceably assemble."],
+ amend:"1",violated:true,
+ why:"A city may set neutral rules for events, but it cannot deny a permit because it dislikes the message."},
+
+{id:"f-patka",real:false,title:"The Case of the Head Covering",
+ facts:"A public high school banned all head coverings. But the school still let athletes wear team caps on game days. A Sikh student, Harpreet Singh, was sent home for wearing a patka, a head covering required by his religion.",
+ clues:["The school made exceptions, just not for religion.","The covering is part of his religious practice.","This amendment protects the free exercise of religion."],
+ amend:"1",violated:true,
+ why:"The school allowed caps for sports but not for religion. Treating religion worse than other reasons violates free exercise."},
+
+{id:"f-threat",real:false,title:"The Case of the Threatening Post",
+ facts:"A student named Kyle posted online that he would bring a weapon and hurt a specific classmate the next day. He named the classmate and the time. He was arrested. He said the post was protected speech.",
+ clues:["The post was aimed at one real person.","Some speech is not protected, like a 'true threat.'","This amendment protects speech, but not every kind of speech."],
+ amend:"1",violated:false,
+ why:"True threats of violence against a person are not protected speech."},
+
+{id:"f-shirt",real:false,title:"The Case of the Election Shirt",
+ facts:"During an election year, a student named Marisol wore a T-shirt supporting a candidate for governor. Classes went on as normal. A teacher who supported the other candidate made her turn it inside out.",
+ clues:["The shirt was political, and nothing was disrupted.","The teacher disagreed with the message.","Remember the armband case. Which amendment was that?"],
+ amend:"1",violated:true,
+ why:"Peaceful political messages on clothing are protected at school when they do not cause a substantial disruption."},
+
+{id:"f-courthouse",real:false,title:"The Case of the Courthouse Rule",
+ facts:"A state law bans carrying guns inside courthouses. Rob Mills, who has a valid gun license, was arrested for walking into a courthouse with a handgun. He said the law violated his rights.",
+ clues:["A courthouse is a government building.","Even the Heller decision said some 'sensitive places' can have gun limits.","This amendment is about the right to keep and bear arms."],
+ amend:"2",violated:false,
+ why:"The Supreme Court has said laws banning guns in sensitive places, like courthouses, are generally allowed."},
+
+{id:"f-plainview",real:false,title:"The Case of the Front Seat",
+ facts:"Officer Patel pulled over a car for running a red light. While standing at the window, she saw a stolen laptop with a school's name on it sitting on the passenger seat. She seized it without a warrant.",
+ clues:["She did not open anything or dig through the car.","The laptop was in 'plain view.'","This amendment protects against unreasonable searches and seizures."],
+ amend:"4",violated:false,
+ why:"Police may seize evidence in plain view if they are lawfully where they are. No search happened."},
+
+{id:"f-hunch",real:false,title:"The Case of the Kicked-In Door",
+ facts:"Police had a hunch that Rosa Diaz had stolen jewelry. They had no warrant and no emergency. They kicked in her front door while she was at work and searched her bedroom.",
+ clues:["A 'hunch' is not probable cause.","There was no warrant and no emergency.","This amendment protects people from unreasonable searches of their homes."],
+ amend:"4",violated:true,
+ why:"Police need a warrant based on probable cause to search a home, unless there is an emergency or consent."},
+
+{id:"f-speedy",real:false,title:"The Case of the Endless Delay",
+ facts:"Andre Simmons was charged with burglary and held in jail. For four years, he asked again and again for his trial to start. The prosecutors kept asking for delays because they were too busy with other cases.",
+ clues:["He asked for his trial many times.","The delay was the government's fault.","This amendment promises a 'speedy' trial."],
+ amend:"6",violated:true,
+ why:"A long delay caused by the government, while the defendant kept asking for trial, violates the right to a speedy trial."},
+
+{id:"f-witness",real:false,title:"The Case of the Secret Witness",
+ facts:"At Kayla Moore's trial, the prosecutor read a written statement from a witness who said Kayla committed the crime. The witness never came to court. Kayla's lawyer could not ask the witness any questions.",
+ clues:["The defense never got to question the accuser.","The right to cross-examine is part of a fair trial.","This amendment gives the accused the right to 'be confronted with the witnesses against him.'"],
+ amend:"6",violated:true,
+ why:"A defendant has the right to confront and cross-examine the witnesses against them."},
+
+{id:"f-lawyer",real:false,title:"The Case of the Unwanted Lawyer",
+ facts:"Leo Grant could not afford a lawyer, so the court gave him a public defender. Leo did not like her personality and wanted the court to pay for a famous lawyer from TV instead. The judge said no.",
+ clues:["He WAS given a free lawyer.","The question is whether he gets to pick which free lawyer.","This amendment includes the right to counsel."],
+ amend:"6",violated:false,
+ why:"The right to counsel means a competent lawyer, not any lawyer you choose at the government's expense."},
+
+{id:"f-ninth",real:false,title:"The Case of the Unlisted Right",
+ facts:"A town banned residents from leaving town on weekends. The mayor said: 'The Constitution never lists a right to travel, so you don't have one.' A family that visits relatives every weekend sued.",
+ clues:["The mayor's argument is: if it's not written down, it doesn't exist.","The Founders knew they could not list every right.","This amendment says the listing of certain rights does not deny others kept by the people."],
+ amend:"9",violated:true,also:["14"],
+ why:"The Ninth Amendment rejects the idea that only listed rights exist. The Supreme Court has also recognized a right to travel."},
+
+{id:"f-tenth",real:false,title:"The Case of the National Bedtime",
+ facts:"Congress passed a law ordering every state to make its police enforce a national 10 p.m. curfew for all teenagers. Congress did not pay for it. Several states sued.",
+ clues:["This is a fight between the national government and the states.","Congress ordered state officers to do the work.","This amendment reserves powers not given to the federal government to the states or the people."],
+ amend:"10",violated:true,
+ why:"Congress cannot order state officers to carry out federal programs. Local curfews are a state power."},
+
+{id:"f-equal",real:false,title:"The Case of the Robotics Team",
+ facts:"A public high school's robotics team made a rule: only boys can join. Zoe Washington, who built her own robot at home, was turned away because she is a girl.",
+ clues:["She was rejected because of who she is, not her skills.","A public school is part of the state government.","This amendment promises 'equal protection of the laws.'"],
+ amend:"14",violated:true,
+ why:"A public school cannot exclude students from an activity because of their sex without a very strong reason."},
+
+{id:"f-license",real:false,title:"The Case of the Vanishing License",
+ facts:"The state took away Priya Shah's driver's license. She got no letter, no explanation, and no chance to challenge it. She found out when a police officer stopped her.",
+ clues:["She was never told why.","She had no hearing or chance to explain.","This amendment says states cannot take away property or liberty without due process."],
+ amend:"14",violated:true,
+ why:"Before a state takes away a license, it must give notice and a chance to be heard. That's due process."}
+];
+
+/* ---------- storage (best effort) ---------- */
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+const DEFAULT_NAMES = ["Justices","Advocates","Jurors","Counselors","Clerks","Bailiffs","Barristers","Magistrates"];
+
+const S = Object.assign({teamCount:4,names:DEFAULT_NAMES.slice(),pool:"both",amends:AMEND_KEYS.slice(),count:8,secs:15}, store.get("ybtj_settings",{}));
+let custom = store.get("ybtj_custom",[]);
+if(!Array.isArray(custom)) custom = [];
+
+let G = null, tick = null;
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2200); }
+function saveSettings(){ store.set("ybtj_settings",S); }
+function allCases(){ return BUILT_IN.concat(custom); }
+function poolCases(){
+  return allCases().filter(c=>{
+    if(S.pool==="real" && !c.real) return false;
+    if(S.pool==="fic" && c.real) return false;
+    return S.amends.indexOf(String(c.amend))>=0;
+  });
+}
+
+/* ---------- setup screen ---------- */
+function segBind(id,key,cast){
+  const seg=$(id);
+  seg.querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("on", String(S[key])===b.dataset.v);
+    b.addEventListener("click",()=>{ S[key]=cast?cast(b.dataset.v):b.dataset.v; seg.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); saveSettings(); updateCountNote(); });
+  });
+}
+function renderTeamSetup(){
+  const seg=$("teamCountSeg");
+  seg.innerHTML=[2,3,4,5,6,7,8].map(n=>'<button data-n="'+n+'" class="'+(n===S.teamCount?"on":"")+'">'+n+'</button>').join("");
+  seg.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ S.teamCount=+b.dataset.n; saveSettings(); renderTeamSetup(); }));
+  const box=$("teamNames"); box.innerHTML="";
+  for(let i=0;i<S.teamCount;i++){
+    const inp=document.createElement("input");
+    inp.value=S.names[i]||("Team "+(i+1)); inp.setAttribute("aria-label","Team "+(i+1)+" name"); inp.maxLength=24;
+    inp.addEventListener("input",()=>{ S.names[i]=inp.value; saveSettings(); });
+    const wrap=document.createElement("div"); wrap.style.display="flex"; wrap.style.alignItems="center"; wrap.style.gap="6px";
+    wrap.innerHTML='<kbd>'+(i+1)+'</kbd>'; wrap.appendChild(inp); box.appendChild(wrap);
+  }
+}
+function renderAmendChips(){
+  const box=$("amendChips");
+  box.innerHTML=AMEND_KEYS.map(k=>'<button class="chip '+(S.amends.indexOf(k)>=0?"on":"")+'" data-k="'+k+'">'+AMEND[k].n+'</button>').join("")
+    +'<button class="chip" data-k="all">All</button>';
+  box.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.k;
+    if(k==="all") S.amends = S.amends.length===AMEND_KEYS.length ? [] : AMEND_KEYS.slice();
+    else { const i=S.amends.indexOf(k); if(i>=0) S.amends.splice(i,1); else S.amends.push(k); }
+    saveSettings(); renderAmendChips(); updateCountNote();
+  }));
+}
+function updateCountNote(){
+  const n=poolCases().length, use=Math.min(n,S.count);
+  $("countNote").textContent = n===0 ? "No cases match these choices. Turn on more amendments." : use+" of "+n+" matching cases will be played, in random order.";
+  $("startBtn").disabled = n===0;
+}
+function renderCustomList(){
+  $("cAmend").innerHTML=AMEND_KEYS.map(k=>'<option value="'+k+'">'+AMEND[k].n+' – '+esc(AMEND[k].t)+'</option>').join("");
+  const box=$("customList");
+  box.innerHTML = custom.length ? custom.map((c,i)=>'<div class="custom-item"><span><b>'+esc(c.title)+'</b> · '+AMEND[c.amend].n+' · '+(c.violated?"violated":"not violated")+'</span><button class="btn ghost sm" data-del="'+i+'">Delete</button></div>').join("") : '<div class="count-note">No custom cases yet.</div>';
+  box.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{
+    if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Click again to delete"; setTimeout(()=>{ if(b.isConnected){ b.dataset.armed=""; b.textContent="Delete"; } },3000); return; }
+    custom.splice(+b.dataset.del,1); store.set("ybtj_custom",custom); renderCustomList(); updateCountNote();
+  }));
+}
+function cleanCase(o,i){
+  if(!o||typeof o!=="object") return null;
+  const am=String(o.amend||""); if(!AMEND[am]) return null;
+  const clues=Array.isArray(o.clues)?o.clues.slice(0,3).map(String):[];
+  if(!o.title||!o.facts||clues.length<3) return null;
+  return {id:"c-"+Date.now()+"-"+i,real:!!o.realName,title:String(o.title),facts:String(o.facts),clues,amend:am,violated:!!o.violated,why:String(o.why||""),realName:o.realName?String(o.realName):"",year:o.year?String(o.year):"",vote:o.vote?String(o.vote):"",custom:true};
+}
+
+/* ---------- game ---------- */
+function startGame(){
+  const deck=shuffle(poolCases().slice()).slice(0,S.count);
+  if(!deck.length) return;
+  G={deck,i:-1,teams:Array.from({length:S.teamCount},(_,i)=>({name:(S.names[i]||"Team "+(i+1)).trim()||"Team "+(i+1),score:0})),log:[]};
+  $("setup").hidden=true; $("final").hidden=true; $("game").hidden=false;
+  nextCase();
+}
+function nextCase(){
+  stop(); closeModals();
+  if(G.cur && !G.cur.done){ G.cur.done=true; logCase(null,0); }
+  G.i++;
+  if(G.i>=G.deck.length){ endGame(); return; }
+  G.cur={c:G.deck[G.i],stage:0,left:S.secs*1000,running:false,locked:[],done:false,buzz:null,winner:null,pts:0};
+  renderCase(); renderScores(); renderTimer();
+  setStatus("Read the facts aloud, then press Space to start the clock.");
+}
+function renderCase(){
+  const c=G.cur.c;
+  $("caseCounter").textContent="Case "+(G.i+1)+" of "+G.deck.length;
+  $("docketNo").textContent="Docket No. "+(G.i+1);
+  const tag=$("caseTag"); tag.textContent=c.real?"Based on a real case":"Fictional case"; tag.className="tag"+(c.real?"":" fic");
+  $("caseTitle").textContent=c.title;
+  $("caseFacts").textContent=c.facts;
+  renderClues(-1); renderBuzz(); renderControls();
+}
+function renderClues(fresh){
+  const c=G.cur.c, st=G.cur.stage, done=G.cur.done;
+  $("clues").innerHTML=[0,1,2].map(k=>{
+    const open=k<st||done;
+    return '<div class="clue '+(open?"open":"")+(k===fresh?" fresh":"")+'"><div class="n">'+(k+1)+'</div><div>'+(open?esc(c.clues[k]):(k===st?"Unlocks when the timer runs out":"Locked"))+'</div></div>';
+  }).join("");
+}
+function renderBuzz(){
+  $("buzzRow").innerHTML=G.teams.map((t,i)=>'<button class="btn sm '+(G.cur.locked.indexOf(i)>=0?"locked":"")+'" data-team="'+i+'"'+(G.cur.done?" disabled":"")+'>'+(i+1)+'. '+esc(t.name)+'</button>').join("");
+  $("buzzRow").querySelectorAll("[data-team]").forEach(b=>b.addEventListener("click",()=>buzz(+b.dataset.team)));
+}
+function renderScores(){
+  const max=Math.max.apply(null,G.teams.map(t=>t.score));
+  $("scores").innerHTML=G.teams.map((t,i)=>'<div class="team '+(t.score===max&&max>0?"lead ":"")+(G.cur&&G.cur.locked.indexOf(i)>=0?"out":"")+'" id="team'+i+'"><div class="key">'+(i+1)+'</div><div class="nm">'+esc(t.name)+'</div><div class="sc">'+t.score+'</div><div class="adj"><button data-adj="'+i+'" data-d="1" aria-label="Add a point">+</button><button data-adj="'+i+'" data-d="-1" aria-label="Remove a point">−</button></div></div>').join("");
+  $("scores").querySelectorAll("[data-adj]").forEach(b=>b.addEventListener("click",()=>{ G.teams[+b.dataset.adj].score+=+b.dataset.d; renderScores(); }));
+}
+function renderControls(){
+  const c=G.cur;
+  $("playBtn").innerHTML=(c.running?"Pause":"Start clock")+' <kbd>Space</kbd>';
+  $("playBtn").disabled=c.done; $("hintBtn").disabled=c.done||c.stage>=3;
+}
+function renderTimer(){
+  const c=G.cur, total=S.secs*1000, s=Math.ceil(Math.max(0,c.left)/1000);
+  $("secs").textContent=c.done?"–":s;
+  $("ringBar").setAttribute("stroke-dashoffset",String(301.59*(1-(c.done?0:Math.max(0,c.left/total)))));
+  $("ring").classList.toggle("low",!c.done&&c.running&&s<=5);
+  $("worthPts").textContent=c.done?"—":AM_PTS[c.stage]+" + "+VERDICT_PTS;
+  $("worthSub").textContent=c.done?"case closed":(c.stage<3?"pts now · clue "+(c.stage+1)+" in "+s+"s":"pts now · final "+s+"s");
+}
+function setStatus(t){ $("status").textContent=t||""; }
+function run(){
+  const c=G.cur; if(c.done||c.running) return;
+  c.running=true; renderControls(); setStatus("");
+  let last=performance.now();
+  tick=setInterval(()=>{
+    const now=performance.now(), dt=now-last; last=now;
+    if(!G||!G.cur||G.cur!==c||c.done){ stop(); return; }
+    c.left-=dt;
+    if(c.left<=0){
+      if(c.stage<3) advanceClue();
+      else { c.left=0; timeUp(); return; }
+    }
+    renderTimer();
+  },100);
+}
+function stop(){ if(tick){ clearInterval(tick); tick=null; } if(G&&G.cur){ G.cur.running=false; renderControls(); } }
+function toggle(){ if(!G||!G.cur||G.cur.done) return; if(G.cur.running){ stop(); setStatus("Paused."); } else run(); }
+function advanceClue(){
+  const c=G.cur; if(c.done||c.stage>=3) return;
+  c.stage++; c.left=S.secs*1000; renderClues(c.stage-1); renderTimer(); renderControls();
+}
+function timeUp(){ stop(); setStatus("Time's up! No one solved it."); reveal(); }
+
+/* ---------- judging ---------- */
+let J=null;
+function buzz(i){
+  const c=G.cur; if(!c||c.done||i>=G.teams.length) return;
+  if(c.locked.indexOf(i)>=0){ toast(G.teams[i].name+" is locked out of this case."); return; }
+  J={team:i,wasRunning:c.running,am:null,vd:null};
+  stop();
+  $("judgeTitle").textContent=G.teams[i].name;
+  const a=AMEND[c.c.amend];
+  $("answerKey").innerHTML='<b>Answer key (teacher):</b> '+a.n+' Amendment'+(c.c.also&&c.c.also.length?' (also accept '+c.c.also.map(k=>AMEND[k].n).join(", ")+')':'')+' · '+(c.c.violated?"Right VIOLATED":"NOT violated");
+  renderJudge(); $("judgeModal").hidden=false;
+}
+function renderJudge(){
+  $("judgeModal").querySelectorAll(".yn button").forEach(b=>{
+    const v=J[b.dataset.q];
+    b.classList.toggle("on", v!==null && String(+v)===b.dataset.v);
+    if(b.dataset.q==="vd") b.disabled = J.am!==true;
+  });
+  const ready = J.am===false || (J.am===true && J.vd!==null);
+  $("judgeOk").disabled=!ready;
+  let p="";
+  if(J.am===false) p="Wrong amendment: 0 points. "+G.teams[J.team].name+" is locked out and the clock resumes.";
+  else if(J.am===true){ const pts=AM_PTS[G.cur.stage]+(J.vd?VERDICT_PTS:0); p = J.vd===null ? "Now judge the verdict." : G.teams[J.team].name+" earns "+pts+" point"+(pts===1?"":"s")+"."; }
+  $("judgePreview").textContent=p;
+}
+function judgeSet(q,v){ if(!J) return; if(q==="vd"&&J.am!==true) return; J[q]=v; if(q==="am"&&!v) J.vd=null; renderJudge(); }
+function judgeOk(){
+  if(!J||$("judgeOk").disabled) return;
+  const c=G.cur, t=J.team;
+  $("judgeModal").hidden=true;
+  if(J.am===false){
+    c.locked.push(t); renderBuzz(); renderScores();
+    const left=G.teams.length-c.locked.length;
+    J=null;
+    if(left<=0){ setStatus("Every team is locked out."); reveal(); return; }
+    setStatus(G.teams[t].name+" is out. Clock resumes."); run(); return;
+  }
+  const pts=AM_PTS[c.stage]+(J.vd?VERDICT_PTS:0);
+  G.teams[t].score+=pts; c.winner=t; c.pts=pts; c.vdRight=J.vd;
+  J=null; renderScores();
+  const el=$("team"+t); if(el) el.classList.add("flash");
+  reveal();
+}
+function judgeCancel(){ if(!J) return; const was=J.wasRunning; J=null; $("judgeModal").hidden=true; if(was) run(); }
+
+/* ---------- reveal ---------- */
+function reveal(){
+  const c=G.cur; if(!c) return;
+  stop();
+  if(!c.done){ c.done=true; logCase(c.winner,c.pts); }
+  renderClues(-1); renderBuzz(); renderTimer(); renderControls();
+  const k=c.c, a=AMEND[k.amend];
+  $("revealTitle").textContent=k.title;
+  $("rvAmend").textContent=a.n+" Amendment"; $("rvAmendWhat").textContent=a.t;
+  const st=$("rvStamp"); st.textContent=k.violated?"Right violated":"Not violated"; st.className="stamp "+(k.violated?"yes":"no");
+  $("rvAlso").textContent = k.also&&k.also.length ? "Also accept: "+k.also.map(x=>AMEND[x].n+" Amendment").join(", ") : "";
+  $("rvWhy").textContent=k.why;
+  const rv=$("rvReal");
+  if(k.realName){ rv.hidden=false; rv.innerHTML='Real case: <b>'+esc(k.realName)+'</b>'+(k.year?' ('+esc(k.year)+')':'')+(k.vote?' · decided '+esc(k.vote):''); }
+  else rv.hidden=true;
+  const r=$("rvResult");
+  if(c.winner!=null){ r.className="result-line good"; r.textContent=G.teams[c.winner].name+" earns "+c.pts+" point"+(c.pts===1?"":"s")+(c.vdRight?" (amendment + verdict)":" (amendment only)")+"."; }
+  else { r.className="result-line bad"; r.textContent="No points awarded this case."; }
+  $("revealNext").innerHTML=(G.i+1>=G.deck.length?"See final standings":"Next case")+' <kbd>N</kbd>';
+  $("revealModal").hidden=false;
+}
+function logCase(winner,pts){ G.log.push({title:G.cur.c.title,amend:G.cur.c.amend,violated:G.cur.c.violated,realName:G.cur.c.realName,winner,pts}); }
+function closeModals(){ ["judgeModal","revealModal","refModal"].forEach(id=>$(id).hidden=true); J=null; }
+
+/* ---------- final ---------- */
+function endGame(){
+  stop(); closeModals();
+  if(G.cur && !G.cur.done){ G.cur.done=true; logCase(null,0); }
+  $("game").hidden=true; $("final").hidden=false;
+  const ranked=G.teams.map((t,i)=>({...t,i})).sort((a,b)=>b.score-a.score);
+  let rank=0,prev=null;
+  $("podium").innerHTML=ranked.map((t,idx)=>{ if(t.score!==prev){ rank=idx+1; prev=t.score; } return '<div class="place '+(rank===1?"first":"")+'"><div class="rank">#'+rank+'</div><div class="nm">'+esc(t.name)+'</div><div class="sc">'+t.score+' pts</div></div>'; }).join("");
+  $("recap").innerHTML=G.log.map(l=>'<div><span class="am">'+AMEND[l.amend].n+'</span><span style="flex:1"><b>'+esc(l.title)+'</b>'+(l.realName?' · '+esc(l.realName):'')+'</span><span>'+(l.violated?"Violated":"Not violated")+'</span><span style="min-width:150px;text-align:right;color:var(--muted)">'+(l.winner!=null?esc(G.teams[l.winner].name)+" +"+l.pts:"no points")+'</span></div>').join("");
+}
+
+/* ---------- reference ---------- */
+function openRef(){ $("refGrid").innerHTML=AMEND_KEYS.map(k=>'<div class="ref"><div class="num">'+AMEND[k].n+'</div><div><div class="t">'+esc(AMEND[k].t)+'</div><div class="d">'+esc(AMEND[k].d)+'</div></div></div>').join(""); $("refModal").hidden=false; }
+function fullscreen(){ try{ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }catch(e){} }
+
+/* ---------- wiring ---------- */
+segBind("poolSeg","pool"); segBind("countSeg","count",Number); segBind("secsSeg","secs",Number);
+renderTeamSetup(); renderAmendChips(); renderCustomList(); updateCountNote();
+
+$("startBtn").addEventListener("click",startGame);
+$("againBtn").addEventListener("click",()=>{ G=null; $("final").hidden=true; $("setup").hidden=false; updateCountNote(); });
+$("playBtn").addEventListener("click",toggle);
+$("hintBtn").addEventListener("click",()=>{ if(G&&G.cur) advanceClue(); });
+$("revealBtn").addEventListener("click",()=>{ if(G&&G.cur) reveal(); });
+$("nextBtn").addEventListener("click",()=>{ if(G) nextCase(); });
+$("endBtn").addEventListener("click",()=>{ const b=$("endBtn"); if(!G) return; if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Click again to end"; setTimeout(()=>{ b.dataset.armed=""; b.textContent="End game"; },3000); return; } b.dataset.armed=""; b.textContent="End game"; endGame(); });
+$("refBtn").addEventListener("click",openRef); $("refBtn0").addEventListener("click",openRef);
+$("refClose").addEventListener("click",()=>$("refModal").hidden=true);
+$("fsBtn").addEventListener("click",fullscreen);
+$("judgeModal").querySelectorAll(".yn button").forEach(b=>b.addEventListener("click",()=>judgeSet(b.dataset.q,b.dataset.v==="1")));
+$("judgeOk").addEventListener("click",judgeOk);
+$("judgeCancel").addEventListener("click",judgeCancel);
+$("revealClose").addEventListener("click",()=>$("revealModal").hidden=true);
+$("revealNext").addEventListener("click",()=>nextCase());
+
+$("customForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const o={title:$("cTitle").value.trim(),facts:$("cFacts").value.trim(),clues:[$("cC1").value.trim(),$("cC2").value.trim(),$("cC3").value.trim()],amend:$("cAmend").value,violated:$("cViol").value==="1",why:$("cWhy").value.trim(),realName:$("cReal").value.trim(),year:$("cYear").value.trim(),vote:$("cVote").value.trim()};
+  const c=cleanCase(o,custom.length); if(!c){ toast("Fill in the title, facts, and all three clues."); return; }
+  custom.push(c); store.set("ybtj_custom",custom); e.target.reset(); renderCustomList(); updateCountNote(); toast("Case saved.");
+});
+$("exportBtn").addEventListener("click",()=>{
+  if(!custom.length){ toast("No custom cases to export yet."); return; }
+  const blob=new Blob([JSON.stringify(custom,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="you-be-the-judge-cases.json"; document.body.appendChild(a); a.click(); a.remove();
+});
+$("importIn").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const arr=JSON.parse(rd.result); const add=(Array.isArray(arr)?arr:[]).map(cleanCase).filter(Boolean); custom=custom.concat(add); store.set("ybtj_custom",custom); renderCustomList(); updateCountNote(); toast("Imported "+add.length+" case"+(add.length===1?"":"s")+"."); }catch(err){ toast("That file couldn't be read."); } e.target.value=""; };
+  rd.readAsText(f);
+});
+
+document.addEventListener("keydown",e=>{
+  const tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||tag==="select") return;
+  const k=e.key.toLowerCase();
+  if(k==="escape"){ if(J) judgeCancel(); else { $("refModal").hidden=true; $("revealModal").hidden=true; } return; }
+  if(k==="a"){ if($("refModal").hidden) openRef(); else $("refModal").hidden=true; return; }
+  if(k==="f"){ fullscreen(); return; }
+  if(!G||$("game").hidden) return;
+  if(J){
+    if(k==="y") judgeSet("am",true);
+    else if(k==="x") judgeSet("am",false);
+    else if(k==="enter"){ e.preventDefault(); judgeOk(); }
+    return;
+  }
+  if(k===" "){ e.preventDefault(); if(!$("revealModal").hidden) return; toggle(); }
+  else if(k==="h") advanceClue();
+  else if(k==="r") reveal();
+  else if(k==="n") nextCase();
+  else if(/^[1-8]$/.test(k)) buzz(+k-1);
+});
+window.__ybtj={get G(){return G;},S,buzz,judgeSet,judgeOk,advanceClue,reveal,nextCase,startGame,toggle,BUILT_IN};
+})();
+</script>
+</body>
+</html>

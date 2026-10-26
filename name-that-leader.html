@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Name That Leader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Public+Sans:wght@400;600;800&display=swap">
+<style>
+/* Layout: projector stage — portrait frame left, timer + hint docket right, team bench along the bottom */
+:root{
+  --ink:#e8eef6; --panel:#ffffff; --panel-2:#f1f4f9; --line:#cdd6e4;
+  --text:#14213a; --muted:#56657f; --brass:#e0ae4f; --brass-ink:#2a1d05; --brass-text:#8a5a0b;
+  --navy:#1f3a68;
+  --good:#1f8f5a; --alert:#c0402c;
+  --display:"DM Serif Display", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1400px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:20px 28px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;font-weight:800;color:var(--brass-text)}
+.muted{color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:.6em 1.05em;font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:800}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent}
+.btn.small{padding:.35em .7em;font-size:.875rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---------- Setup ---------- */
+.masthead{border-top:6px solid var(--navy);padding-top:14px;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:24px}
+.masthead h1{font-size:clamp(2.2rem,5vw,3.6rem);line-height:1}
+.masthead p{margin:.4rem 0 0;max-width:60ch}
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0;box-shadow:0 1px 2px rgba(20,33,58,.06)}
+.card h2{font-size:1.4rem;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:.9rem}
+.field input,.field select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.55em .7em;width:100%}
+.team-inputs{display:grid;gap:8px}
+.checks{display:grid;gap:8px}
+.check{display:flex;gap:10px;align-items:center;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.55em .7em}
+.check input{width:18px;height:18px;accent-color:var(--brass)}
+.check .count{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:.85rem}
+.start-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:22px}
+.keys{font-size:.85rem;color:var(--muted)}
+kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:.05em .4em;color:var(--text);background:var(--panel-2)}
+
+/* Roster editor */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px;margin-top:14px}
+.r-item{display:flex;gap:12px;align-items:center;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.r-thumb{width:54px;height:66px;border-radius:6px;object-fit:cover;background:var(--panel-2);flex:none}
+.r-mono{width:54px;height:66px;border-radius:6px;background:var(--panel-2);display:grid;place-items:center;font-family:var(--display);font-size:1.3rem;color:var(--muted);flex:none}
+.r-body{min-width:0;flex:1}
+.r-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-meta{font-size:.8rem;color:var(--muted)}
+.r-status{font-size:.75rem;font-weight:800;letter-spacing:.04em}
+.r-status.ok{color:var(--good)} .r-status.bad{color:var(--alert)}
+.r-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.photo-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:14px}
+.drop,.pack{display:flex;flex-direction:column;gap:6px;border:2px dashed var(--line);border-radius:12px;padding:14px 16px;background:var(--ink);min-width:0}
+.drop{cursor:pointer}
+.drop.over{border-color:var(--brass);background:#fffaf0}
+.pack{border-style:solid}
+.r-item.armed{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset}
+.editor{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+
+/* ---------- Stage ---------- */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.topbar .round{font-family:var(--display);font-size:1.5rem}
+.stage{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(16px,2.5vw,32px);align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:1fr}}
+.frame{position:relative;background:linear-gradient(160deg,#3a2c12,#7a5a21 40%,#3a2c12);padding:14px;border-radius:6px;box-shadow:0 14px 34px rgba(20,33,58,.22)}
+.frame-inner{background:#f4f0e6;aspect-ratio:4/5;max-height:64vh;width:100%;display:grid;place-items:center;overflow:hidden;border:2px solid #1a1206}
+.frame-inner img{width:100%;height:100%;object-fit:contain;display:block}
+.no-photo{text-align:center;padding:24px;color:var(--muted)}
+.no-photo .q{font-family:var(--display);font-size:clamp(5rem,12vw,9rem);color:var(--brass-text);line-height:1}
+.plate{margin:14px auto 0;max-width:92%;background:linear-gradient(#d8b46a,#a9813a);color:var(--brass-ink);border-radius:4px;text-align:center;padding:10px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.plate .who{font-family:var(--display);font-size:clamp(1.6rem,3.2vw,2.6rem);line-height:1.1}
+.plate .what{font-weight:600;font-size:.95rem}
+.plate.hidden-name .who{letter-spacing:.3em}
+.reveal-fact{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:1.05rem}
+
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.clock{display:flex;align-items:center;gap:20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+.ring{position:relative;width:118px;height:118px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--line);stroke-width:10}
+.ring .bar{fill:none;stroke:var(--brass);stroke-width:10;stroke-linecap:round;transition:stroke .3s}
+.ring.low .bar{stroke:var(--alert)}
+.ring .secs{position:absolute;inset:0;display:grid;place-items:center;font-size:2.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+.worth .eyebrow{display:block}
+.worth .pts{color:var(--navy);font-family:var(--display);font-size:clamp(2.6rem,5vw,3.6rem);line-height:1}
+.worth .sub{color:var(--muted);font-size:.95rem}
+.ladder{display:flex;gap:6px;margin-top:8px}
+.ladder span{flex:1;min-width:34px;text-align:center;border-radius:6px;padding:.15em 0;font-weight:800;font-size:.85rem;background:var(--panel-2);color:var(--muted);font-variant-numeric:tabular-nums}
+.ladder span.on{background:var(--brass);color:var(--brass-ink)}
+.ladder span.past{text-decoration:line-through;opacity:.55}
+
+.hints{display:flex;flex-direction:column;gap:10px}
+.hint{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.hint .num{font-family:var(--display);font-size:1.7rem;line-height:1;color:var(--muted);width:1.4em;text-align:center}
+.hint .txt{font-size:clamp(1.05rem,1.6vw,1.35rem);font-weight:600;min-width:0}
+.hint.locked .txt{color:var(--muted);font-weight:400;font-style:italic}
+.hint.open{border-color:var(--brass);background:#fffaf0}
+.hint.open .num{color:var(--brass-text)}
+.hint.fresh{animation:pop .45s ease-out}
+@keyframes pop{from{transform:translateY(6px);opacity:.2}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hint.fresh{animation:none}.ring .bar{transition:none}}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+
+.bench{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px}
+.team{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.team .tn{font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.team .tn .key{font-size:.75rem}
+.team .ts{color:var(--navy);font-family:var(--display);font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.team .award{width:100%}
+.team.flash{border-color:var(--good);box-shadow:0 0 0 2px var(--good) inset}
+.team .adj{display:flex;gap:6px}
+.status-line{min-height:1.5em;font-weight:600;color:var(--brass-text)}
+
+/* ---------- Final ---------- */
+.final{text-align:center;padding-block:40px}
+.final h1{font-size:clamp(2.6rem,6vw,4.4rem)}
+.podium{display:grid;gap:10px;max-width:560px;margin:28px auto}
+.podium .row{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;font-size:1.2rem}
+.podium .row.first{border-color:var(--brass);background:var(--panel-2)}
+.podium .row b{font-family:var(--display);font-size:1.8rem;font-weight:400;font-variant-numeric:tabular-nums}
+.recap{max-width:900px;margin:0 auto;text-align:left}
+.recap li{margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--brass);border-radius:10px;padding:.6em 1em;font-weight:600;z-index:10}
+</style>
+</head>
+<body>
+
+<!-- ================= SETUP ================= -->
+<section id="setup" class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Government &amp; Law · Classroom Game</div>
+      <h1>Name That Leader</h1>
+      <p class="muted">A portrait appears. Every 15 seconds without a correct answer, a new clue unlocks. Name the leader early for more points.</p>
+    </div>
+    <div class="keys">Keys in play: <kbd>Space</kbd> pause · <kbd>H</kbd> next hint · <kbd>R</kbd> reveal · <kbd>1</kbd>–<kbd>6</kbd> award team · <kbd>N</kbd> next leader · <kbd>F</kbd> full screen</div>
+  </header>
+
+  <div class="setup-grid">
+    <div class="card">
+      <h2>Teams</h2>
+      <div class="field">
+        <label for="teamCount">Number of teams</label>
+        <select id="teamCount">
+          <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+        </select>
+      </div>
+      <div id="teamInputs" class="team-inputs"></div>
+    </div>
+
+    <div class="card">
+      <h2>Leaders</h2>
+      <div id="catChecks" class="checks"></div>
+      <div class="field" style="margin-top:14px">
+        <label for="roundCount">Leaders this game</label>
+        <select id="roundCount"></select>
+      </div>
+      <div class="field">
+        <label for="hintSecs">Seconds before each hint</label>
+        <select id="hintSecs">
+          <option value="10">10</option><option value="15" selected>15</option><option value="20">20</option><option value="30">30</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Scoring</h2>
+      <div class="ladder" aria-hidden="true"><span class="on">4</span><span>3</span><span>2</span><span>1</span></div>
+      <p>Portrait only: <b>4 points</b>. After hint 1: <b>3</b>. After hint 2: <b>2</b>. After hint 3: <b>1</b>.</p>
+      <p class="muted">When a team calls out the right name, click that team's award button (or press its number). The answer is revealed and points are added. Use the small +/− buttons to correct a score.</p>
+    </div>
+  </div>
+
+  <div class="start-row">
+    <button id="startBtn" class="btn primary">Start game</button>
+    <button id="fsBtn2" class="btn">Full screen</button>
+    <button id="toggleRoster" class="btn">Manage leaders &amp; photos</button>
+    <span id="setupMsg" class="muted"></span>
+  </div>
+
+  <div id="rosterPanel" class="card" style="margin-top:20px" hidden>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center">
+      <div>
+        <h2 style="margin:0">Leaders &amp; photos</h2>
+        <p class="muted" style="margin:.3rem 0 0">Portraits load from Wikimedia Commons, with each leader's Wikipedia photo as a backup. A red status means neither loaded on this computer (often a school web filter); upload your own to fix it. Uploads and custom leaders are saved in this browser.</p>
+      </div>
+      <button id="addLeaderBtn" class="btn">Add a leader</button>
+    </div>
+    <div class="photo-tools">
+      <label class="drop" id="dropZone" for="bulkFiles">
+        <b>Add many photos at once</b>
+        <span class="muted">Drop image files here or click to choose. Name each file after the leader (lincoln.jpg, Thurgood Marshall.png, rbg.jpg) and it matches automatically.</span>
+        <input id="bulkFiles" type="file" accept="image/*" multiple hidden>
+      </label>
+      <div class="pack">
+        <b>Move photos between computers</b>
+        <span class="muted">Photos are saved in this browser only. Save a photo pack at home, then load it at school.</span>
+        <div class="controls">
+          <button id="savePack" class="btn small">Save photo pack</button>
+          <label class="btn small" style="display:inline-block">Load photo pack<input id="loadPack" type="file" accept=".json,application/json" hidden></label>
+        </div>
+      </div>
+    </div>
+    <p class="muted" id="pasteHint" style="margin:10px 0 0">Tip: on Google Images, right-click a picture, choose <b>Copy image</b>, then click <b>Paste</b> on that leader below.</p>
+    <div id="roster" class="roster"></div>
+
+    <div id="editor" class="editor" hidden>
+      <h3 id="edTitle" style="font-size:1.3rem;margin-bottom:10px">Add a leader</h3>
+      <div class="setup-grid">
+        <div>
+          <div class="field"><label for="edName">Name (the answer)</label><input id="edName"></div>
+          <div class="field"><label for="edRole">Role shown on reveal</label><input id="edRole" placeholder="e.g. Chief Justice, 1801–1835"></div>
+          <div class="field"><label for="edCat">Category</label><select id="edCat"></select></div>
+          <div class="field"><label for="edUrl">Image web address (optional)</label><input id="edUrl" placeholder="https://…"></div>
+          <div class="field"><label for="edFile">Or upload a photo</label><input id="edFile" type="file" accept="image/*"></div>
+        </div>
+        <div>
+          <div class="field"><label for="edH1">Hint 1 (hardest)</label><input id="edH1"></div>
+          <div class="field"><label for="edH2">Hint 2</label><input id="edH2"></div>
+          <div class="field"><label for="edH3">Hint 3 (easiest)</label><input id="edH3"></div>
+          <div class="field"><label for="edFact">Why they matter (shown on reveal)</label><input id="edFact"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="edSave" class="btn primary">Save leader</button>
+        <button id="edCancel" class="btn ghost">Cancel</button>
+        <span id="edMsg" class="muted"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLAY ================= -->
+<section id="play" class="wrap" hidden>
+  <div class="topbar">
+    <div>
+      <div class="eyebrow" id="catLabel">Category</div>
+      <div class="round" id="roundLabel">Leader 1 of 10</div>
+    </div>
+    <div class="controls">
+      <button id="pauseBtn" class="btn">Pause</button>
+      <button id="hintBtn" class="btn">Next hint</button>
+      <button id="revealBtn" class="btn">Reveal answer</button>
+      <button id="nextBtn" class="btn primary" hidden>Next leader</button>
+      <button id="fsBtn" class="btn ghost">Full screen</button>
+      <button id="endBtn" class="btn ghost">End game</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div>
+      <div class="frame">
+        <div class="frame-inner" id="portrait"></div>
+      </div>
+      <div class="plate hidden-name" id="plate">
+        <div class="who" id="plateWho">? ? ?</div>
+        <div class="what" id="plateWhat">Who is this leader?</div>
+      </div>
+      <div class="reveal-fact" id="factBox" hidden></div>
+    </div>
+
+    <div class="side">
+      <div class="clock">
+        <div class="ring" id="ring">
+          <svg width="118" height="118" viewBox="0 0 118 118" aria-hidden="true">
+            <circle class="track" cx="59" cy="59" r="50"></circle>
+            <circle class="bar" id="ringBar" cx="59" cy="59" r="50" stroke-dasharray="314.16" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="secs" id="secs">15</div>
+        </div>
+        <div class="worth">
+          <span class="eyebrow">Worth right now</span>
+          <div class="pts" id="pts">4 pts</div>
+          <div class="sub" id="worthSub">Next hint in 15 seconds</div>
+          <div class="ladder" id="ladder"><span>4</span><span>3</span><span>2</span><span>1</span></div>
+        </div>
+      </div>
+      <div class="hints" id="hints"></div>
+      <div class="status-line" id="statusLine" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="bench" id="bench"></div>
+</section>
+
+<!-- ================= FINAL ================= -->
+<section id="final" class="wrap final" hidden>
+  <div class="eyebrow">Final standings</div>
+  <h1 id="winnerLine">Winner</h1>
+  <div class="podium" id="podium"></div>
+  <div class="recap card" id="recap"></div>
+  <div class="start-row" style="justify-content:center">
+    <button id="againBtn" class="btn primary">Play again</button>
+  </div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Built-in leaders ---------- */
+const CATS = {
+  pres:  "Presidents",
+  court: "Supreme Court Justices",
+  found: "Founders & Lawmakers",
+  civil: "Civil Rights & Reformers"
+};
+
+const BUILT_IN = [
+  {id:"washington",cat:"pres",name:"George Washington",role:"1st President, 1789–1797",img:"Gilbert Stuart Williamstown Portrait of George Washington.jpg",
+   hints:["Presided over the Constitutional Convention in Philadelphia in 1787.","Set the two-term precedent that the 22nd Amendment later made law.","First President of the United States. His face is on the $1 bill."],
+   fact:"Turned the presidency into a limited, civilian office and stepped down voluntarily after two terms."},
+  {id:"jefferson",cat:"pres",name:"Thomas Jefferson",role:"3rd President, 1801–1809",img:"Official Presidential portrait of Thomas Jefferson (by Rembrandt Peale, 1800).jpg",
+   hints:["Wrote the Virginia Statute for Religious Freedom.","As president, doubled the size of the nation with the Louisiana Purchase in 1803.","Main author of the Declaration of Independence."],
+   fact:"Gave the nation its founding statement of natural rights and championed separation of church and state."},
+  {id:"jackson",cat:"pres",name:"Andrew Jackson",role:"7th President, 1829–1837",img:"Andrew jackson head.jpg",
+   hints:["Vetoed the recharter of the Second Bank of the United States.","Signed the Indian Removal Act of 1830, which led to the Trail of Tears.","Nicknamed \"Old Hickory\"; hero of the Battle of New Orleans and on the $20 bill."],
+   fact:"Expanded presidential power and the spoils system, and drove the forced removal of Native nations."},
+  {id:"lincoln",cat:"pres",name:"Abraham Lincoln",role:"16th President, 1861–1865",img:"Abraham Lincoln O-77 matte collodion print.jpg",
+   hints:["Warned that \"a house divided against itself cannot stand\" during an 1858 Senate race.","Issued the Emancipation Proclamation in 1863.","16th President; delivered the Gettysburg Address and is on the penny."],
+   fact:"Preserved the Union in the Civil War and pushed the 13th Amendment abolishing slavery."},
+  {id:"troosevelt",cat:"pres",name:"Theodore Roosevelt",role:"26th President, 1901–1909",img:"President Roosevelt - Pach Bros.jpg",
+   hints:["Used the Sherman Antitrust Act to break up the Northern Securities railroad trust.","Called the presidency a \"bully pulpit\" and promised Americans a \"Square Deal.\"","Led the Rough Riders, is on Mount Rushmore, and the teddy bear is named for him."],
+   fact:"Used federal power to regulate big business, protect consumers, and conserve public lands."},
+  {id:"wilson",cat:"pres",name:"Woodrow Wilson",role:"28th President, 1913–1921",img:"President Woodrow Wilson portrait December 2 1912.jpg",
+   hints:["Former president of Princeton University and governor of New Jersey.","Signed the Federal Reserve Act and the Clayton Antitrust Act.","Led the U.S. through World War I and proposed the League of Nations in his Fourteen Points."],
+   fact:"Built key parts of the modern federal economy and pushed an international order that the Senate rejected."},
+  {id:"fdr",cat:"pres",name:"Franklin D. Roosevelt",role:"32nd President, 1933–1945",img:"FDR 1944 Color Portrait.jpg",
+   hints:["Tried to add up to six justices to the Supreme Court in 1937 (\"court packing\").","Signed the Social Security Act of 1935.","The only president elected four times; launched the New Deal."],
+   fact:"Greatly expanded the federal government's role in the economy during the Depression and led the nation in WWII."},
+  {id:"jfk",cat:"pres",name:"John F. Kennedy",role:"35th President, 1961–1963",img:"John F. Kennedy, White House color photo portrait.jpg",
+   hints:["The first Catholic elected president.","Faced down the Soviet Union during the Cuban Missile Crisis in 1962.","Said \"Ask not what your country can do for you\"; assassinated in Dallas in 1963."],
+   fact:"Proposed the civil rights bill that became the Civil Rights Act of 1964 and launched the race to the Moon."},
+  {id:"lbj",cat:"pres",name:"Lyndon B. Johnson",role:"36th President, 1963–1969",img:"37 Lyndon Johnson 3x4.jpg",
+   hints:["Former Senate Majority Leader famous for his in-your-face persuasion, \"the Treatment.\"","Signed the Civil Rights Act of 1964 and the Voting Rights Act of 1965.","Sworn in aboard Air Force One after JFK's death; launched the \"Great Society.\""],
+   fact:"Turned civil rights and anti-poverty ideas into federal law, including Medicare and Medicaid."},
+  {id:"reagan",cat:"pres",name:"Ronald Reagan",role:"40th President, 1981–1989",img:"Official Portrait of President Reagan 1981.jpg",
+   hints:["Former president of the Screen Actors Guild and governor of California.","Appointed the first woman to the U.S. Supreme Court.","Told Soviet leader Gorbachev to \"tear down this wall.\""],
+   fact:"Cut taxes and federal regulation and pressed the Cold War toward its end."},
+
+  {id:"jadams",cat:"pres",name:"John Adams",role:"2nd President, 1797–1801",
+   hints:["Defended the British soldiers put on trial after the Boston Massacre.","Signed the Alien and Sedition Acts in 1798.","2nd President and the first to live in the White House; father of the 6th President."],
+   fact:"Handing power peacefully to his rival Jefferson in 1801 set a lasting precedent."},
+  {id:"monroe",cat:"pres",name:"James Monroe",role:"5th President, 1817–1825",
+   hints:["Wounded at the Battle of Trenton; later U.S. minister to France.","His presidency is called the \"Era of Good Feelings.\"","5th President; warned Europe not to colonize the Western Hemisphere in a doctrine that bears his name."],
+   fact:"The Monroe Doctrine guided U.S. policy in the Americas for more than a century."},
+  {id:"jqadams",cat:"pres",name:"John Quincy Adams",role:"6th President, 1825–1829",
+   hints:["As Secretary of State, negotiated the treaty that acquired Florida from Spain.","Won the 1824 election in the House despite losing the popular vote; critics called it a \"Corrupt Bargain.\"","6th President and son of the 2nd; later argued the Amistad case before the Supreme Court."],
+   fact:"Served 17 years in the House after his presidency, fighting the gag rule on anti-slavery petitions."},
+  {id:"vanburen",cat:"pres",name:"Martin Van Buren",role:"8th President, 1837–1841",
+   hints:["Built the New York political machine known as the Albany Regency.","His presidency was hit almost at once by the Panic of 1837.","8th President and Jackson's vice president, nicknamed \"the Little Magician.\""],
+   fact:"Helped organize the Democratic Party and the modern two-party system."},
+  {id:"whharrison",cat:"pres",name:"William Henry Harrison",role:"9th President, 1841",
+   hints:["Governor of the Indiana Territory who fought at the Battle of Tippecanoe in 1811.","Campaigned with the slogan \"Tippecanoe and Tyler Too.\"","9th President; died of illness just one month after taking office."],
+   fact:"His death forced the first test of how presidential succession works."},
+  {id:"tyler",cat:"pres",name:"John Tyler",role:"10th President, 1841–1845",
+   hints:["A former Democrat who ran for vice president on the Whig ticket.","The Whigs expelled him after he vetoed their national bank bills; critics called him \"His Accidency.\"","10th President, the first vice president to become president after a president died."],
+   fact:"Established that a successor becomes president in full, a rule later written into the 25th Amendment."},
+  {id:"polk",cat:"pres",name:"James K. Polk",role:"11th President, 1845–1849",
+   hints:["A former Speaker of the House from Tennessee, nicknamed \"Young Hickory.\"","Settled the Oregon boundary with Britain at the 49th parallel.","11th President; led the Mexican-American War, gaining California and the Southwest."],
+   fact:"Expanded the nation enormously, reopening the fight over the spread of slavery."},
+  {id:"taylor",cat:"pres",name:"Zachary Taylor",role:"12th President, 1849–1850",
+   hints:["A Louisiana slaveholder who still opposed expanding slavery into new territories.","A career soldier nicknamed \"Old Rough and Ready.\"","12th President; a Mexican-American War general who died in office in 1850."],
+   fact:"His death cleared the way for the Compromise of 1850."},
+  {id:"fillmore",cat:"pres",name:"Millard Fillmore",role:"13th President, 1850–1853",
+   hints:["A New York Whig elected vice president in 1848.","Sent Commodore Perry's expedition to open trade with Japan.","13th President; signed the Compromise of 1850, including the Fugitive Slave Act."],
+   fact:"The Fugitive Slave Act required Northern officials to help capture people escaping slavery, inflaming the North."},
+  {id:"pierce",cat:"pres",name:"Franklin Pierce",role:"14th President, 1853–1857",
+   hints:["A New Hampshire Democrat and college friend of Nathaniel Hawthorne.","Approved the Gadsden Purchase from Mexico.","14th President; signed the Kansas-Nebraska Act, which led to \"Bleeding Kansas.\""],
+   fact:"Kansas-Nebraska repealed the Missouri Compromise line and pushed the nation toward civil war."},
+  {id:"buchanan",cat:"pres",name:"James Buchanan",role:"15th President, 1857–1861",
+   hints:["The only president who never married; from Pennsylvania.","Backed the proslavery Lecompton Constitution for Kansas.","15th President, in office when Southern states began seceding in 1860."],
+   fact:"His view that he had no power to stop secession is widely judged a failure of leadership."},
+  {id:"ajohnson",cat:"pres",name:"Andrew Johnson",role:"17th President, 1865–1869",
+   hints:["The only Southern senator to stay in the Senate when his state seceded.","Vetoed the Civil Rights Act of 1866, which Congress passed over his veto.","17th President after Lincoln's assassination; the first president impeached by the House."],
+   fact:"His fights with Congress over Reconstruction led to his impeachment; the Senate acquitted him by one vote."},
+  {id:"grant",cat:"pres",name:"Ulysses S. Grant",role:"18th President, 1869–1877",
+   hints:["Used the Enforcement Acts and federal troops to fight the Ku Klux Klan.","Accepted Lee's surrender at Appomattox Court House.","18th President and the Union's top general in the Civil War; on the $50 bill."],
+   fact:"Enforced Reconstruction and the 15th Amendment, though scandals marked his administration."},
+  {id:"hayes",cat:"pres",name:"Rutherford B. Hayes",role:"19th President, 1877–1881",
+   hints:["A former Ohio governor and Union army officer.","Won the disputed election of 1876 by a single electoral vote.","19th President; the Compromise of 1877 ended Reconstruction."],
+   fact:"Pulling federal troops from the South left Black voters unprotected for decades."},
+  {id:"garfield",cat:"pres",name:"James A. Garfield",role:"20th President, 1881",
+   hints:["An Ohio congressman and Union general nominated as a dark-horse candidate in 1880.","Shot by a disappointed office seeker only four months into his term.","20th President; his assassination led to the Pendleton Civil Service Act."],
+   fact:"His death pushed the government from patronage toward a merit-based civil service."},
+  {id:"arthur",cat:"pres",name:"Chester A. Arthur",role:"21st President, 1881–1885",
+   hints:["Once ran the New York Custom House, a famous source of patronage jobs.","Surprised critics by signing the Pendleton Civil Service Reform Act in 1883.","21st President, who took office after Garfield's assassination."],
+   fact:"Signed both civil service reform and the Chinese Exclusion Act of 1882."},
+  {id:"cleveland",cat:"pres",name:"Grover Cleveland",role:"22nd & 24th President",
+   hints:["Former mayor of Buffalo and governor of New York.","Sent federal troops to break the Pullman Strike in 1894.","22nd and 24th President, the first to serve two non-consecutive terms."],
+   fact:"Signed the Interstate Commerce Act, the first federal regulation of an industry."},
+  {id:"bharrison",cat:"pres",name:"Benjamin Harrison",role:"23rd President, 1889–1893",
+   hints:["A Union general and U.S. senator from Indiana.","Signed the Sherman Antitrust Act in 1890.","23rd President and grandson of the 9th President."],
+   fact:"The Sherman Antitrust Act became the legal basis for breaking up monopolies."},
+  {id:"mckinley",cat:"pres",name:"William McKinley",role:"25th President, 1897–1901",
+   hints:["An Ohio congressman known for a high tariff that carried his name.","Led the U.S. in the Spanish-American War, gaining Puerto Rico, Guam, and the Philippines.","25th President; assassinated in Buffalo in 1901, making Theodore Roosevelt president."],
+   fact:"Turned the United States into an overseas imperial power."},
+  {id:"taft",cat:"pres",name:"William Howard Taft",role:"27th President, 1909–1913",
+   hints:["Served as civilian governor of the Philippines.","Promoted \"dollar diplomacy,\" using investment to extend U.S. influence abroad.","27th President and the only one to later serve as Chief Justice of the United States."],
+   fact:"As Chief Justice, he pushed Congress to build the Supreme Court its own building."},
+  {id:"harding",cat:"pres",name:"Warren G. Harding",role:"29th President, 1921–1923",
+   hints:["An Ohio newspaper publisher and U.S. senator.","Promised a \"return to normalcy\" after World War I.","29th President; his administration was rocked by the Teapot Dome scandal."],
+   fact:"Teapot Dome became a byword for government corruption."},
+  {id:"coolidge",cat:"pres",name:"Calvin Coolidge",role:"30th President, 1923–1929",
+   hints:["As governor of Massachusetts, broke the Boston police strike of 1919.","Signed the Indian Citizenship Act of 1924.","30th President, nicknamed \"Silent Cal,\" who led during the 1920s boom."],
+   fact:"Championed limited government and business-friendly policy in the Roaring Twenties."},
+  {id:"hoover",cat:"pres",name:"Herbert Hoover",role:"31st President, 1929–1933",
+   hints:["A mining engineer who organized food relief for Belgium during World War I.","As Secretary of Commerce, led relief after the 1927 Mississippi River flood.","31st President; Depression-era shantytowns were named after him."],
+   fact:"His limited response to the Depression set up the debate that produced the New Deal."},
+  {id:"truman",cat:"pres",name:"Harry S. Truman",role:"33rd President, 1945–1953",
+   hints:["A World War I artillery captain from Missouri.","Ordered the desegregation of the armed forces in 1948.","33rd President; decided to use the atomic bomb and kept a desk sign reading \"The Buck Stops Here.\""],
+   fact:"Shaped the Cold War with the Truman Doctrine, the Marshall Plan, and NATO."},
+  {id:"eisenhower",cat:"pres",name:"Dwight D. Eisenhower",role:"34th President, 1953–1961",
+   hints:["Former president of Columbia University.","Sent the 101st Airborne to enforce school integration in Little Rock in 1957.","34th President; Supreme Allied Commander on D-Day."],
+   fact:"Built the Interstate Highway System and warned of the \"military-industrial complex.\""},
+  {id:"nixon",cat:"pres",name:"Richard Nixon",role:"37th President, 1969–1974",
+   hints:["As a young congressman, gained fame investigating Alger Hiss.","Opened relations with China and created the Environmental Protection Agency.","37th President and the only one to resign, after the Watergate scandal."],
+   fact:"United States v. Nixon (1974) held that even a president must obey a subpoena."},
+  {id:"ford",cat:"pres",name:"Gerald Ford",role:"38th President, 1974–1977",
+   hints:["House Minority Leader from Michigan and a member of the Warren Commission.","Granted a full pardon to his predecessor.","38th President, the only one never elected president or vice president."],
+   fact:"Became vice president under the 25th Amendment, the first time it was used."},
+  {id:"carter",cat:"pres",name:"Jimmy Carter",role:"39th President, 1977–1981",
+   hints:["A peanut farmer and former governor of Georgia.","Brokered the Camp David Accords between Egypt and Israel.","39th President; won the 2002 Nobel Peace Prize for his work after leaving office."],
+   fact:"Made human rights a centerpiece of U.S. foreign policy."},
+  {id:"ghwbush",cat:"pres",name:"George H. W. Bush",role:"41st President, 1989–1993",
+   hints:["Former CIA director and ambassador to the United Nations.","Signed the Americans with Disabilities Act of 1990.","41st President who led the Gulf War coalition; father of the 43rd President."],
+   fact:"Steered the U.S. through the end of the Cold War."},
+  {id:"clinton",cat:"pres",name:"Bill Clinton",role:"42nd President, 1993–2001",
+   hints:["Former governor of Arkansas and a Rhodes Scholar.","Signed NAFTA and the 1996 welfare reform law.","42nd President; the second president impeached by the House."],
+   fact:"His administration ended the 1990s with a federal budget surplus."},
+  {id:"gwbush",cat:"pres",name:"George W. Bush",role:"43rd President, 2001–2009",
+   hints:["Former governor of Texas and part-owner of the Texas Rangers baseball team.","Created the Department of Homeland Security and signed No Child Left Behind.","43rd President, in office on September 11, 2001; son of the 41st President."],
+   fact:"The 2000 election was settled by the Supreme Court in Bush v. Gore."},
+  {id:"obama",cat:"pres",name:"Barack Obama",role:"44th President, 2009–2017",
+   hints:["Taught constitutional law at the University of Chicago and was a U.S. senator from Illinois.","Signed the Affordable Care Act in 2010.","44th President, the first African American president."],
+   fact:"The Affordable Care Act survived a major challenge in NFIB v. Sebelius (2012)."},
+  {id:"trump",cat:"pres",name:"Donald Trump",role:"45th & 47th President",
+   hints:["A New York real estate developer and reality TV host before running for office.","Appointed three Supreme Court justices in his first term: Gorsuch, Kavanaugh, and Barrett.","45th and 47th President, the second to serve two non-consecutive terms."],
+   fact:"The Supreme Court ruled on presidential immunity for official acts in Trump v. United States (2024)."},
+  {id:"biden",cat:"pres",name:"Joe Biden",role:"46th President, 2021–2025",
+   hints:["A longtime senator from Delaware who chaired the Senate Judiciary Committee.","Served eight years as vice president.","46th President; appointed Ketanji Brown Jackson to the Supreme Court."],
+   fact:"Signed the Infrastructure Investment and Jobs Act and the CHIPS and Science Act."},
+  {id:"madison",cat:"pres",name:"James Madison",role:"4th President, 1809–1817; Father of the Constitution",img:"James Madison.jpg",
+   hints:["Co-wrote The Federalist Papers under the pen name \"Publius.\"","Drafted the Virginia Plan and proposed the amendments that became the Bill of Rights.","Known as the \"Father of the Constitution\"; later the 4th President."],
+   fact:"Designed the system of checks and balances and separation of powers in the Constitution."},
+  {id:"hamilton",cat:"found",name:"Alexander Hamilton",role:"1st Secretary of the Treasury",img:"Alexander Hamilton portrait by John Trumbull 1806.jpg",
+   hints:["Wrote 51 of the 85 Federalist Papers.","As the first Secretary of the Treasury, created the First Bank of the United States.","Killed in a duel with Aaron Burr in 1804; on the $10 bill."],
+   fact:"Argued for a strong national government and \"implied powers\" under the Necessary and Proper Clause."},
+  {id:"franklin",cat:"found",name:"Benjamin Franklin",role:"Diplomat, printer, delegate",img:"Joseph Siffrein Duplessis - Benjamin Franklin - Google Art Project.jpg",
+   hints:["Proposed the Albany Plan of Union in 1754.","The oldest delegate at the Constitutional Convention; secured the alliance with France.","Philadelphia printer, inventor, author of Poor Richard's Almanack; on the $100 bill."],
+   fact:"The only founder to sign the Declaration, the Treaty of Paris, and the Constitution."},
+  {id:"clay",cat:"found",name:"Henry Clay",role:"Speaker of the House & Senator from Kentucky",img:"Henry Clay.JPG",
+   hints:["As Speaker of the House, promoted the \"American System\" of tariffs, a national bank, and roads.","Helped craft the Missouri Compromise (1820) and the Compromise of 1850.","Kentucky senator nicknamed \"the Great Compromiser.\""],
+   fact:"Showed how Congress could hold the Union together through negotiated compromise, for a time."},
+  {id:"chisholm",cat:"found",name:"Shirley Chisholm",role:"U.S. Representative from New York, 1969–1983",img:"Shirley Chisholm.jpg",
+   hints:["A former early-childhood teacher from Brooklyn who served in the New York State Assembly.","A founding member of the Congressional Black Caucus.","First Black woman elected to Congress; ran for president in 1972 as \"Unbought and Unbossed.\""],
+   fact:"Broke barriers in Congress and in presidential politics for Black Americans and women."},
+
+  {id:"jmarshall",cat:"court",name:"John Marshall",role:"Chief Justice, 1801–1835",img:"John Marshall by Henry Inman, 1832.jpg",
+   hints:["Served as Secretary of State under President John Adams.","Wrote McCulloch v. Maryland (1819): a state cannot tax the national bank.","The Chief Justice who established judicial review in Marbury v. Madison (1803)."],
+   fact:"Made the Supreme Court a co-equal branch with the power to strike down unconstitutional laws."},
+  {id:"warren",cat:"court",name:"Earl Warren",role:"Chief Justice, 1953–1969",img:"Earl Warren.jpg",
+   hints:["Former governor of California, appointed by President Eisenhower.","Wrote the unanimous opinion in Brown v. Board of Education (1954).","Chief Justice whose court decided Miranda v. Arizona; led the commission on JFK's assassination."],
+   fact:"Led a Court that greatly expanded civil rights and the rights of the accused."},
+  {id:"tmarshall",cat:"court",name:"Thurgood Marshall",role:"Associate Justice, 1967–1991",img:"Thurgood-marshall-2.jpg",
+   hints:["Chief counsel for the NAACP Legal Defense and Educational Fund.","Argued and won Brown v. Board of Education before the Supreme Court.","The first African American justice on the Supreme Court."],
+   fact:"Used the courts to dismantle legal segregation, then defended equal protection from the bench."},
+  {id:"oconnor",cat:"court",name:"Sandra Day O'Connor",role:"Associate Justice, 1981–2006",img:"Sandra Day O'Connor.jpg",
+   hints:["Former Arizona state senator and the first woman to lead a state senate as majority leader.","Often the deciding swing vote on a closely divided Court.","The first woman to serve on the U.S. Supreme Court, appointed by Reagan."],
+   fact:"Her moderate swing votes shaped the law on affirmative action, federalism, and more."},
+  {id:"rbg",cat:"court",name:"Ruth Bader Ginsburg",role:"Associate Justice, 1993–2020",img:"Ruth Bader Ginsburg 2016 portrait.jpg",
+   hints:["Co-founded the ACLU's Women's Rights Project.","Wrote the opinion in United States v. Virginia (1996), opening VMI to women.","The second woman on the Supreme Court, nicknamed \"the Notorious R.B.G.\""],
+   fact:"Built the legal case that sex discrimination violates the Equal Protection Clause."},
+
+  {id:"douglass",cat:"civil",name:"Frederick Douglass",role:"Abolitionist, writer, orator",img:"Frederick Douglass (circa 1879).jpg",
+   hints:["Published the abolitionist newspaper The North Star.","Escaped slavery in Maryland in 1838 and became one of the nation's great orators.","Gave the speech \"What to the Slave Is the Fourth of July?\""],
+   fact:"Argued that the Constitution, read properly, was an anti-slavery document."},
+  {id:"anthony",cat:"civil",name:"Susan B. Anthony",role:"Suffrage leader",img:"Susan B Anthony c1855.jpg",
+   hints:["Arrested for voting in the 1872 presidential election in Rochester, New York.","Co-founded the National Woman Suffrage Association with Elizabeth Cady Stanton.","The 19th Amendment was nicknamed after her; she appeared on a dollar coin."],
+   fact:"Led the decades-long campaign that won women the right to vote."},
+  {id:"eleanor",cat:"civil",name:"Eleanor Roosevelt",role:"First Lady & UN delegate",img:"Eleanor Roosevelt portrait 1933.jpg",
+   hints:["Wrote a daily newspaper column called \"My Day.\"","Chaired the UN commission that drafted the Universal Declaration of Human Rights.","The longest-serving First Lady; married to FDR."],
+   fact:"Made human rights a global legal standard and redefined the role of First Lady."},
+  {id:"parks",cat:"civil",name:"Rosa Parks",role:"Civil rights activist",img:"Rosaparks.jpg",
+   hints:["Served as secretary of the Montgomery, Alabama, NAACP chapter.","Her 1955 arrest sparked a boycott that lasted 381 days.","Refused to give up her bus seat in Montgomery, Alabama."],
+   fact:"Her protest led to Browder v. Gayle, which ended segregated buses in Montgomery."},
+  {id:"mlk",cat:"civil",name:"Martin Luther King Jr.",role:"Civil rights leader",img:"Martin Luther King, Jr..jpg",
+   hints:["Wrote \"Letter from Birmingham Jail\" in 1963, defending civil disobedience.","As a young Baptist minister, led the Montgomery Bus Boycott.","Gave the \"I Have a Dream\" speech at the March on Washington."],
+   fact:"His nonviolent movement pushed Congress to pass the Civil Rights and Voting Rights Acts."},
+  {id:"chavez",cat:"civil",name:"César Chávez",wiki:"Cesar Chavez",role:"Labor and civil rights leader",img:"Cesar chavez crop2.jpg",
+   hints:["Served in the U.S. Navy, then trained as an organizer with the Community Service Organization.","Led the Delano grape strike and a nationwide grape boycott.","Co-founded the United Farm Workers with Dolores Huerta."],
+   fact:"Won union contracts and legal protections for farmworkers, who were left out of national labor law."},
+  {id:"lewis",cat:"civil",name:"John Lewis",role:"Civil rights leader & U.S. Representative",img:"John Lewis-2006.jpg",
+   hints:["Chaired the Student Nonviolent Coordinating Committee (SNCC).","Was beaten leading marchers across the Edmund Pettus Bridge on \"Bloody Sunday,\" 1965.","Georgia congressman for over 30 years who urged people to get into \"good trouble.\""],
+   fact:"Bloody Sunday helped push the Voting Rights Act of 1965 through Congress."},
+  {id:"taney",cat:"court",name:"Roger B. Taney",role:"Chief Justice, 1836–1864",
+   hints:["As Andrew Jackson's Treasury Secretary, pulled federal money out of the national bank.","Succeeded John Marshall as Chief Justice in 1836.","Wrote Dred Scott v. Sandford (1857), ruling Black Americans could not be citizens."],
+   fact:"Dred Scott is widely seen as the Court's worst decision; the 14th Amendment overturned it."},
+  {id:"harlan",cat:"court",name:"John Marshall Harlan",role:"Associate Justice, 1877–1911",
+   hints:["A former Kentucky slaveholder who served as a Union officer.","Known as \"the Great Dissenter\" of the late 1800s.","The lone dissenter in Plessy v. Ferguson: \"Our Constitution is color-blind.\""],
+   fact:"His Plessy dissent was vindicated by Brown v. Board of Education in 1954."},
+  {id:"holmes",cat:"court",name:"Oliver Wendell Holmes Jr.",role:"Associate Justice, 1902–1932",
+   hints:["Wounded three times as a Union officer in the Civil War.","Wrote the classic book The Common Law and led the Massachusetts high court.","Created the \"clear and present danger\" test in Schenck v. United States (1919)."],
+   fact:"His later dissents laid the groundwork for modern free speech protection."},
+  {id:"brandeis",cat:"court",name:"Louis Brandeis",role:"Associate Justice, 1916–1939",
+   hints:["A Boston lawyer known as \"the People's Lawyer.\"","Filed a brief packed with social science data in Muller v. Oregon (1908).","The first Jewish justice on the Supreme Court; co-wrote \"The Right to Privacy.\""],
+   fact:"Shaped the constitutional right to privacy and free speech law."},
+  {id:"black",cat:"court",name:"Hugo Black",role:"Associate Justice, 1937–1971",
+   hints:["A former U.S. senator from Alabama, appointed by FDR.","Insisted the First Amendment's \"no law\" meant exactly that; wrote Engel v. Vitale on school prayer.","Wrote Gideon v. Wainwright (1963), guaranteeing a lawyer to defendants who can't afford one."],
+   fact:"Led the push to apply the Bill of Rights to the states through the 14th Amendment."},
+  {id:"rehnquist",cat:"court",name:"William Rehnquist",role:"Chief Justice, 1986–2005",
+   hints:["Clerked for Justice Robert Jackson, then practiced law in Phoenix.","Dissented in Roe v. Wade as an associate justice.","The Chief Justice who presided over President Clinton's impeachment trial."],
+   fact:"Revived limits on Congress's power, as in United States v. Lopez (1995)."},
+  {id:"scalia",cat:"court",name:"Antonin Scalia",role:"Associate Justice, 1986–2016",
+   hints:["A law professor from New Jersey who served on the D.C. Circuit Court of Appeals.","Known for sharp, witty dissents and a close friendship with Ruth Bader Ginsburg.","A leading originalist; wrote District of Columbia v. Heller (2008) on the Second Amendment."],
+   fact:"Made originalism and textualism central to how judges read the law."},
+  {id:"thomas",cat:"court",name:"Clarence Thomas",role:"Associate Justice, 1991–",
+   hints:["Former chair of the Equal Employment Opportunity Commission.","His 1991 confirmation hearings centered on testimony from Anita Hill.","The second African American Supreme Court justice, appointed by George H. W. Bush."],
+   fact:"An originalist who wrote NYSRPA v. Bruen (2022) on the right to carry guns."},
+  {id:"roberts",cat:"court",name:"John Roberts",role:"Chief Justice, 2005–",
+   hints:["Clerked for Justice Rehnquist and argued 39 cases before the Supreme Court as a lawyer.","At his confirmation hearing, compared judges to umpires calling balls and strikes.","The 17th Chief Justice of the United States, appointed by George W. Bush."],
+   fact:"Cast the deciding vote upholding the Affordable Care Act in NFIB v. Sebelius (2012)."},
+  {id:"sotomayor",cat:"court",name:"Sonia Sotomayor",role:"Associate Justice, 2009–",
+   hints:["Grew up in public housing in the Bronx and worked as a Manhattan prosecutor.","As a federal judge, issued the order that ended the 1994–95 baseball strike.","The first Hispanic justice on the Supreme Court, appointed by Obama."],
+   fact:"Known for dissents on criminal justice and the rights of the accused."},
+
+  {id:"jay",cat:"found",name:"John Jay",role:"1st Chief Justice; Federalist author",
+   hints:["Negotiated a 1794 treaty with Britain that set off angry protests.","Wrote five of the Federalist Papers.","The first Chief Justice of the United States."],
+   fact:"Helped launch the federal courts and avoid a new war with Britain."},
+  {id:"mason",cat:"found",name:"George Mason",role:"Virginia delegate & Anti-Federalist",
+   hints:["A Virginia planter whose home was Gunston Hall.","Wrote the Virginia Declaration of Rights in 1776.","Refused to sign the Constitution because it had no bill of rights."],
+   fact:"His refusal helped force the promise of a Bill of Rights."},
+  {id:"henry",cat:"found",name:"Patrick Henry",role:"Virginia orator & Anti-Federalist",
+   hints:["A leading Anti-Federalist at Virginia's convention to ratify the Constitution.","Introduced the Virginia Resolves against the Stamp Act in 1765.","Declared \"Give me liberty, or give me death!\""],
+   fact:"His Anti-Federalist pressure helped bring about the Bill of Rights."},
+  {id:"sadams",cat:"found",name:"Samuel Adams",role:"Revolutionary organizer",
+   hints:["Helped set up the Committees of Correspondence in Massachusetts.","A leader of the Sons of Liberty in Boston.","Boston organizer behind the protests that led to the Boston Tea Party; cousin of the 2nd President."],
+   fact:"Organized the colonial resistance that grew into the Revolution."},
+  {id:"webster",cat:"found",name:"Daniel Webster",role:"Senator from Massachusetts",
+   hints:["Argued Dartmouth College v. Woodward and McCulloch v. Maryland before the Supreme Court.","Debated Robert Hayne of South Carolina over states' rights in 1830.","Massachusetts senator who declared \"Liberty and Union, now and forever, one and inseparable!\""],
+   fact:"Gave the classic defense of a permanent Union against nullification."},
+  {id:"calhoun",cat:"found",name:"John C. Calhoun",role:"Vice President & Senator from South Carolina",
+   hints:["Served as vice president under two different presidents.","Wrote the South Carolina Exposition, arguing states could nullify federal laws.","South Carolina senator who defended slavery as a \"positive good.\""],
+   fact:"His nullification theory fed the secession movement."},
+  {id:"stevens",cat:"found",name:"Thaddeus Stevens",role:"U.S. Representative from Pennsylvania",
+   hints:["A Pennsylvania lawmaker who fought to create free public schools.","Led the Radical Republicans in the House during Reconstruction.","Pushed the 14th Amendment through Congress and led the impeachment of Andrew Johnson."],
+   fact:"Shaped the Reconstruction Amendments that promised equal protection of the laws."},
+  {id:"rankin",cat:"found",name:"Jeannette Rankin",role:"U.S. Representative from Montana",
+   hints:["A suffragist and social worker from Montana.","The only member of Congress to vote against U.S. entry into both World Wars.","The first woman elected to Congress, in 1916."],
+   fact:"Won a seat in Congress before the 19th Amendment gave all women the vote."},
+  {id:"jordan",cat:"found",name:"Barbara Jordan",role:"U.S. Representative from Texas",
+   hints:["The first Black woman elected to the Texas Senate.","Gave a famous speech on the Constitution during the 1974 Nixon impeachment hearings.","The first Southern Black woman elected to the U.S. House; 1976 Democratic convention keynote speaker."],
+   fact:"Her impeachment speech is a classic statement of faith in the Constitution."},
+  {id:"pelosi",cat:"found",name:"Nancy Pelosi",role:"Speaker of the House",
+   hints:["Represented San Francisco in Congress for more than three decades.","Led the House as it passed the Affordable Care Act in 2010.","The first woman to serve as Speaker of the House."],
+   fact:"Held the highest office any woman had held in U.S. government at the time."},
+
+  {id:"stanton",cat:"civil",name:"Elizabeth Cady Stanton",role:"Women's rights leader",
+   hints:["Wrote The Woman's Bible, challenging religious teaching about women.","Wrote the Declaration of Sentiments, modeled on the Declaration of Independence.","Organized the Seneca Falls Convention of 1848."],
+   fact:"Launched the organized women's rights movement in the United States."},
+  {id:"truth",cat:"civil",name:"Sojourner Truth",role:"Abolitionist & women's rights speaker",
+   hints:["Born enslaved in New York under the name Isabella Baumfree.","Went to court to win back her son, who had been illegally sold into slavery.","Gave the 1851 speech remembered as \"Ain't I a Woman?\""],
+   fact:"Joined the fights for abolition and for women's rights."},
+  {id:"tubman",cat:"civil",name:"Harriet Tubman",role:"Abolitionist & Union scout",
+   hints:["Served as a Union scout and spy and helped lead the Combahee River Raid.","Escaped slavery in Maryland in 1849.","The most famous \"conductor\" on the Underground Railroad."],
+   fact:"Defied the Fugitive Slave Act to lead dozens of people to freedom."},
+  {id:"btwashington",cat:"civil",name:"Booker T. Washington",role:"Educator & author",
+   hints:["Born enslaved in Virginia; wrote the autobiography Up from Slavery.","Gave the 1895 \"Atlanta Compromise\" speech.","Founded the Tuskegee Institute in Alabama."],
+   fact:"Urged economic self-help, a strategy W. E. B. Du Bois openly challenged."},
+  {id:"dubois",cat:"civil",name:"W. E. B. Du Bois",role:"Scholar & civil rights leader",
+   hints:["The first African American to earn a Ph.D. from Harvard.","Wrote The Souls of Black Folk and described \"double consciousness.\"","Co-founded the NAACP and edited its magazine, The Crisis."],
+   fact:"Demanded full civil and political rights right away, not gradually."},
+  {id:"wells",cat:"civil",name:"Ida B. Wells",role:"Journalist & anti-lynching activist",
+   hints:["Sued a railroad in 1884 after being dragged from a first-class car.","Co-owned the Memphis newspaper Free Speech.","An investigative journalist who led the national campaign against lynching."],
+   fact:"Her reporting exposed lynching as racial terror and helped found the NAACP."},
+  {id:"addams",cat:"civil",name:"Jane Addams",role:"Social reformer",
+   hints:["A leader of the Women's International League for Peace and Freedom.","Founded Hull House, a Chicago settlement house, in 1889.","The first American woman to win the Nobel Peace Prize, in 1931."],
+   fact:"Pushed child labor laws and other Progressive Era reforms."},
+  {id:"malcolmx",cat:"civil",name:"Malcolm X",role:"Civil rights & Black nationalist leader",
+   hints:["Born Malcolm Little in Omaha, Nebraska.","A national spokesman for the Nation of Islam who later broke with the group.","Called for Black self-defense \"by any means necessary\"; assassinated in 1965."],
+   fact:"Shaped the Black Power movement and ideas of self-determination."},
+  {id:"huerta",cat:"civil",name:"Dolores Huerta",role:"Labor & civil rights leader",
+   hints:["A former elementary school teacher from Stockton, California.","Negotiated the farmworkers' contracts that ended the Delano grape strike.","Co-founded the United Farm Workers with César Chávez and coined \"Sí, se puede.\""],
+   fact:"Won labor and legal protections for farmworkers; awarded the Presidential Medal of Freedom in 2012."},
+  {id:"korematsu",cat:"civil",name:"Fred Korematsu",role:"Civil rights activist",
+   hints:["A welder from Oakland, California.","Refused to report for removal under Executive Order 9066 in 1942.","Lost his 1944 Supreme Court case, which upheld Japanese American incarceration."],
+   fact:"His conviction was overturned in 1983, and the Court repudiated Korematsu in 2018."}
+];
+
+const STORE_KEY = "nameThatLeader_v1";
+
+/* ---------- Storage (safe) ---------- */
+function loadStore(){
+  try{ const raw = localStorage.getItem(STORE_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return {custom:[], photos:{}, urls:{}, teams:null};
+}
+function saveStore(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); return true; }
+  catch(e){ toast("Couldn't save in this browser (storage is full or blocked)."); return false; }
+}
+let store = loadStore();
+store.custom = store.custom || []; store.photos = store.photos || {}; store.urls = store.urls || {};
+
+function allLeaders(){ return BUILT_IN.concat(store.custom); }
+function commonsUrl(f){ return "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(f) + "?width=640"; }
+function wikiTitle(L){ return L.wiki || L.name; }
+function sources(L){
+  const out=[];
+  if(store.photos[L.id]) out.push(store.photos[L.id]);
+  if(store.urls[L.id]) out.push(store.urls[L.id]);
+  if(L.url) out.push(L.url);
+  if(L.img) out.push(commonsUrl(L.img));
+  return out;
+}
+/* Backup source: the lead photo from each leader's Wikipedia article */
+const wikiThumbs={};
+function loadWiki(titles){
+  const need=titles.filter(t=>t && !(t in wikiThumbs));
+  if(!need.length) return Promise.resolve();
+  const chunks=[]; for(let i=0;i<need.length;i+=40) chunks.push(need.slice(i,i+40));
+  return Promise.all(chunks.map(ch=>{
+    const u="https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&titles="+encodeURIComponent(ch.join("|"));
+    return Promise.resolve().then(()=>fetch(u)).then(r=>r.json()).then(j=>{
+      const q=j.query||{}, norm={}, red={}, byTitle={};
+      (q.normalized||[]).forEach(n=>{ norm[n.from]=n.to; });
+      (q.redirects||[]).forEach(r=>{ red[r.from]=r.to; });
+      Object.keys(q.pages||{}).forEach(k=>{ const pg=q.pages[k]; if(pg.thumbnail) byTitle[pg.title]=pg.thumbnail.source; });
+      ch.forEach(t=>{ let f=norm[t]||t; f=red[f]||f; wikiThumbs[t]=byTitle[f]||""; });
+    }).catch(()=>{ ch.forEach(t=>{ if(!(t in wikiThumbs)) wikiThumbs[t]=""; }); });
+  }));
+}
+/* Try each source in order, then the Wikipedia backup */
+function loadPortrait(L, onOk, onFail){
+  const list=sources(L); let i=0, triedWiki=false;
+  const im=new Image();
+  const next=()=>{
+    if(i<list.length){ im.src=list[i++]; return; }
+    if(!triedWiki){
+      triedWiki=true;
+      loadWiki([wikiTitle(L)]).then(()=>{ const w=wikiThumbs[wikiTitle(L)]; if(w && list.indexOf(w)<0){ list.push(w); next(); } else onFail(); });
+      return;
+    }
+    onFail();
+  };
+  im.addEventListener("load",()=>onOk(im));
+  im.addEventListener("error",next);
+  next();
+  return im;
+}
+function initials(n){ return n.split(/\s+/).filter(w=>/^[A-Z]/.test(w)).slice(0,2).map(w=>w[0]).join(""); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function $(id){ return document.getElementById(id); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+let toastTimer=null;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{t.hidden=true;},2600); }
+
+/* ---------- Setup UI ---------- */
+const DEFAULT_TEAMS = ["Team 1","Team 2","Team 3","Team 4","Team 5","Team 6"];
+let teamNames = (store.teams && store.teams.length===6) ? store.teams.slice() : DEFAULT_TEAMS.slice();
+
+function renderTeamInputs(){
+  const n = +$("teamCount").value, box = $("teamInputs");
+  box.innerHTML = "";
+  for(let i=0;i<n;i++){
+    const wrap=document.createElement("div"); wrap.className="field"; wrap.style.marginBottom="0";
+    wrap.innerHTML = '<label for="tname'+i+'">Team '+(i+1)+' name <kbd>'+(i+1)+'</kbd></label><input id="tname'+i+'" data-i="'+i+'">';
+    box.appendChild(wrap);
+    const inp = wrap.querySelector("input"); inp.value = teamNames[i];
+    inp.addEventListener("input",()=>{ teamNames[i]=inp.value; store.teams=teamNames; saveStore(); });
+  }
+}
+
+function renderCatChecks(){
+  const box=$("catChecks"); box.innerHTML="";
+  const list=allLeaders();
+  Object.keys(CATS).forEach(k=>{
+    const n=list.filter(L=>L.cat===k).length;
+    const lab=document.createElement("label"); lab.className="check";
+    lab.innerHTML='<input type="checkbox" id="cat_'+k+'" value="'+k+'" checked><span>'+esc(CATS[k])+'</span><span class="count">'+n+'</span>';
+    box.appendChild(lab);
+    lab.querySelector("input").addEventListener("change",renderRoundOptions);
+  });
+  renderRoundOptions();
+}
+function chosenCats(){ return Object.keys(CATS).filter(k=>$("cat_"+k) && $("cat_"+k).checked); }
+function pool(){ const cats=chosenCats(); return allLeaders().filter(L=>cats.includes(L.cat)); }
+function renderRoundOptions(){
+  const sel=$("roundCount"), max=pool().length, prev=+sel.value||10;
+  sel.innerHTML="";
+  const opts=[5,10,15,20].filter(v=>v<max); opts.push(max);
+  opts.forEach(v=>{ const o=document.createElement("option"); o.value=v; o.textContent = v===max ? ("All "+v) : v; sel.appendChild(o); });
+  sel.value = opts.includes(prev) ? prev : (opts.includes(10)?10:max);
+  $("setupMsg").textContent = max ? "" : "Pick at least one category.";
+  $("startBtn").disabled = !max;
+}
+
+/* Roster */
+function renderRoster(){
+  const box=$("roster"); box.innerHTML="";
+  allLeaders().forEach(L=>{
+    const item=document.createElement("div"); item.className="r-item";
+    item.innerHTML =
+      '<div class="r-mono">'+esc(initials(L.name))+'</div>' +
+      '<div class="r-body"><div class="r-name">'+esc(L.name)+'</div>'+
+      '<div class="r-meta">'+esc(CATS[L.cat]||"")+'</div>'+
+      '<div class="r-status">Checking photo…</div>'+
+      '<div class="r-actions">'+
+        '<label class="btn small" style="display:inline-block">Upload<input type="file" accept="image/*" hidden data-up="'+esc(L.id)+'"></label>'+
+        '<button class="btn small" data-paste="'+esc(L.id)+'">Paste</button>'+
+        (store.photos[L.id]||store.urls[L.id] ? '<button class="btn small ghost" data-reset="'+esc(L.id)+'">Use default</button>':'')+
+        (L.custom ? '<button class="btn small ghost" data-edit="'+esc(L.id)+'">Edit</button><button class="btn small ghost" data-del="'+esc(L.id)+'">Delete</button>':'')+
+      '</div></div>';
+    box.appendChild(item);
+    const mono=item.querySelector(".r-mono"), st=item.querySelector(".r-status");
+    loadPortrait(L, im=>{ im.className="r-thumb"; im.alt=""; mono.replaceWith(im); st.textContent="Photo OK"; st.className="r-status ok"; },
+      ()=>{ st.textContent="No photo found — upload one"; st.className="r-status bad"; });
+  });
+  box.querySelectorAll("[data-up]").forEach(inp=>inp.addEventListener("change",()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    compress(f).then(url=>{ store.photos[inp.dataset.up]=url; if(saveStore()) toast("Photo saved."); renderRoster(); }).catch(()=>toast("That file couldn't be read as an image."));
+  }));
+  box.querySelectorAll("[data-paste]").forEach(b=>b.addEventListener("click",()=>{
+    pasteTarget=b.dataset.paste;
+    box.querySelectorAll(".r-item").forEach(x=>x.classList.remove("armed"));
+    b.closest(".r-item").classList.add("armed");
+    const L=allLeaders().find(x=>x.id===pasteTarget);
+    toast("Now press Ctrl+V (or ⌘V) to paste "+(L?L.name:"the")+"'s photo.");
+  }));
+  box.querySelectorAll("[data-reset]").forEach(b=>b.addEventListener("click",()=>{ delete store.photos[b.dataset.reset]; delete store.urls[b.dataset.reset]; saveStore(); renderRoster(); }));
+  box.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{
+    if(b.dataset.armed){ store.custom=store.custom.filter(L=>L.id!==b.dataset.del); delete store.photos[b.dataset.del]; saveStore(); renderRoster(); renderCatChecks(); toast("Leader deleted."); }
+    else { b.dataset.armed="1"; b.textContent="Click again to delete"; }
+  }));
+  box.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEditor(b.dataset.edit)));
+}
+
+function compress(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onerror=reject;
+    r.onload=()=>{ const im=new Image(); im.onerror=reject; im.onload=()=>{
+      const max=640, s=Math.min(1,max/Math.max(im.width,im.height));
+      const c=document.createElement("canvas"); c.width=Math.round(im.width*s); c.height=Math.round(im.height*s);
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      resolve(c.toDataURL("image/jpeg",0.82));
+    }; im.src=r.result; };
+    r.readAsDataURL(file);
+  });
+}
+
+/* Editor */
+let editingId=null, pendingPhoto=null;
+function openEditor(id){
+  editingId=id||null; pendingPhoto=null;
+  const L = id ? store.custom.find(x=>x.id===id) : null;
+  $("edTitle").textContent = L ? "Edit "+L.name : "Add a leader";
+  $("edName").value=L?L.name:""; $("edRole").value=L?L.role:""; $("edCat").value=L?L.cat:"pres";
+  $("edUrl").value=L&&L.url?L.url:""; $("edFile").value="";
+  $("edH1").value=L?L.hints[0]:""; $("edH2").value=L?L.hints[1]:""; $("edH3").value=L?L.hints[2]:"";
+  $("edFact").value=L?L.fact:""; $("edMsg").textContent="";
+  $("editor").hidden=false; $("edName").focus();
+}
+function saveEditor(){
+  const name=$("edName").value.trim(), h=[$("edH1").value.trim(),$("edH2").value.trim(),$("edH3").value.trim()];
+  if(!name || h.some(x=>!x)){ $("edMsg").textContent="Add a name and all three hints."; return; }
+  const id = editingId || ("c_"+Date.now().toString(36));
+  const L = {id,custom:true,cat:$("edCat").value,name,role:$("edRole").value.trim(),url:$("edUrl").value.trim(),hints:h,fact:$("edFact").value.trim()};
+  const i=store.custom.findIndex(x=>x.id===id);
+  if(i>=0) store.custom[i]=L; else store.custom.push(L);
+  if(pendingPhoto) store.photos[id]=pendingPhoto;
+  if(saveStore()) toast(name+" saved.");
+  $("editor").hidden=true; renderRoster(); renderCatChecks();
+}
+
+/* ---------- Game state ---------- */
+let G=null;          // game
+let tick=null;       // interval
+const C=2*Math.PI*50;
+
+function startGame(){
+  const n=+$("teamCount").value;
+  const list=shuffle(pool().slice()).slice(0,+$("roundCount").value);
+  if(!list.length) return;
+  G={ teams:teamNames.slice(0,n).map((t,i)=>({name:(t||"").trim()||("Team "+(i+1)),score:0})),
+      list, idx:-1, secs:+$("hintSecs").value, log:[] };
+  $("setup").hidden=true; $("final").hidden=true; $("play").hidden=false;
+  renderBench(); nextLeader();
+}
+
+function nextLeader(){
+  stopTick();
+  G.idx++;
+  if(G.idx>=G.list.length){ showFinal(); return; }
+  const L=G.list[G.idx];
+  G.cur={ L, stage:0, left:G.secs*1000, paused:false, done:false };
+  $("roundLabel").textContent="Leader "+(G.idx+1)+" of "+G.list.length;
+  $("catLabel").textContent=CATS[L.cat]||"";
+  $("plate").classList.add("hidden-name");
+  $("plateWho").textContent="? ? ?"; $("plateWhat").textContent="Who is this leader?";
+  $("factBox").hidden=true; $("statusLine").textContent="";
+  $("nextBtn").hidden=true; $("revealBtn").hidden=false; $("hintBtn").hidden=false; $("pauseBtn").hidden=false;
+  $("pauseBtn").textContent="Pause";
+  renderPortrait(L); preload(G.list[G.idx+1]); renderHints(-1); renderWorth(); renderBench();
+  startTick();
+}
+
+function renderPortrait(L){
+  const box=$("portrait");
+  box.innerHTML='<div class="no-photo"><p>Loading portrait…</p></div>';
+  const fallback=()=>{ if(G&&G.cur&&G.cur.L===L) box.innerHTML='<div class="no-photo"><div class="q">?</div><p>Portrait did not load.<br>Go by the clues, or add a photo in Manage leaders.</p></div>'; };
+  loadPortrait(L, im=>{ if(!(G&&G.cur&&G.cur.L===L)) return; im.alt="Portrait of the mystery leader"; box.innerHTML=""; box.appendChild(im); }, fallback);
+}
+function preload(L){ if(L) loadPortrait(L, ()=>{}, ()=>{}); }
+
+function renderHints(fresh){
+  const c=G.cur, box=$("hints"); box.innerHTML="";
+  for(let i=0;i<3;i++){
+    const open = i < c.stage || c.done;
+    const d=document.createElement("div");
+    d.className="hint "+(open?"open":"locked")+(i===fresh?" fresh":"");
+    const txt = open ? esc(c.L.hints[i]) : (i===c.stage ? "Unlocks when the timer runs out" : "Locked");
+    d.innerHTML='<div class="num">'+(i+1)+'</div><div class="txt">'+txt+'</div>';
+    box.appendChild(d);
+  }
+}
+
+function worth(){ return Math.max(1,4-G.cur.stage); }
+function renderWorth(){
+  const c=G.cur, w=worth();
+  $("pts").textContent = c.done ? "—" : (w+(w===1?" pt":" pts"));
+  const s=Math.ceil(c.left/1000);
+  $("secs").textContent = c.done ? "0" : s;
+  $("worthSub").textContent = c.done ? "Round over" :
+    c.paused ? "Paused" :
+    c.stage<3 ? ("Next hint in "+s+" second"+(s===1?"":"s")) : (s>0 ? "Last chance: "+s+"s" : "Time's up — reveal the answer");
+  const frac = c.done ? 0 : Math.max(0,c.left/(G.secs*1000));
+  $("ringBar").setAttribute("stroke-dashoffset", String(C*(1-frac)));
+  $("ring").classList.toggle("low", !c.done && s<=5);
+  const spans=$("ladder").children;
+  for(let i=0;i<4;i++){ spans[i].className = (i===c.stage && !c.done) ? "on" : (i<c.stage ? "past" : ""); }
+}
+
+function startTick(){
+  stopTick();
+  let last=performance.now();
+  tick=setInterval(()=>{
+    const now=performance.now(), dt=now-last; last=now;
+    const c=G&&G.cur; if(!c || c.paused || c.done) return;
+    if(c.left<=0) return;
+    c.left-=dt;
+    if(c.left<=0){
+      c.left=0;
+      if(c.stage<3){ advanceHint(); }
+      else { $("statusLine").textContent="Time's up! Award a final guess or reveal the answer."; }
+    }
+    renderWorth();
+  },100);
+}
+function stopTick(){ if(tick){ clearInterval(tick); tick=null; } }
+
+function advanceHint(){
+  const c=G.cur; if(c.done || c.stage>=3) return;
+  c.stage++; c.left=G.secs*1000;
+  renderHints(c.stage-1); renderWorth();
+  $("statusLine").textContent = "Hint "+c.stage+" unlocked — now worth "+worth()+(worth()===1?" point.":" points.");
+}
+
+function togglePause(){
+  const c=G&&G.cur; if(!c||c.done) return;
+  c.paused=!c.paused; $("pauseBtn").textContent=c.paused?"Resume":"Pause"; renderWorth();
+}
+
+function reveal(teamIdx){
+  const c=G.cur; if(c.done) return;
+  c.done=true;
+  const pts = teamIdx>=0 ? Math.max(1,4-c.stage) : 0;
+  if(teamIdx>=0){ G.teams[teamIdx].score+=pts; }
+  G.log.push({name:c.L.name, team: teamIdx>=0 ? G.teams[teamIdx].name : null, pts, hints:c.stage});
+  $("plate").classList.remove("hidden-name");
+  $("plateWho").textContent=c.L.name; $("plateWhat").textContent=c.L.role||"";
+  if(c.L.fact){ $("factBox").textContent="Why it matters: "+c.L.fact; $("factBox").hidden=false; }
+  $("statusLine").textContent = teamIdx>=0 ? (G.teams[teamIdx].name+" earns "+pts+(pts===1?" point!":" points!")) : "No points this round.";
+  $("nextBtn").hidden=false; $("revealBtn").hidden=true; $("hintBtn").hidden=true; $("pauseBtn").hidden=true;
+  renderHints(-1); renderWorth(); renderBench(teamIdx);
+  $("nextBtn").focus();
+}
+
+function renderBench(flashIdx){
+  const box=$("bench"); box.innerHTML="";
+  const done = G.cur && G.cur.done;
+  G.teams.forEach((t,i)=>{
+    const d=document.createElement("div"); d.className="team"+(i===flashIdx?" flash":"");
+    d.innerHTML='<div class="tn"><span>'+esc(t.name)+'</span><kbd class="key">'+(i+1)+'</kbd></div>'+
+      '<div class="ts">'+t.score+'</div>'+
+      '<button class="btn primary award" data-award="'+i+'"'+(done?' disabled':'')+'>Got it</button>'+
+      '<div class="adj"><button class="btn small ghost" data-adj="'+i+'" data-d="-1" aria-label="Subtract a point from '+esc(t.name)+'">−1</button><button class="btn small ghost" data-adj="'+i+'" data-d="1" aria-label="Add a point to '+esc(t.name)+'">+1</button></div>';
+    box.appendChild(d);
+  });
+  box.querySelectorAll("[data-award]").forEach(b=>b.addEventListener("click",()=>reveal(+b.dataset.award)));
+  box.querySelectorAll("[data-adj]").forEach(b=>b.addEventListener("click",()=>{ const t=G.teams[+b.dataset.adj]; t.score=Math.max(0,t.score+(+b.dataset.d)); renderBench(); }));
+}
+
+function showFinal(){
+  stopTick();
+  $("play").hidden=true; $("final").hidden=false;
+  const ranked=G.teams.slice().sort((a,b)=>b.score-a.score);
+  const top=ranked[0].score, winners=ranked.filter(t=>t.score===top);
+  $("winnerLine").textContent = top===0 ? "No points scored" : winners.length>1 ? ("Tie: "+winners.map(w=>w.name).join(" & ")) : (winners[0].name+" wins!");
+  $("podium").innerHTML = ranked.map(t=>'<div class="row'+(t.score===top&&top>0?' first':'')+'"><span>'+esc(t.name)+'</span><b>'+t.score+'</b></div>').join("");
+  $("recap").innerHTML = '<h2 style="font-size:1.3rem;margin-bottom:8px">Leaders in this game</h2><ol>'+
+    G.log.map(e=>'<li><b>'+esc(e.name)+'</b> — '+(e.team? esc(e.team)+' (+'+e.pts+', after '+e.hints+' hint'+(e.hints===1?'':'s')+')' : '<span class="muted">not named</span>')+'</li>').join("")+'</ol>';
+}
+
+function endGame(){
+  const b=$("endBtn");
+  if(b.dataset.armed){ b.dataset.armed=""; b.textContent="End game"; if(G.cur && !G.cur.done){ G.cur.done=true; } showFinal(); }
+  else { b.dataset.armed="1"; b.textContent="Click again to end"; setTimeout(()=>{ b.dataset.armed=""; b.textContent="End game"; },3000); }
+}
+
+/* ---------- Wire up ---------- */
+$("teamCount").addEventListener("change",renderTeamInputs);
+$("startBtn").addEventListener("click",startGame);
+$("toggleRoster").addEventListener("click",()=>{ const p=$("rosterPanel"); p.hidden=!p.hidden; if(!p.hidden) renderRoster(); });
+$("addLeaderBtn").addEventListener("click",()=>openEditor(null));
+$("edCancel").addEventListener("click",()=>{ $("editor").hidden=true; });
+$("edSave").addEventListener("click",saveEditor);
+$("edFile").addEventListener("change",()=>{ const f=$("edFile").files[0]; if(f) compress(f).then(u=>{pendingPhoto=u; $("edMsg").textContent="Photo ready.";}).catch(()=>{$("edMsg").textContent="That file couldn't be read as an image.";}); });
+Object.keys(CATS).forEach(k=>{ const o=document.createElement("option"); o.value=k; o.textContent=CATS[k]; $("edCat").appendChild(o); });
+
+$("pauseBtn").addEventListener("click",togglePause);
+$("hintBtn").addEventListener("click",()=>{ if(G&&G.cur&&G.cur.stage<3) advanceHint(); else if(G&&G.cur) $("statusLine").textContent="All three hints are showing."; });
+$("revealBtn").addEventListener("click",()=>reveal(-1));
+$("nextBtn").addEventListener("click",nextLeader);
+$("endBtn").addEventListener("click",endGame);
+$("againBtn").addEventListener("click",()=>{ $("final").hidden=true; $("setup").hidden=false; G=null; });
+
+document.addEventListener("keydown",e=>{
+  if($("play").hidden || !G || !G.cur) return;
+  if(e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const k=e.key.toLowerCase();
+  if(k===" "){ e.preventDefault(); togglePause(); }
+  else if(k==="h"){ $("hintBtn").click(); }
+  else if(k==="r"){ reveal(-1); }
+  else if(k==="n"){ if(G.cur.done) nextLeader(); }
+  else if(/^[1-6]$/.test(k) && +k<=G.teams.length){ reveal(+k-1); }
+});
+
+
+/* ---------- Bulk photos, paste, photo packs ---------- */
+let pasteTarget=null;
+function normName(x){ return String(x).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z]/g,""); }
+const NICK={fdr:"fdr",franklinroosevelt:"fdr",teddyroosevelt:"troosevelt",teddy:"troosevelt",tr:"troosevelt",mlk:"mlk",kingjr:"mlk",martinlutherking:"mlk",rbg:"rbg",lbj:"lbj",jfk:"jfk",kennedy:"jfk",oconnor:"oconnor",chavez:"chavez",eleanor:"eleanor",douglass:"douglass",ginsburg:"rbg"};
+function matchLeader(fname){
+  const f=normName(fname.replace(/\.[a-z0-9]+$/i,""));
+  if(!f) return null;
+  const list=allLeaders();
+  let hit=list.find(L=>normName(L.name)===f || normName(L.id)===f);
+  if(hit) return hit;
+  if(NICK[f]) return list.find(L=>L.id===NICK[f])||null;
+  hit=list.filter(L=>f.indexOf(normName(L.name))>=0);
+  if(hit.length===1) return hit[0];
+  const last=list.filter(L=>{ const w=L.name.replace(/\b(Jr|Sr)\.?$/,"").trim().split(/\s+/); const ln=normName(w[w.length-1]); return ln.length>2 && f.indexOf(ln)>=0; });
+  if(last.length===1) return last[0];
+  const nk=Object.keys(NICK).find(k=>k.length>2 && f.indexOf(k)>=0);
+  return nk ? list.find(L=>L.id===NICK[nk])||null : null;
+}
+function bulkAdd(files){
+  const imgs=[...files].filter(f=>/^image\//.test(f.type));
+  if(!imgs.length) return;
+  const missed=[]; let done=0;
+  Promise.all(imgs.map(f=>{
+    const L=matchLeader(f.name);
+    if(!L){ missed.push(f.name); return null; }
+    return compress(f).then(u=>{ store.photos[L.id]=u; done++; }).catch(()=>missed.push(f.name));
+  })).then(()=>{
+    saveStore(); renderRoster();
+    toast("Added "+done+" photo"+(done===1?"":"s")+(missed.length?". No match for: "+missed.slice(0,4).join(", ")+(missed.length>4?"…":"")+" (rename to the leader's name or use Upload)":"."));
+  });
+}
+const dz=$("dropZone");
+$("bulkFiles").addEventListener("change",e=>{ bulkAdd(e.target.files); e.target.value=""; });
+["dragenter","dragover"].forEach(t=>dz.addEventListener(t,e=>{ e.preventDefault(); dz.classList.add("over"); }));
+["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{ e.preventDefault(); dz.classList.remove("over"); }));
+dz.addEventListener("drop",e=>{ if(e.dataTransfer) bulkAdd(e.dataTransfer.files); });
+
+document.addEventListener("paste",e=>{
+  if(!pasteTarget || $("rosterPanel").hidden) return;
+  const items=(e.clipboardData&&e.clipboardData.items)||[];
+  let file=null; for(const it of items){ if(it.kind==="file" && /^image\//.test(it.type)){ file=it.getAsFile(); break; } }
+  if(!file){ toast("No picture on the clipboard. Right-click an image and choose Copy image first."); return; }
+  e.preventDefault();
+  const id=pasteTarget; pasteTarget=null;
+  compress(file).then(u=>{ store.photos[id]=u; if(saveStore()) toast("Photo pasted."); renderRoster(); });
+});
+
+$("savePack").addEventListener("click",()=>{
+  const n=Object.keys(store.photos).length;
+  if(!n){ toast("No uploaded photos to save yet."); return; }
+  const blob=new Blob([JSON.stringify({type:"name-that-leader-photos",v:1,photos:store.photos,custom:store.custom})],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="name-that-leader-photos.json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast("Saved "+n+" photos.");
+});
+$("loadPack").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+      const d=JSON.parse(r.result);
+      if(!d || d.type!=="name-that-leader-photos") throw 0;
+      Object.assign(store.photos,d.photos||{});
+      (d.custom||[]).forEach(L=>{ if(!store.custom.some(x=>x.id===L.id)) store.custom.push(L); });
+      saveStore(); renderRoster(); renderCatChecks();
+      toast("Loaded "+Object.keys(d.photos||{}).length+" photos.");
+    }catch(err){ toast("That file isn't a Name That Leader photo pack."); } };
+  r.readAsText(f); e.target.value="";
+});
+
+/* ---------- Full screen ---------- */
+function isFs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+function toggleFs(){
+  const el=document.documentElement;
+  try{
+    if(isFs()){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); }
+    else { const req=el.requestFullscreen||el.webkitRequestFullscreen; const r=req&&req.call(el); if(r&&r.catch) r.catch(()=>toast("Full screen isn't available here. Press F11 instead.")); if(!req) toast("Full screen isn't available here. Press F11 instead."); }
+  }catch(e){ toast("Full screen isn't available here. Press F11 instead."); }
+}
+function fsLabel(){ const t=isFs()?"Exit full screen":"Full screen"; $("fsBtn").textContent=t; $("fsBtn2").textContent=t; }
+$("fsBtn").addEventListener("click",toggleFs); $("fsBtn2").addEventListener("click",toggleFs);
+document.addEventListener("fullscreenchange",fsLabel); document.addEventListener("webkitfullscreenchange",fsLabel);
+document.addEventListener("keydown",e=>{ if(e.key.toLowerCase()==="f" && !(e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName))) toggleFs(); });
+
+renderTeamInputs(); renderCatChecks();
+loadWiki(BUILT_IN.map(wikiTitle));
+})();
+</script>
+</body>
+</html>

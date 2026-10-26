@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Capitol Clues Daily</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Public+Sans:wght@400;600;800&display=swap">
+<style>
+/* Same look as Name That Leader Daily: navy masthead, brass accents, white cards */
+:root{
+  --ink:#e8eef6; --panel:#ffffff; --panel-2:#f1f4f9; --line:#cdd6e4;
+  --text:#14213a; --muted:#56657f; --brass:#e0ae4f; --brass-ink:#2a1d05; --brass-text:#8a5a0b;
+  --navy:#1f3a68; --good:#1f8f5a; --alert:#c0402c;
+  --display:"DM Serif Display", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:clamp(16px,3vw,32px);padding-block:18px 32px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;font-weight:800;color:var(--brass-text)}
+.muted{color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:.6em 1.05em;font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:800}
+.btn.ghost{background:transparent}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0;box-shadow:0 1px 2px rgba(20,33,58,.06)}
+.masthead{border-top:6px solid var(--navy);padding-top:14px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:end}
+.masthead h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1}
+.date{font-weight:800;color:var(--navy)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;align-items:start}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-weight:600;font-size:.9rem}
+.field input{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.6em .75em;width:100%}
+.rules{margin:0;padding-left:1.1rem}
+.rules li{margin-bottom:4px}
+.ladder{display:flex;gap:6px;margin:10px 0}
+.ladder span{flex:1;min-width:34px;text-align:center;border-radius:6px;padding:.2em 0;font-weight:800;font-size:.85rem;background:var(--panel-2);color:var(--muted);font-variant-numeric:tabular-nums}
+.ladder-key{display:flex;gap:6px;margin:-4px 0 12px}
+.ladder-key span{flex:1;text-align:center;font-size:.8rem}
+.ladder span.on{background:var(--brass);color:var(--brass-ink)}
+
+/* leaderboard */
+.top{display:flex;gap:14px;align-items:center;background:#fffaf0;border:1px solid var(--brass);border-radius:12px;padding:12px 14px;margin:12px 0}
+.top .big{font-family:var(--display);font-size:2.2rem;line-height:1;color:var(--navy);font-variant-numeric:tabular-nums}
+.board{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.board th{text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.board td{padding:8px;border-bottom:1px solid var(--panel-2)}
+.board td.n{text-align:right;font-weight:800}
+.board tr.me td{background:#fffaf0}
+.board .grp{color:var(--muted);font-size:.85rem}
+.board-wrap{overflow-x:auto}
+.note{font-size:.9rem;color:var(--muted)}
+
+/* play */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:14px}
+.prog{font-family:var(--display);font-size:1.4rem}
+.score{font-weight:800;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:5px}
+.dots i{width:14px;height:14px;border-radius:4px;background:var(--panel-2);border:1px solid var(--line)}
+.dots i.cur{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset}
+.d0{background:var(--good)!important;border-color:var(--good)!important}
+.d1{background:var(--brass)!important;border-color:var(--brass)!important}
+.d2{background:#e08a4f!important;border-color:#e08a4f!important}
+.dx{background:#7a8599!important;border-color:#7a8599!important}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(14px,2.5vw,28px);align-items:start}
+@media (max-width:760px){.stage{grid-template-columns:1fr}}
+
+/* the mystery-answer card */
+.docket{background:var(--navy);color:#fff;border-radius:14px;padding:clamp(16px,3vw,24px);box-shadow:0 14px 34px rgba(20,33,58,.22)}
+.docket .eyebrow{color:var(--brass)}
+.docket .qtext{font-family:var(--display);font-size:clamp(1.35rem,2.6vw,1.85rem);line-height:1.25;margin:8px 0 14px;text-wrap:pretty}
+.docket .chap{font-family:var(--display);font-size:clamp(1.3rem,3vw,1.8rem);line-height:1.15;margin:4px 0 14px}
+.shape-label{font-size:.85rem;color:#c9d4e8;margin-bottom:8px}
+.tiles{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.word{display:flex;flex-wrap:wrap;gap:4px}
+.tile{width:clamp(22px,4.2vw,30px);height:clamp(28px,5vw,36px);border-radius:5px;background:rgba(255,255,255,.12);border-bottom:3px solid var(--brass);display:grid;place-items:center;font-weight:800;font-size:clamp(.9rem,2.2vw,1.1rem);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.tile.p{background:transparent;border-bottom-color:transparent;width:auto;min-width:10px;color:#c9d4e8}
+.tile.lead{background:var(--brass);color:var(--brass-ink);border-bottom-color:#a87a26}
+.tile.win{background:var(--good);border-bottom-color:#14633e}
+.tile.miss{background:#7a8599;border-bottom-color:#59637a}
+.reveal{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.18)}
+.reveal .who{font-family:var(--display);font-size:clamp(1.5rem,3.4vw,2.2rem);line-height:1.1;color:var(--brass)}
+.reveal .fact{margin-top:6px;color:#e6ecf6}
+
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.clock{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.ring{position:relative;width:88px;height:88px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--line);stroke-width:9}
+.ring .bar{fill:none;stroke:var(--brass);stroke-width:9;stroke-linecap:round}
+.ring.low .bar{stroke:var(--alert)}
+.ring .secs{position:absolute;inset:0;display:grid;place-items:center;font-size:1.8rem;font-weight:800;font-variant-numeric:tabular-nums}
+.worth .pts{font-family:var(--display);font-size:2.2rem;line-height:1;color:var(--navy)}
+.worth .sub{color:var(--muted);font-size:.9rem}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{display:grid;grid-template-columns:auto 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.hint .num{font-family:var(--display);font-size:1.4rem;line-height:1;color:var(--muted);width:1.2em;text-align:center}
+.hint .txt{font-weight:600;min-width:0}
+.hint .tag{display:block;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brass-text);margin-bottom:2px}
+.hint.locked .txt{color:var(--muted);font-weight:400;font-style:italic}
+.hint.open{border-color:var(--brass);background:#fffaf0}
+.hint.open .num{color:var(--brass-text)}
+.guess{display:flex;gap:8px;flex-wrap:wrap}
+.guess input{flex:1 1 200px;min-width:0;border:2px solid var(--navy);border-radius:10px;padding:.65em .8em;font-size:1.1rem;background:var(--panel)}
+.guess input.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.guess input.shake{animation:none}}
+.feedback{min-height:1.5em;font-weight:600}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--alert)}
+.strikes{font-size:.9rem;color:var(--muted)}
+.topright{display:flex;align-items:center;gap:12px}
+.pause-banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;background:var(--navy);color:#fff;border-radius:12px;padding:10px 16px;margin-bottom:14px}
+.pause-banner b{font-family:var(--display);font-weight:400;font-size:1.4rem;margin-right:10px}
+.pause-banner .info{color:#c9d4e8;font-size:.95rem}
+.clock.paused .ring .bar{stroke:var(--muted)}
+
+/* results */
+.result-head{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.result-head .big{font-family:var(--display);font-size:clamp(3rem,8vw,4.4rem);line-height:1;color:var(--navy);font-variant-numeric:tabular-nums}
+.recap{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px}
+.recap li{display:flex;gap:10px;align-items:center}
+.recap li i{width:14px;height:14px;border-radius:4px;flex:none}
+.recap li b{font-variant-numeric:tabular-nums;margin-left:auto}
+.share{font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;margin:10px 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel);border:1px solid var(--brass);border-radius:10px;padding:.6em 1em;font-weight:600;z-index:10;box-shadow:0 6px 20px rgba(20,33,58,.18)}
+/* teacher settings */
+.teacher{margin-top:18px}
+.teacher summary{cursor:pointer;font-family:var(--display);font-size:1.35rem;list-style:none;display:flex;align-items:center;gap:10px}
+.teacher summary::-webkit-details-marker{display:none}
+.teacher summary::before{content:"\25B8";font-size:1rem;color:var(--brass-text);transition:transform .15s}
+.teacher[open] summary::before{transform:rotate(90deg)}
+.teacher .lead{margin:6px 0 14px}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.set-grid .field input{text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.set-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+.check{display:flex;gap:8px;align-items:center;font-weight:600}
+.check input{width:18px;height:18px}
+.linkbox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;margin-top:10px}
+.custom-tag{display:inline-block;background:#fffaf0;border:1px solid var(--brass);color:var(--brass-text);border-radius:999px;padding:.15em .7em;font-size:.8rem;font-weight:800;margin-bottom:8px}
+@media (prefers-reduced-motion:reduce){.teacher summary::before{transition:none}}
+</style>
+</head>
+<body>
+
+<section id="home" class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">U.S. Government · Daily Challenge</div>
+      <h1>Capitol Clues Daily</h1>
+    </div>
+    <div class="date" id="dateLabel"></div>
+  </header>
+
+  <div class="grid2">
+    <div class="card" id="startCard">
+      <span class="custom-tag" id="customTag" hidden>Custom class game</span>
+      <h2 style="font-size:1.5rem;margin-bottom:6px" id="startTitle"></h2>
+      <p class="muted" style="margin-top:0" id="startSub"></p>
+      <ol class="rules" id="rules"></ol>
+      <div class="ladder" id="ladder" aria-hidden="true"></div>
+      <div class="ladder-key note" aria-hidden="true"><span>Question only</span><span>+ Clue 1</span><span>+ Clue 2</span></div>
+      <div class="field"><label for="pName">Your name (shown on the leaderboard)</label><input id="pName" maxlength="30" autocomplete="nickname" placeholder="e.g. Mr. Bishop or Jaylen R."></div>
+      <div class="field"><label for="pGroup">Group (optional)</label><input id="pGroup" maxlength="30" placeholder="e.g. Bishop Period 3"></div>
+      <button class="btn primary" id="playBtn">Play</button>
+      <span class="muted" id="startMsg" style="margin-left:8px"></span>
+    </div>
+
+    <div class="card" id="playedCard" hidden>
+      <h2 style="font-size:1.5rem;margin-bottom:6px">You've played today</h2>
+      <div id="playedSummary"></div>
+      <p class="note" id="playedNote"></p>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h2 style="font-size:1.5rem">Today's leaderboard</h2>
+        <button class="btn ghost" id="refreshBtn">Refresh</button>
+      </div>
+      <div id="board"></div>
+    </div>
+  </div>
+
+  <details class="card teacher" id="teacherPanel">
+    <summary>Teacher settings</summary>
+    <p class="muted lead">Choose how many questions and how many points each one is worth, then share the class link. Everyone who opens the link plays the same questions with the same rules, and custom games get their own leaderboard.</p>
+    <div class="set-grid">
+      <div class="field"><label for="setCount">Number of questions</label><input id="setCount" type="number" min="3" max="20" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="setP0">Points: question only</label><input id="setP0" type="number" min="1" max="1000" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="setP1">Points: after clue 1</label><input id="setP1" type="number" min="0" max="1000" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="setP2">Points: after clue 2</label><input id="setP2" type="number" min="0" max="1000" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="setSecs">Seconds per clue</label><input id="setSecs" type="number" min="5" max="60" step="1" inputmode="numeric"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="setBonus"> Speed bonus (up to 10% extra for fast answers)</label>
+    <div class="set-row" style="margin-top:14px">
+      <button class="btn primary" type="button" id="setApply">Use these settings</button>
+      <button class="btn" type="button" id="setCopy">Copy class link</button>
+      <button class="btn ghost" type="button" id="setReset">Back to standard</button>
+      <span class="muted" id="setMsg"></span>
+    </div>
+    <div class="linkbox" id="setLink"></div>
+  </details>
+</section>
+
+<section id="play" class="wrap" hidden>
+  <div class="topbar">
+    <div class="prog" id="progLabel">Question 1 of 7</div>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <div class="topright"><div class="score" id="scoreLabel">0 pts</div><button class="btn ghost" type="button" id="pauseBtn" aria-label="Pause the game">Pause</button></div>
+  </div>
+  <div class="pause-banner" id="pauseCard" hidden role="status">
+    <div><b>Paused</b><span class="info" id="pauseInfo"></span></div>
+    <button class="btn primary" type="button" id="resumeBtn">Resume</button>
+  </div>
+  <div class="stage" id="stage">
+    <div class="docket">
+      <div class="eyebrow" id="chapNum"></div>
+      <div class="qtext" id="qText"></div>
+      <div class="shape-label" id="shapeLabel"></div>
+      <div class="tiles" id="tiles" aria-hidden="true"></div>
+      <div class="reveal" id="reveal" hidden>
+        <div class="eyebrow">The answer</div>
+        <div class="who" id="revealWho"></div>
+        <div class="fact" id="revealFact"></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="clock" id="clockBox">
+        <div class="ring" id="ring">
+          <svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true">
+            <circle class="track" cx="44" cy="44" r="38"></circle>
+            <circle class="bar" id="ringBar" cx="44" cy="44" r="38" stroke-dasharray="238.76" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="secs" id="secs">15</div>
+        </div>
+        <div class="worth">
+          <div class="pts" id="pts">300</div>
+          <div class="sub" id="worthSub">Next clue in 15 seconds</div>
+        </div>
+      </div>
+      <div class="hints" id="hints"></div>
+      <form class="guess" id="guessForm" autocomplete="off">
+        <input id="guessIn" list="names" placeholder="Type your answer and press Enter" aria-label="Your answer" autocapitalize="off" spellcheck="false">
+        <button class="btn primary" type="submit">Guess</button>
+        <button class="btn ghost" type="button" id="skipBtn">Skip</button>
+      </form>
+      <datalist id="names"></datalist>
+      <div class="strikes" id="strikes"></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+      <button class="btn primary" id="nextBtn" hidden>Next question</button>
+    </div>
+  </div>
+</section>
+
+<section id="results" class="wrap" hidden>
+  <header class="masthead">
+    <div><div class="eyebrow">Today's result</div><h1>Capitol Clues Daily</h1></div>
+    <div class="date" id="dateLabel2"></div>
+  </header>
+  <div class="grid2">
+    <div class="card">
+      <div class="result-head">
+        <div class="big" id="finalScore">0</div>
+        <div><div style="font-weight:800" id="finalCorrect"></div><div class="muted" id="submitMsg"></div></div>
+      </div>
+      <ul class="recap" id="recap"></ul>
+      <div class="share" id="shareText"></div>
+      <button class="btn" id="copyBtn">Copy result to share</button>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h2 style="font-size:1.5rem">Today's leaderboard</h2>
+        <button class="btn ghost" id="refreshBtn2">Refresh</button>
+      </div>
+      <div id="board2"></div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== SETTINGS: paste your Google Apps Script web app URL between the quotes ===== */
+const SCORES_URL = "";
+/* ================================================================================== */
+
+const MAX_WRONG = 3, TZ = "America/New_York";
+
+const CHAPTERS = {1:"Roots of Government",2:"Creating the Constitution",3:"The Constitution",4:"Congress",5:"The Presidency",6:"Executive Departments",7:"The Federal Bureaucracy",8:"The Federal Courts",9:"State Government",10:"Local Government",11:"Parties and Elections",12:"Citizenship and Rights",13:"Economics",14:"Foreign Policy",15:"Governments of the World"};
+
+/* Question bank, built from the AGS United States Government workbook (Chapters 1-15).
+   Each row: [chapter, answer, other accepted answers (| separated), definition, clue 1, clue 2, why it matters, question] */
+const BANK = [
+[1,"Government","govt|the government","The people and system that have the power to rule a place.","Every group, from a tribe to a nation, forms one to keep order.","It makes laws, enforces them, and settles disputes.","Without one, there is no fair way to make or enforce rules for everyone.","What do we call the people and system that have the power to rule a place?"],
+[1,"Democracy","","A government in which the people hold the power.","Its name comes from Greek words meaning 'people' and 'rule.'","It was first practiced in the city-state of Athens.","In the U.S., citizens hold power by voting for leaders.","What is a government in which the people hold the power?"],
+[1,"Athens","","The Greek city-state where democracy was born, named for the goddess Athena.","Its Assembly let free male citizens vote directly on laws.","It had the best-run government in ancient Greece.","America borrowed the idea of citizens taking part in government from it.","In which Greek city-state was democracy born?"],
+[1,"Republic","representative democracy|a republic","A government where people choose leaders to represent them; the Pledge of Allegiance names one.","Rome set up this system after it threw out its kings.","Citizens elect representatives to make laws for them.","The United States is one: we elect people to make our laws.","What type of government lets people choose leaders to represent them?"],
+[1,"Patricians","patrician","The rich, powerful families of ancient Rome.","Rome's common people were called plebeians; these were the opposite.","Wealthy members of this group chose Rome's senators.","Their power over the poor showed the founders why a government needs limits.","What were the rich, powerful families of ancient Rome called?"],
+[1,"Veto","","The power to reject a bill or law.","It comes from a Latin word meaning 'I forbid.'","Today the president uses this to reject a bill from Congress.","It is one of the main checks the president has on Congress.","What is the power to reject a bill or law called?"],
+[1,"Dictator","","A ruler who can rule any way he pleases.","Rome gave one person this power for up to six months in an emergency.","A ruler who answers to no voters and no laws.","The founders designed checks and balances so no American leader could become one.","What do we call a ruler who can rule any way he pleases?"],
+[1,"City-state","city state|citystates|city-states","An independent city that rules itself and the land around it.","Sparta and Athens were both examples.","They were often at war with each other.","Greece was divided into these instead of being one nation.","What is an independent city that rules itself and the land around it?"],
+[1,"Monarchy","","Government ruled by a king or queen.","It can be absolute or constitutional.","Power usually passes from parent to child.","The colonists broke away from Britain's monarchy and chose not to have a king.","What is a government ruled by a king or queen?"],
+[1,"Magna Carta","magna charta|great charter","The 'Great Charter' that first limited the power of the English king.","English nobles forced King John to sign it in 1215.","It said no free man could be jailed without a trial by his equals.","It planted the idea that even rulers must obey the law.","What 'Great Charter' first limited the power of the English king?"],
+[1,"Parliament","british parliament","Great Britain's lawmaking body.","It has a House of Commons and a House of Lords.","Its fights with English kings led to the English Civil War.","Its two houses were a model for the two houses of Congress.","What is Great Britain's lawmaking body called?"],
+[1,"Petition of Right","the petition of right","An English paper that listed things a king could not do.","Written in 1628 and forced on King Charles I.","It said the king could not collect taxes without Parliament's approval.","It strengthened the idea of 'no taxation without consent.'","Which English document of 1628 listed things a king could not do?"],
+[1,"English Bill of Rights","bill of rights of 1689|1689 bill of rights","An English law listing rights of the people; it inspired America's first 10 amendments.","Passed in 1689 during the rule of William and Mary.","It banned 'cruel and unusual punishments.'","Many of its protections were copied into the U.S. Bill of Rights.","Which English law listed the people's rights and inspired America's first 10 amendments?"],
+[1,"Henry II","henry 2|henry the second|king henry ii|king henry","The English king whose traveling judges helped create common law.","An English king who ruled in the 1100s.","He sent judges to travel throughout the country hearing cases.","Common law, built on past court decisions, is still used in U.S. courts.","Which English king sent judges around the country, helping create common law?"],
+[1,"Grand jury","grand juries","Under the 5th Amendment, a person must come before this group first if accused of a serious federal crime.","It meets in secret and does not decide guilt.","It decides if there is enough evidence to charge someone with a serious crime.","It protects people from being put on trial without good reason.","What group must a person come before first if accused of a serious federal crime?"],
+[1,"Jury","trial jury|petit jury|juries","A group of citizens chosen to decide a court case; 'trial by ___.'","Usually made up of 12 people.","The 6th and 7th Amendments guarantee a trial by one.","Serving on one is a duty of U.S. citizens.","What is a group of citizens chosen to listen to both sides of a court case and decide it?"],
+[1,"John Locke","locke","He said everyone has natural rights to life, liberty, and property.","An English thinker who wrote Two Treatises of Government.","He said people can change a government that fails to protect their rights.","Jefferson used his ideas in the Declaration of Independence.","Which thinker said everyone has natural rights to life, liberty, and property?"],
+[1,"Montesquieu","baron de montesquieu|charles de montesquieu","He said government should be split into three branches, each with its own powers.","A French thinker who wrote The Spirit of the Laws.","He admired how Britain divided the power of government.","His idea became the three branches in our Constitution.","Which thinker said government should be split into three branches, each with its own powers?"],
+[1,"Thomas Hobbes","hobbes","He believed people need a strong government to prevent war and conflict.","An English thinker who wrote Leviathan.","He said life without government would be 'nasty, brutish, and short.'","He argued government exists to keep people safe from one another.","Which thinker believed people need a strong government to prevent war and conflict?"],
+[1,"Machiavelli","niccolo machiavelli","He said a ruler sometimes must be dishonest with his people to keep power.","An Italian thinker from Florence in the 1500s.","He wrote a famous book called The Prince.","His name became a word for using tricks to gain power.","Which thinker said a ruler sometimes must be dishonest with his people to keep power?"],
+[1,"William Blackstone","blackstone","He taught that laws must be written down and must treat all citizens equally.","An English judge and law professor of the 1700s.","American lawyers studied his Commentaries on the Laws of England.","His books shaped how American courts understood the law.","Which English judge taught that laws must be written down and treat all citizens equally?"],
+[1,"Alexis de Tocqueville","tocqueville|de tocqueville","He wrote the book Democracy in America.","A French visitor who toured the United States in 1831.","He admired how Americans joined groups and took part in community life.","His book is still read to understand what makes American democracy work.","Which French visitor wrote the book Democracy in America?"],
+[1,"Natural rights","natural right|unalienable rights|inalienable rights","Rights every person has just by being human, like life, liberty, and property.","Locke said governments are formed to protect them.","They come from nature, not from a king.","The Declaration calls them 'unalienable rights.'","What are the rights every person has just by being human, like life, liberty, and property?"],
+[1,"Mayflower Compact","the mayflower compact","An agreement written by the Pilgrims on board their ship.","Signed in 1620 before anyone stepped ashore.","Its signers agreed to make fair laws for the good of the colony.","It was an early example of self-government in America.","What agreement did the Pilgrims write on board their ship before landing?"],
+[1,"Pilgrims","pilgrim|the pilgrims","They sailed on the Mayflower seeking religious freedom.","They lived in Holland before sailing to America.","They founded Plymouth Colony in 1620.","They were among the first colonists to have ideas about democracy.","Which group sailed on the Mayflower seeking religious freedom?"],
+[1,"Puritans","puritan|the puritans","They did not allow people in their colony to worship as they pleased.","They founded the Massachusetts Bay Colony.","They wanted to 'purify' the Church of England.","Their limits on religion are one reason the 1st Amendment protects freedom of worship.","Which colonists did not allow people in their colony to worship as they pleased?"],
+[1,"Connecticut","ct","The colony where the first written constitution in America was created.","The Fundamental Orders were written here in 1639.","Its nickname is 'the Constitution State.'","The Constitution of 1787 took many ideas from early colonial constitutions like this one.","In which colony was the first written constitution in America created?"],
+[1,"Jamestown","jamestown colony","The first permanent English colony and the first to elect assembly representatives.","Founded in Virginia in 1607.","Its House of Burgesses first met in 1619.","It started the tradition of colonists electing their own lawmakers.","What was the first permanent English colony in America?"],
+[1,"John Peter Zenger","zenger|peter zenger","A newspaper publisher whose not-guilty verdict was a win for freedom of the press.","A New York printer arrested in 1735.","He printed articles criticizing the royal governor.","His case helped lead to the 1st Amendment's protection of the press.","Which newspaper publisher's not-guilty verdict was an early win for freedom of the press?"],
+[1,"Stamp Act","the stamp act","It forced colonists to pay taxes on printed material like newspapers.","Passed by Parliament in 1765.","Colonists protested with the cry 'no taxation without representation.'","Anger over it helped unite the colonies against Britain.","Which British law forced colonists to pay taxes on printed material like newspapers?"],
+[1,"First Continental Congress","1st continental congress","The first meeting of colonial leaders, held in Philadelphia.","Delegates from 12 colonies met in 1774.","They protested the Intolerable Acts and agreed to stop trading with Britain.","It was the first time the colonies acted together against Britain.","What was the first meeting of colonial leaders, held in Philadelphia in 1774?"],
+[1,"Second Continental Congress","2nd continental congress","This group ran the country during the Revolution and approved the Declaration of Independence.","It began meeting in 1775 after fighting at Lexington and Concord.","It named George Washington head of the army.","It served as the national government until the Articles of Confederation.","What group ran the country during the Revolution and approved the Declaration of Independence?"],
+[1,"Declaration of Independence","the declaration|declaration","Approved on July 4, 1776; written mostly by Thomas Jefferson.","Its middle section lists grievances against the king.","It says 'all men are created equal.'","It told the world why the colonies were breaking away from Britain.","What document, approved on July 4, 1776, announced the colonies were breaking away from Britain?"],
+[1,"George III","king george iii|king george|george the third|george 3|king george the third","The English king the colonists broke away from in 1776.","He ruled Great Britain from 1760 to 1820.","The Declaration lists many grievances against him.","The colonists' anger at his rule shaped how they limited executive power.","Which English king did the colonists break away from in 1776?"],
+[1,"Grievances","grievance","Formal complaints about unfair treatment.","The middle section of the Declaration lists 27 of them.","The 1st Amendment lets people ask government to fix them.","Listing them showed the colonists had good reasons to break away.","What do we call formal complaints about unfair treatment?"],
+[1,"Constitution","us constitution|the constitution|united states constitution|constitution of the united states","A written plan for setting up a government; ours was written in 1787.","It can be written or unwritten; Britain's is not one single document.","It sets up the parts of a government and limits their power.","Ours is the oldest written national one still in use.","What is a written plan for setting up a government called?"],
+[2,"Articles of Confederation","the articles of confederation|articles","America's first plan of government; it was too weak.","The states approved it in 1781.","Under it, Congress could not collect taxes or control trade between states.","Its failures convinced leaders to write a new Constitution.","What was America's first plan of government, which turned out to be too weak?"],
+[2,"Constitutional Convention","philadelphia convention|federal convention|the constitutional convention","The 1787 meeting in Philadelphia that wrote the Constitution.","Its meetings were held in secret behind guarded doors.","George Washington was chosen to lead it.","Delegates came to fix the Articles and wrote a brand-new plan instead.","What was the 1787 meeting in Philadelphia that wrote the Constitution?"],
+[2,"Philadelphia","philly|philadelphia pennsylvania","The city where both the Declaration and the Constitution were signed.","The Liberty Bell is here.","Independence Hall is in this city.","It was also the U.S. capital from 1790 to 1800.","In which city were both the Declaration of Independence and the Constitution signed?"],
+[2,"Delegate","delegates","A person chosen to speak or act for a group.","55 of them attended the Constitutional Convention.","Parties send them to national conventions to nominate a president.","The convention's delegates were mostly wealthy, educated men.","What do we call a person chosen to speak or act for a group?"],
+[2,"Federalism","federal system","The system that divides power between the national government and the states.","The delegates chose it over a unitary system.","Both national and state governments have their own powers.","It lets states make many of their own laws, like driving ages.","What system divides power between the national government and the states?"],
+[2,"Unitary system","unitary government|unitary","A system where the central government holds nearly all the power.","Britain and France use this kind of system.","The delegates rejected it because they feared a too-powerful central government.","Choosing federalism instead kept power shared with the states.","What kind of system gives the central government nearly all the power?"],
+[2,"Virginia Plan","the virginia plan|large state plan","A plan at the Constitutional Convention that gave big states more lawmakers based on population.","Written mostly by James Madison.","It called for three branches and a two-house Congress.","Large states liked it; small states feared being outvoted.","Which plan at the Constitutional Convention gave big states more lawmakers based on population?"],
+[2,"New Jersey Plan","the new jersey plan|small state plan|paterson plan","A plan at the Constitutional Convention that gave every state the same number of votes.","Offered by William Paterson.","It called for a Congress with only one house.","Small states liked it because it protected their power.","Which plan at the Constitutional Convention gave every state the same number of votes?"],
+[2,"Great Compromise","connecticut compromise|the great compromise","The deal that settled how big and small states would be represented in Congress.","Roger Sherman of Connecticut proposed it.","It created a Senate with two members per state and a House based on population.","It saved the Convention by settling the fight between big and small states.","What deal settled how big and small states would be represented in Congress?"],
+[2,"Three-Fifths Compromise","3/5 compromise|three fifths compromise|3 fifths compromise","It counted each enslaved person as 3/5 of a person.","It settled an argument between Northern and Southern states.","It was about how to count enslaved people for representation.","It gave slave states extra power in Congress until the 14th Amendment ended it.","Which compromise counted each enslaved person as 3/5 of a person?"],
+[2,"September 17, 1787","september 17|sept 17|sept 17 1787|9/17/1787|constitution day","The day the Constitution was signed in Philadelphia.","Americans celebrate this date as Constitution Day.","Thirty-nine delegates signed the new plan on this day.","It marks the birth of our plan of government.","On what date was the Constitution signed?"],
+[2,"Federalists","federalist|the federalists","They supported the Constitution because it created a strong central government.","Leaders included Hamilton, Madison, and Jay.","They agreed to add a Bill of Rights to win votes.","Their side won, and the Constitution was ratified.","Who supported the Constitution because it created a strong central government?"],
+[2,"Anti-Federalists","antifederalists|anti federalists|antifederalist|anti-federalist","They opposed the Constitution because it had no bill of rights.","Many were farmers who distrusted powerful governments.","Patrick Henry and George Mason were leaders.","Their pressure is the reason we have a Bill of Rights.","Who opposed the Constitution because it had no bill of rights?"],
+[2,"Publius","","The pen name of the author of the Federalist Papers, really three people.","Named after a hero of the early Roman Republic.","He signed all 85 essays urging New York to ratify.","Hiding their names let readers judge the ideas, not the writers.","What pen name did the three authors of the Federalist Papers use?"],
+[2,"Federalist Papers","the federalist papers|federalist essays","Essays by Hamilton, Madison, and Jay defending the Constitution.","85 essays published in New York newspapers in 1787 and 1788.","No. 10 explains factions; No. 51 discusses checks and balances.","Judges still use them to understand what the Constitution means.","What essays did Hamilton, Madison, and Jay write to defend the Constitution?"],
+[2,"Checks and balances","checks & balances|check and balance","The system that lets each branch limit the power of the others.","Federalist No. 51 explained this principle.","A veto and the Senate's approval of judges are examples.","It keeps any one branch from becoming too powerful.","What system lets each branch of government limit the power of the others?"],
+[2,"Separation of powers","","Dividing government into three branches with different jobs.","Montesquieu's most famous idea.","It splits government into lawmaking, enforcing, and judging.","It protects liberty by spreading power out.","What is the idea of dividing government into three branches with different jobs?"],
+[2,"Rule of law","the rule of law","The principle that laws apply equally to everyone.","No one is above it, not even the president.","It means all government leaders must act according to the Constitution.","It separates a democracy from a dictatorship.","What principle says laws apply equally to everyone, even leaders?"],
+[2,"Patrick Henry","henry","Famous for saying 'Give me liberty, or give me death!'","Virginia's first governor after independence.","He feared the new central government would be too powerful.","His Anti-Federalist arguments helped bring about the Bill of Rights.","Which founder is famous for saying 'Give me liberty, or give me death!'?"],
+[2,"James Madison","madison","Called the 'Father of the Constitution'; the 4th president.","He took detailed notes at the Constitutional Convention.","He wrote the amendments that became the Bill of Rights.","Much of the Constitution's design came from his ideas.","Who is called the 'Father of the Constitution'?"],
+[2,"Alexander Hamilton","hamilton","The founder whose face is on the $10 bill.","He wrote 51 of the 85 Federalist Papers.","He was the first Secretary of the Treasury.","He argued for a strong national government and a national bank.","Which founder's face is on the $10 bill?"],
+[2,"New York City","new york|nyc","The first capital of the United States, today the nation's largest city.","Washington took the oath of office here, on Wall Street.","Congress first met under the Constitution here in 1789.","The capital later moved to Philadelphia and then Washington, D.C.","What city was the first capital of the United States?"],
+[2,"Executive branch","executive|the executive branch","The branch that carries out, or enforces, the laws.","Article II creates it.","It includes the president, vice president, and Cabinet.","It is checked by Congress and the courts.","Which branch of government carries out, or enforces, the laws?"],
+[2,"Legislative branch","legislative|the legislative branch","The branch that makes the laws.","Article I creates it.","It has two houses.","Congress is the legislative branch of the federal government.","Which branch of government makes the laws?"],
+[2,"Judicial branch","judicial|the judicial branch|judiciary","The branch of courts that explains what laws mean.","Article III creates it.","Federalist No. 78 explained why it must be independent.","It can strike down laws that go against the Constitution.","Which branch of government is made up of courts that explain what laws mean?"],
+[2,"Impeachment","impeach|impeached","Formally charging a president or judge with wrongdoing.","The House votes to do this; the Senate then holds a trial.","Two-thirds of senators must vote to remove the official.","Congress has used it to check presidents and judges; no president has been removed.","What is it called when Congress formally charges a president or judge with wrongdoing?"],
+[2,"Override","veto override|overriding|override a veto","Congress's power to cancel a president's veto.","It takes a two-thirds vote in both houses of Congress.","It can still turn a vetoed bill into law.","It keeps the president from having the final word on every law.","What is Congress's power to cancel a president's veto called?"],
+[2,"Bill of Rights","the bill of rights","The first 10 amendments to the Constitution.","Ratified in 1791.","The Federalists agreed to add it to win support for the Constitution.","It protects basic rights like speech, religion, and a fair trial.","What are the first 10 amendments to the Constitution called?"],
+[2,"Amendment","amendments","A change or addition to the Constitution.","Article V explains how to make one.","27 have been added to the Constitution.","It lets the Constitution change with the times.","What is a change or addition to the Constitution called?"],
+[3,"Preamble","the preamble","The opening introduction to the Constitution.","It lists six goals of the government.","It begins 'We the People of the United States.'","It says the government's power comes from the people.","What is the opening introduction to the Constitution called?"],
+[3,"Domestic tranquility","domestic tranquillity|tranquility","The Preamble goal of keeping peace inside the country.","The Preamble says the government will 'insure' it.","'Domestic' means at home; the other word means calm.","Police and courts help keep this goal today.","Which goal in the Preamble means keeping peace inside the country?"],
+[3,"Common defense","common defence","The Preamble goal of protecting the nation from attack.","The Preamble says the government will 'provide for' it.","The Army, Navy, and Air Force carry out this goal.","It is why the national government, not the states, runs the military.","Which goal in the Preamble means protecting the nation from attack?"],
+[3,"General welfare","welfare|the general welfare","The Preamble goal of making life better for all the people.","The Preamble says the government will 'promote' it.","'Welfare' here means health and well-being.","Programs like public health and highways serve this goal.","Which goal in the Preamble means making life better for all the people?"],
+[3,"Article I","article 1|article one|art 1","The part of the Constitution that creates Congress and lists its powers.","It is the longest article and contains the elastic clause.","It says 'All legislative powers herein granted shall be vested in a Congress.'","The founders put Congress first because it is closest to the people.","Which article of the Constitution creates Congress and lists its powers?"],
+[3,"Article II","article 2|article two|art 2","The part of the Constitution that creates the executive branch.","It sets the president's term at four years.","It says 'The executive power shall be vested in a President.'","It lists the president's powers, like commander in chief.","Which article of the Constitution creates the executive branch?"],
+[3,"Article III","article 3|article three|art 3","The part of the Constitution that creates the judicial branch.","It is the only place the Constitution defines treason.","It says judicial power is vested in 'one supreme Court.'","It gives federal judges their jobs for life during good behavior.","Which article of the Constitution creates the judicial branch?"],
+[3,"Article IV","article 4|article four|art 4","The part of the Constitution about how the states relate to each other.","It lets Congress admit new states.","It says states must honor one another's laws and records.","It is why a driver's license from one state works in another.","Which article of the Constitution explains how the states relate to each other?"],
+[3,"Article V","article 5|article five|art 5","The part of the Constitution that explains how to amend it.","It requires a two-thirds vote of Congress to propose a change.","It comes right after the article about the courts and the states.","It makes the Constitution changeable but not too easy to change.","Which article of the Constitution explains how to amend it?"],
+[3,"Article VI","article 6|article six|art 6","The part of the Constitution that makes it the supreme law of the land.","It requires officials to take an oath to support the Constitution.","It contains the Supremacy Clause.","It means federal law wins when it conflicts with state law.","Which article makes the Constitution the supreme law of the land?"],
+[3,"Article VII","article 7|article seven|art 7","The part of the Constitution that explained how it would be ratified.","The last and shortest article.","It said 9 of the 13 states had to approve.","It set the rules that made the Constitution official.","Which article of the Constitution explained how it would be ratified?"],
+[3,"Ratify","ratification|ratified","To formally approve something, like a treaty or the Constitution.","Three-fourths of the states must do this to an amendment.","Delaware was the first state to do this to the Constitution in 1787.","Ratifying gave the Constitution the people's consent.","What word means to formally approve something, like a treaty or the Constitution?"],
+[3,"9","nine","How many of the 13 states had to ratify the Constitution.","New Hampshire's approval put the Constitution into effect as number ___.","It is also how many justices sit on the Supreme Court today.","Needing 9, not all 13, kept one state from blocking the plan.","How many of the 13 states had to ratify the Constitution for it to take effect?"],
+[3,"Two-thirds","2/3|two thirds|two-thirds vote|two thirds majority|two-thirds majority","The size of the vote needed in both houses to propose an amendment.","Needed in the Senate to remove an impeached official.","Needed in both houses to override a veto.","A big majority makes sure major changes have wide support.","What size vote is needed in both houses of Congress to propose an amendment?"],
+[3,"27","twenty-seven|twenty seven","The number of amendments added to the Constitution.","The last one, about pay for Congress, was ratified in 1992.","The first 10 of them make up the Bill of Rights.","Only 27 changes in over 230 years shows how hard amending is.","How many amendments have been added to the Constitution?"],
+[3,"1st Amendment","first amendment|1st|first|1","It protects freedom of religion, speech, and the press.","It protects the right to petition the government.","It protects the right to assemble peacefully.","It protects the freedoms people use to speak up in a democracy.","Which amendment protects freedom of religion, speech, and the press?"],
+[3,"Establishment clause","the establishment clause|establishment","It says Congress cannot set up an official national religion.","It comes right before the Free Exercise Clause in the Bill of Rights.","It is the basis for 'separation of church and state.'","It is why public schools cannot lead students in prayer.","Which part of the 1st Amendment says Congress cannot set up an official national religion?"],
+[3,"Freedom of religion","religious freedom|freedom of worship|free exercise|freedom to worship","The right to worship as you choose, or not at all.","The 1st Amendment protects its 'free exercise.'","Pilgrims and Puritans came to America seeking it.","It has limits: religion cannot be used to break laws that protect others.","Which freedom gives you the right to worship as you choose, or not at all?"],
+[3,"Freedom of speech","free speech|speech|freedom of expression","The right to say what you think without being punished by government.","It does not protect lying in a way that falsely harms someone's reputation.","In Tinker v. Des Moines (1969), it protected students wearing armbands.","It has limits, like not causing panic or threatening people.","Which freedom lets you say what you think without being punished by the government?"],
+[3,"Freedom of the press","free press|freedom of press|press","The right to publish news and opinions.","Zenger's trial in 1735 was an early win for it.","It lets newspapers criticize the government.","It has limits: publishing false, harmful lies about someone is not protected.","Which freedom protects the right to publish news and opinions?"],
+[3,"Freedom of assembly","right to assemble|assembly|right of assembly","The right to gather peacefully in groups.","Cities may require a permit for large gatherings.","It protects peaceful protest marches and rallies.","It has limits: gatherings cannot turn violent or block emergency routes.","Which freedom protects the right to gather peacefully in groups?"],
+[3,"Right to petition","petition|freedom of petition|right of petition","The 1st Amendment right to ask government to fix a problem.","It lets people ask for 'redress of grievances.'","Signing a letter to Congress uses this right.","It gives every citizen a way to be heard by leaders.","Which 1st Amendment right lets you ask the government to fix a problem?"],
+[3,"2nd Amendment","second amendment|2nd|second|2","Protects the right to keep and bear arms.","It mentions 'a well regulated militia.'","It was the subject of District of Columbia v. Heller (2008).","Courts still debate how far this right reaches.","Which amendment protects the right to keep and bear arms?"],
+[3,"3rd Amendment","third amendment|3rd|third|3","Says people cannot be forced to house soldiers in peacetime.","It came from anger over the British Quartering Act.","It almost never comes up in court today.","It protects the privacy of people's homes.","Which amendment says people cannot be forced to house soldiers in peacetime?"],
+[3,"4th Amendment","fourth amendment|4th|fourth|4","It protects against unreasonable searches and seizures.","It requires 'probable cause' for searches.","It makes police usually get a warrant from a judge.","It is why police generally cannot search your home without a warrant.","Which amendment protects against unreasonable searches and seizures?"],
+[3,"5th Amendment","fifth amendment|5th|fifth","It protects the right not to testify against yourself.","It says no one can be tried twice for the same crime.","It requires a grand jury for serious federal crimes.","'Pleading the Fifth' means using this right to stay silent.","Which amendment protects your right not to testify against yourself?"],
+[3,"6th Amendment","sixth amendment|6th|sixth|6","It guarantees a speedy and public trial.","It lets accused people bring in witnesses on their own behalf.","It guarantees the help of a lawyer.","It protects people accused of crimes from unfair trials.","Which amendment guarantees a speedy and public trial?"],
+[3,"7th Amendment","seventh amendment|7th|seventh|7","It guarantees a jury trial in lawsuits between people.","It mentions lawsuits over $20.","It applies to civil cases, not criminal ones.","It keeps ordinary citizens involved in settling disputes.","Which amendment guarantees a jury trial in lawsuits between people?"],
+[3,"8th Amendment","eighth amendment|8th|eighth|8","It bans cruel and unusual punishment.","It says bail and fines must not be too high.","Bail and punishment must fit the crime.","It sets limits on how the government can punish people.","Which amendment bans cruel and unusual punishment?"],
+[3,"9th Amendment","ninth amendment|9th|ninth","It says people have rights not directly listed in the Constitution.","It says listing some rights does not deny others.","It is sometimes called the 'unlisted rights' amendment.","It means the Bill of Rights is not a complete list of our rights.","Which amendment says people have rights not directly listed in the Constitution?"],
+[3,"10th Amendment","tenth amendment|10th|tenth|10","It says powers not given to the national government belong to the states or people.","It is the last amendment in the Bill of Rights.","It is the basis for reserved powers.","It protects the power of the states.","Which amendment says powers not given to the national government belong to the states or the people?"],
+[3,"11th Amendment","eleventh amendment|11th|eleventh|11","It says a citizen of one state cannot sue another state in federal court.","Ratified in 1795, the first after the Bill of Rights.","It limits lawsuits against states in federal court.","It protects states from certain lawsuits.","Which amendment says a citizen of one state cannot sue another state in federal court?"],
+[3,"12th Amendment","twelfth amendment|12th|twelfth|12","It changed how the Electoral College chooses the vice president.","It was adopted after the tied election of 1800.","Electors now vote for president and vice president separately.","It fixed a flaw that let running mates tie each other.","Which amendment changed how the Electoral College chooses the vice president?"],
+[3,"13th Amendment","thirteenth amendment|13th|thirteenth","It abolished slavery in the United States.","Ratified in 1865 at the end of the Civil War.","The first of the three Reconstruction Amendments.","It ended slavery everywhere in the nation.","Which amendment abolished slavery in the United States?"],
+[3,"14th Amendment","fourteenth amendment|14th|fourteenth|14","It makes everyone born in the U.S. a citizen.","It includes the Equal Protection Clause.","It overturned the Dred Scott decision.","It is the basis of many civil rights decisions, like Brown v. Board.","Which amendment makes everyone born in the U.S. a citizen?"],
+[3,"15th Amendment","fifteenth amendment|15th|fifteenth","It says the right to vote cannot be denied because of race.","Ratified in 1870.","Southern states got around it with poll taxes and literacy tests.","Its promise was not fully enforced until the Voting Rights Act of 1965.","Which amendment says the right to vote cannot be denied because of race?"],
+[3,"16th Amendment","sixteenth amendment|16th|sixteenth|16","It allows a federal income tax.","Ratified in 1913, 43 years after the previous amendment.","It lets Congress tax incomes without apportionment among the states.","Income taxes are now the biggest source of federal money.","Which amendment allows a federal income tax?"],
+[3,"17th Amendment","seventeenth amendment|17th|seventeenth|17","It lets voters elect their senators directly.","Ratified in 1913, the same year as the 16th.","Before it, state legislatures chose U.S. senators.","It gave voters more direct control over Congress.","Which amendment lets voters elect their senators directly?"],
+[3,"18th Amendment","eighteenth amendment|18th|eighteenth","It banned making and selling alcoholic beverages.","It took effect in 1920 and led to illegal 'speakeasies.'","It is the only amendment ever repealed.","Its failure shows that laws need public support to work.","Which amendment banned making and selling alcoholic beverages?"],
+[3,"19th Amendment","nineteenth amendment|19th|nineteenth|19","It gave women the right to vote.","Ratified in 1920.","It was nicknamed the Susan B. Anthony Amendment.","It doubled the number of Americans eligible to vote.","Which amendment gave women the right to vote?"],
+[3,"20th Amendment","twentieth amendment|20th|twentieth|20","It set January 20 as the day the president takes office.","It is nicknamed the 'Lame Duck' Amendment.","It moved the start of Congress's term to January 3.","It shortened the time between an election and the new term.","Which amendment set January 20 as the day the president takes office?"],
+[3,"21st Amendment","twenty-first amendment|twenty first amendment|21st|21","It ended Prohibition.","The only amendment approved by state conventions instead of legislatures.","Ratified in 1933.","It is the only amendment that cancels another amendment.","Which amendment ended Prohibition?"],
+[3,"22nd Amendment","twenty-second amendment|twenty second amendment|22nd|22","It limits a president to two elected terms.","Ratified in 1951, after FDR won four elections.","It means a president can serve at most about 10 years.","It made George Washington's two-term tradition the law.","Which amendment limits a president to two elected terms?"],
+[3,"23rd Amendment","twenty-third amendment|twenty third amendment|23rd|23","It lets people who live in the nation's capital vote for president.","Ratified in 1961.","It gives Washington, D.C., three electoral votes.","D.C. residents still have no voting member of Congress.","Which amendment lets people who live in Washington, D.C., vote for president?"],
+[3,"24th Amendment","twenty-fourth amendment|twenty fourth amendment|24th|24","It ended the poll tax.","Ratified in 1964 during the civil rights movement.","It applies to elections for federal offices.","It removed a money barrier that kept poor and Black citizens from voting.","Which amendment ended the poll tax?"],
+[3,"25th Amendment","twenty-fifth amendment|twenty fifth amendment|25th|25","It explains who fills the offices of president and vice president.","It was first used to make Gerald Ford vice president in 1973.","It lets the vice president act as president if the president is disabled.","It cleared up confusion about presidential succession.","Which amendment explains who fills the offices of president and vice president when they are empty?"],
+[3,"26th Amendment","twenty-sixth amendment|twenty sixth amendment|26th|26","It set the voting age at 18.","Ratified in 1971 during the Vietnam War.","Its slogan was 'Old enough to fight, old enough to vote.'","It gave millions of young people the right to vote.","Which amendment set the voting age at 18?"],
+[3,"Prohibition","","The national ban on making and selling alcohol.","Gangsters like Al Capone grew rich during it.","It lasted from 1920 to 1933.","It was created by the 18th Amendment and ended by the 21st.","What was the national ban on making and selling alcohol called?"],
+[3,"Poll tax","poll taxes","A fee people had to pay before they could vote.","Some Southern states used it to keep Black and poor citizens from voting.","The 24th Amendment banned it in federal elections.","Ending it made voting free for every citizen.","What was the fee some people had to pay before they could vote?"],
+[3,"January 20","jan 20|january 20th|inauguration day|jan 20th","The day a new president takes office.","The 20th Amendment set this date.","It happens every four years at noon.","It marks the peaceful transfer of power.","On what date does a new president take office?"],
+[3,"Elastic clause","necessary and proper clause|the elastic clause","It lets Congress stretch its powers to do things not listed in the Constitution.","Also called the Necessary and Proper Clause.","It was used to justify creating a national bank.","It lets the government handle new problems the founders never imagined.","Which clause lets Congress stretch its powers to do things not listed in the Constitution?"],
+[4,"Congress","us congress|united states congress|the congress","The lawmaking body of the United States, with two houses.","Article I set it up.","It meets in the Capitol building in Washington, D.C.","It is the branch closest to the people, because voters elect every member.","What is the lawmaking body of the United States, with two houses, called?"],
+[4,"Senate","us senate|the senate|united states senate","The smaller house of Congress, with 100 members.","It must approve treaties and the president's choices for judges.","Its members serve six-year terms.","Every state has equal power here, no matter its size.","Which house of Congress is smaller, with 100 members?"],
+[4,"House of Representatives","the house|house|house of reps|us house","The house of Congress with the most members: 435.","All bills to raise taxes must start here.","Its members serve two-year terms.","States with more people get more seats here.","Which house of Congress has the most members, with 435?"],
+[4,"Senators","senator","Members of the smaller house of Congress; there are two from each state.","Before 1913, state legislatures chose them.","They must be at least 30 years old.","Pennsylvania's two speak for the whole state.","What are the members of the smaller house of Congress called?"],
+[4,"Representative","representatives|congressman|congresswoman|congressperson","A member of the House.","Must be at least 25 years old.","Each one speaks for a district based on population.","Your representative is the member of Congress closest to your neighborhood.","What is a member of the House called?"],
+[4,"Majority","majority vote|simple majority","To win more than half the votes.","Supreme Court decisions are reached this way.","The party with more seats in a house of Congress is called the ___ party.","Majority rule is a basic idea of democracy.","What do you win when you get more than half the votes?"],
+[4,"Bicameral","bicameral legislature|two house","Having two houses, like Congress.","From Latin words meaning 'two rooms.'","49 of the 50 state legislatures are this.","Two houses means bills get a second look before becoming law.","What word describes a lawmaking body with two houses, like Congress?"],
+[4,"Speaker of the House","speaker|house speaker","The leader who runs the House of Representatives.","Second in line for the presidency, after the vice president.","Chosen by a vote of the House, usually from the majority party.","It is one of the most powerful jobs in Congress.","Who is the leader who runs the House of Representatives?"],
+[4,"Bill","bills","A proposed law.","It must pass both houses in exactly the same form.","It is introduced in the House or Senate, then read and debated.","Every federal law starts out as one of these.","What is a proposed law called?"],
+[4,"Standing committee","standing committees","A permanent committee in Congress that studies bills on one topic.","A new bill is referred to one right after it is introduced.","Examples include Armed Services and Agriculture.","Most bills die here and never reach a vote.","What is a permanent committee in Congress that studies bills on one topic?"],
+[4,"Subcommittee","subcommittees","A smaller group within a committee.","A committee may send a bill here for a closer look.","After it finishes, the bill goes back to the full committee.","Subcommittees let members become experts on narrow topics.","What is a smaller group within a committee called?"],
+[4,"Filibuster","filibusters","Talking for a very long time in the Senate to block a vote.","Ending one takes a 'cloture' vote of 60 senators.","Strom Thurmond did this for over 24 hours in 1957.","It lets the minority party slow down or stop bills.","What is it called when a senator talks for a very long time to block a vote?"],
+[4,"Pocket veto","","A way for the president to kill a bill without formally rejecting it.","It can happen when Congress adjourns within 10 days of sending a bill.","The president simply does not sign the bill.","Congress cannot override it, because it is no longer in session.","How can a president kill a bill without formally rejecting it?"],
+[4,"435","four hundred thirty five|four hundred thirty-five","The total number of voting members in the House.","Congress fixed this number by law in 1929.","After the 2020 census, Pennsylvania has 17 of them.","Seats are divided among states after every census.","How many voting members are in the House of Representatives?"],
+[4,"100","one hundred","The total number of members in the Senate.","The vice president breaks ties when this group splits evenly.","Two from each of 50 states.","Equal numbers give small states a strong voice.","How many members are in the Senate?"],
+[4,"Federal government","national government|the federal government|us government","The government based in Washington, D.C.","It is made up of three branches: Congress, the president, and the courts.","It has the power to run the whole country.","It shares power with the state governments.","What do we call the national government based in Washington, D.C.?"],
+[4,"Declare war","declaration of war|declaring war|power to declare war","The power to officially start a war.","Congress last did this in 1942, during World War II.","Presidents send troops, but only Congress has this power.","It is a check on the president's power as commander in chief.","What power, held only by Congress, lets the nation officially start a war?"],
+[4,"Power of the purse","purse","Congress's control over taxing and spending.","Article I gives this power to Congress.","Congress must approve how all federal money is spent.","It is one of Congress's strongest checks on the president.","What is Congress's control over taxing and spending called?"],
+[4,"Official","officials|public official|officeholder|office holder","A person who holds an office.","Mayors, governors, and senators are all examples.","They can be elected or appointed.","Officials must take an oath to support the Constitution.","What do we call a person who holds an office?"],
+[5,"President","the president|us president|president of the united states|potus","The leader of the executive branch.","Must be a natural-born citizen and at least 35 years old.","Serves a four-year term.","The office has grown much more powerful since 1789.","Who is the leader of the executive branch?"],
+[5,"Vice president","vp|vice-president|the vice president","The second-highest official in the executive branch.","Breaks tie votes in the Senate.","First in line to become president if the president dies.","Nine vice presidents have become president when the president died or resigned.","Who is the second-highest official in the executive branch?"],
+[5,"Commander in chief","commander-in-chief|commander","The president's role as head of the armed forces.","This role keeps an elected civilian in charge of the military.","In this role the president meets with military leaders and can send troops.","It puts the military under the control of a leader chosen by the people.","What is the president's role as head of the armed forces called?"],
+[5,"Chief diplomat","","The president's role in dealing with other nations.","Appointing an ambassador to Ireland is part of this role.","Greeting foreign diplomats at the White House is part of this role.","It makes the president the main voice of the U.S. to the world.","What is the president's role in dealing with other nations called?"],
+[5,"Chief legislator","","The president's role in shaping new laws.","Suggesting a new law to Congress is part of this role.","Signing a bill is part of this role.","Presidents can't write laws, but they push Congress to pass them.","What is the president's role in shaping new laws called?"],
+[5,"State of the Union","state of the union address|sotu","The president's yearly speech on how the nation is doing.","Article II says the president must give this 'from time to time.'","It is usually given to Congress each January or February.","It lets the president set goals for the year in front of the whole country.","What is the president's yearly speech to Congress on how the nation is doing?"],
+[5,"Electoral College","electoral college|electors","The group that officially elects the president.","It has 538 members.","Each state gets electors equal to its senators plus representatives.","A candidate can win it while losing the popular vote.","What group officially elects the president?"],
+[5,"270","two hundred seventy","The number of electoral votes needed to win the presidency.","A majority of 538.","Winning California, Texas, and Florida together still falls short of it.","Candidates plan their campaigns around reaching it.","How many electoral votes does a candidate need to win the presidency?"],
+[5,"Popular vote","popular votes","The total of votes cast by citizens.","Al Gore won it in 2000 but lost the election.","It is counted state by state on Election Day.","In most states, winning it gives a candidate all of the state's electors.","What is the total of votes cast by citizens in an election called?"],
+[5,"Bush v. Gore","bush vs gore|bush versus gore","The Supreme Court case that settled the 2000 presidential election.","Decided in December 2000.","It stopped a recount of votes in Florida.","It showed how courts can affect the outcome of an election.","Which Supreme Court case settled the 2000 presidential election?"],
+[5,"Election Day","election day","The day Americans vote for president every four years.","Congress set it in 1845.","It is the Tuesday after the first Monday in November.","Pennsylvania polls are open from 7 a.m. to 8 p.m. that day.","What do we call the day Americans vote for president, every four years?"],
+[5,"Secret ballot","australian ballot|private ballot","Voting in private so no one knows your choice.","It is also called the Australian ballot.","It protects voters from being pressured or bribed.","It lets every voter choose freely.","What do we call voting in private so no one knows your choice?"],
+[5,"Polling place","polls|polling station|the polls|polling places","The place where people go to vote.","It is often a school, church, or fire hall.","Voters are assigned one based on where they live.","Schools are the most common ones.","What is the place where people go to vote called?"],
+[5,"Campaign","campaigns","A candidate's organized effort to win an election.","It includes speeches, ads, and rallies.","A presidential one can last more than a year.","Campaigns let voters learn where candidates stand.","What is a candidate's organized effort to win an election called?"],
+[5,"Oath of office","oath|presidential oath|oath of office of the president","The promise a new president makes on Inauguration Day.","It is usually given by the Chief Justice.","Its exact words are written in Article II.","The president promises to 'preserve, protect and defend the Constitution.'","What promise does a new president make on Inauguration Day?"],
+[5,"Cabinet","the cabinet|presidents cabinet","The heads of the 15 executive departments who advise the president.","Washington's had only four members.","Members include the Secretary of State and the Attorney General.","It is not mentioned by name in the Constitution.","What is the group of department heads who advise the president called?"],
+[5,"White House Office","white house staff","The president's closest personal staff.","Includes the press secretary and speechwriters.","The White House counsel works here.","These aides do not need Senate approval.","What is the president's closest personal staff called?"],
+[5,"Office of Management and Budget","omb|office of management & budget","The office that plans how the federal government will spend its money each year.","It suggests improvements to how the executive branch runs.","Its initials are O-M-B.","The budget it writes is the president's plan for spending.","Which office plans how the federal government will spend its money each year?"],
+[5,"Council of Economic Advisers","cea|council of economic advisors","A group of experts who advise the president about the economy.","Three economists lead it.","Its initials are C-E-A.","Presidents use its advice to fight unemployment and rising prices.","Which group of experts advises the president about the economy?"],
+[5,"National Security Council","nsc","A group that advises the president on foreign policy and defense.","Created in 1947 as the Cold War began.","Its initials are N-S-C.","It brings top military and diplomatic leaders together.","Which group advises the president on foreign policy and defense?"],
+[5,"Council on Environmental Quality","ceq","A group that reports to the president on the condition of the environment.","Created in 1969, the same year as a famous oil spill in California.","Its initials are C-E-Q.","It helps make sure federal projects consider the environment.","Which group reports to the president on the condition of the environment?"],
+[5,"CIA","central intelligence agency","The agency that gathers secret information about other countries.","Its agents work in all parts of the world.","It reports its findings to the National Security Council.","It helps protect the country from foreign threats.","Which agency gathers secret information about other countries?"],
+[5,"President pro tempore","president pro tem|pro tempore|pro tem","The leader of the Senate when the vice president is absent.","Usually the longest-serving senator of the majority party.","Third in line for the presidency.","'Pro tempore' is Latin for 'for the time being.'","Who leads the Senate when the vice president is absent?"],
+[5,"35","thirty five|thirty-five","The minimum age to be president.","JFK was 43 and Theodore Roosevelt was 42, both well above this number.","A senator must be 30, but a president must be this old.","Age rules make sure leaders have life experience.","What is the minimum age to be president?"],
+[5,"Executive order","executive orders","A rule issued directly by the president.","Truman used one to desegregate the military in 1948.","It has the force of law but is not passed by Congress.","Courts can strike one down if it goes beyond the president's powers.","What is a rule issued directly by the president called?"],
+[5,"Pardon","pardons","Official forgiveness for a crime.","President Ford gave one to Richard Nixon in 1974.","Governors can give these for state crimes.","It is a check the executive has on the courts.","What is official forgiveness for a crime called?"],
+[6,"State Department","department of state|dept of state|the state department","The department that handles foreign policy.","The oldest executive department, created in 1789.","It runs U.S. embassies around the world.","It leads the United States in diplomatic relations.","Which executive department handles foreign policy?"],
+[6,"Secretary of State","sec of state","The nation's top diplomat, who runs U.S. relations with other countries.","Fourth in line for the presidency.","Thomas Jefferson was the first to hold this job.","This person is one of the president's most important foreign-policy advisers.","Who is the nation's top diplomat, running U.S. relations with other countries?"],
+[6,"Ambassador","ambassadors","The president's top representative to a foreign country.","The Senate must approve each one.","Works in an embassy in a foreign capital.","Ambassadors keep communication open between nations.","Who is the president's top representative to a foreign country?"],
+[6,"Consul","consuls|consulate","A State Department representative sent to help U.S. citizens in foreign countries.","Works in an office in a foreign city, not in the capital.","Helps Americans who lose a passport or get in trouble abroad.","Consuls also help promote trade.","Which State Department representative helps U.S. citizens in foreign countries?"],
+[6,"Passport","passports","The document you need to travel to a foreign country.","Issued by the State Department.","It proves your citizenship.","It is the most common proof of U.S. citizenship abroad.","What document do you need to travel to a foreign country?"],
+[6,"Treasury Department","department of the treasury|treasury|dept of the treasury","The department that manages the nation's money.","Alexander Hamilton was its first leader.","It includes the IRS and the U.S. Mint.","It collects taxes, pays the government's bills, and makes coins and bills.","Which executive department manages the nation's money?"],
+[6,"IRS","internal revenue service","The agency that collects taxes from people and businesses.","Part of the Treasury Department.","Federal tax forms are usually due to it each April.","Its money pays for most federal programs.","Which agency collects taxes from people and businesses?"],
+[6,"Bureau of Engraving and Printing","bep|bureau of engraving","The agency that prints paper money.","Its printing plants are in Washington, D.C., and Fort Worth, Texas.","It is part of the Treasury Department.","Its bills have security features to stop fakes.","Which agency prints paper money?"],
+[6,"Secret Service","us secret service|the secret service","The agency that protects the president.","It moved from the Treasury to Homeland Security in 2003.","It enforces laws against making counterfeit money.","It was first created to fight fake money after the Civil War.","Which agency protects the president?"],
+[6,"Counterfeit","counterfeiting|counterfeit money|counterfeiter","Fake money made to look real.","The Secret Service was first created to fight it.","Color-shifting ink makes it harder.","Fake money hurts the economy and is a federal crime.","What do we call fake money made to look real?"],
+[6,"Department of Defense","defense department|dod|dept of defense|department of war|war department","The department that runs the military.","It was called the Department of War until 1947.","It includes the Army, Navy, and Air Force.","It has more employees than any other part of the government.","Which executive department runs the military?"],
+[6,"Pentagon","the pentagon","The headquarters of the Defense Department.","It is in Arlington, Virginia, across the river from D.C.","It has five sides.","It is one of the largest office buildings in the world.","What building is the headquarters of the Defense Department?"],
+[6,"Naval Academy","us naval academy|annapolis|united states naval academy","The military academy in Annapolis, Maryland.","Founded in 1845.","It trains officers for the Navy and Marine Corps.","Graduates become officers who lead sailors and Marines.","Which military academy is in Annapolis, Maryland?"],
+[6,"West Point","us military academy|military academy|united states military academy","The academy that trains Army officers.","The oldest of the military academies, founded in 1802.","It sits on the Hudson River in New York.","Grant, Lee, and Eisenhower all graduated from it.","Which academy trains officers for the U.S. Army?"],
+[6,"Air Force Academy","us air force academy|united states air force academy","The military academy in Colorado Springs, Colorado.","Founded in 1954.","It sits at the foot of the Rocky Mountains.","It trains officers for the Air Force and Space Force.","Which military academy is in Colorado Springs, Colorado?"],
+[6,"Army Corps of Engineers","corps of engineers|army corps","The group that makes sure rivers and harbors are kept up.","It builds dams and levees.","It is part of the Army but does much civilian work.","It helps prevent floods and keeps ships moving.","Which group makes sure rivers and harbors are kept up?"],
+[6,"Justice Department","department of justice|doj|dept of justice","The department that enforces federal laws.","Created in 1870.","It includes the FBI and the U.S. Marshals.","It represents the United States in court.","Which executive department enforces federal laws?"],
+[6,"Attorney general","attorney-general|us attorney general|ag","The head of the Justice Department; the nation's top lawyer.","States have one too, as their chief legal officer.","This person gives legal advice to the president.","This person decides how federal laws are enforced.","Who heads the Justice Department and serves as the nation's top lawyer?"],
+[6,"FBI","federal bureau of investigation","The agency that investigates when a federal law is broken.","Part of the Justice Department.","Its agents investigate kidnapping, spying, and terrorism.","It is the main federal police agency.","Which agency investigates when a federal law is broken?"],
+[6,"U.S. Marshals","marshal|marshals|us marshals|us marshal|us marshals service|united states marshals","They protect federal courts and move federal prisoners.","The oldest federal law enforcement agency, from 1789.","They hunt down escaped federal prisoners.","They keep judges and courtrooms safe.","Who protects federal courts and moves federal prisoners?"],
+[6,"Department of the Interior","interior department|interior|dept of the interior","The department that manages public lands and national parks.","It includes the Bureau of Indian Affairs.","It runs the National Park Service.","It protects natural resources like forests and wildlife.","Which executive department manages public lands and national parks?"],
+[6,"Department of Agriculture","usda|agriculture department|dept of agriculture","The department in charge of farming and food.","It runs the national school lunch program.","It inspects meat and helps farmers.","It helps keep the nation's food supply safe.","Which executive department is in charge of farming and food?"],
+[6,"Department of Commerce","commerce department|dept of commerce","The department that promotes business and trade.","It includes the Census Bureau and the National Weather Service.","It also runs the Patent and Trademark Office.","It helps American businesses grow and sell abroad.","Which executive department promotes business and trade?"],
+[6,"Census","the census|census bureau","An official count of everyone in the U.S., done every 10 years.","Done by a bureau in the Commerce Department.","Its results decide how many House seats each state gets.","The Constitution requires it, and it shapes power in Congress.","What is the official count of everyone in the U.S., done every 10 years, called?"],
+[6,"Patent and Trademark Office","patent office|uspto|pto","The office that protects inventors and creators of new products.","Part of the Commerce Department.","It gives inventors the sole right to their invention for a time.","Protecting ideas encourages people to invent.","Which office protects inventors and creators of new products?"],
+[6,"National Weather Service","weather service|nws","The agency that gathers and broadcasts information about storms.","Part of the Commerce Department.","It issues warnings for hurricanes and tornadoes.","Its warnings save lives.","Which agency gathers and broadcasts information about storms?"],
+[6,"National Institute of Standards and Technology","nist|bureau of standards","It makes sure goods are the right size, weight, and quality.","Part of the Commerce Department.","It keeps the official time for the country.","Standards make sure a gallon is a gallon everywhere.","Which agency makes sure goods are the right size, weight, and quality?"],
+[6,"Department of Labor","labor department|dept of labor","The department that protects workers.","It helps people find jobs and runs unemployment insurance.","It includes OSHA.","It enforces minimum wage and child labor laws.","Which executive department protects workers?"],
+[6,"OSHA","occupational safety and health administration","The agency that inspects workplaces to make sure working conditions are safe.","Part of the Labor Department.","Created in 1970.","It has helped cut workplace deaths sharply.","Which agency inspects workplaces to make sure working conditions are safe?"],
+[6,"Health and Human Services","hhs|department of health and human services","The department in charge of the nation's health.","It includes the CDC and the FDA.","It runs the Head Start preschool program.","It runs Medicare and Medicaid.","Which executive department is in charge of the nation's health?"],
+[6,"Housing and Urban Development","hud|department of housing and urban development","The department that helps people find affordable housing in cities.","Created in 1965.","Its initials are H-U-D.","It works to improve neighborhoods and fight housing discrimination.","Which executive department helps people find affordable housing in cities?"],
+[6,"Department of Transportation","transportation department|dot|dept of transportation","The department that oversees highways, airports, and travel.","It includes the Federal Aviation Administration.","It sets safety rules for cars, trucks, and trains.","It helps keep roads and bridges safe.","Which executive department oversees highways, airports, and travel?"],
+[6,"FAA","federal aviation administration","The agency in charge of safety for airplanes and airports.","Part of the Department of Transportation.","It runs air traffic control.","It makes U.S. air travel among the safest in the world.","Which agency is in charge of safety for airplanes and airports?"],
+[6,"Department of Energy","energy department|doe|dept of energy","The department that works to save supplies of oil and natural gas.","It runs national laboratories and oversees nuclear weapons.","Created in 1977 after an oil crisis.","It helps plan the country's energy future.","Which executive department works to save supplies of oil and natural gas?"],
+[6,"Department of Education","education department|dept of education","The department in charge of federal education programs.","Created in 1979.","It runs federal student aid for college.","States and local districts still run most schools.","Which executive department is in charge of federal education programs?"],
+[6,"Veterans Affairs","department of veterans affairs|va|veterans affairs department","The department that manages hospitals for military veterans.","It runs national cemeteries.","It helps former soldiers with health care and college.","It keeps the nation's promise to those who served.","Which executive department runs hospitals for military veterans?"],
+[6,"Homeland Security","department of homeland security|dhs","The department that protects the nation from terrorism and disasters.","Created in 2002 after the September 11 attacks.","It includes the TSA, FEMA, and the Coast Guard.","It brought 22 agencies together under one department.","Which executive department protects the nation from terrorism and disasters?"],
+[6,"15","fifteen","The number of executive departments.","Washington's government had only four.","The newest one is Homeland Security.","Their heads make up the president's Cabinet.","How many executive departments are there?"],
+[7,"Bureaucracy","federal bureaucracy|the bureaucracy","All the departments, agencies, and workers that carry out the government's work.","It is often drawn as a pyramid.","The president is at the top; workers are at the bottom.","Millions of people work in it.","What do we call all the departments, agencies, and workers that carry out the government's work?"],
+[7,"Independent agency","independent agencies","A government agency that reports to the president but stands on its own.","Most are run by a board or a single director the president appoints.","NASA and the EPA are examples.","Congress creates these to handle special jobs.","What is a government agency that reports to the president but is not part of a Cabinet department?"],
+[7,"Regulatory commission","regulatory commissions|regulatory agency|regulatory agencies","An agency that makes and enforces rules for a business or industry.","Its members serve long terms so politics affects them less.","The FCC and FTC are examples.","They protect the public from unsafe or unfair practices.","What kind of agency makes and enforces rules for a business or industry?"],
+[7,"Interstate Commerce Commission","icc","The first independent agency Congress created.","Congress created it in 1887.","It regulated railroad prices.","It started the modern system of regulatory agencies.","What was the first independent agency Congress created?"],
+[7,"FTC","federal trade commission","The commission that protects consumers from unfair business practices.","Created in 1914.","It stops false advertising.","It helps keep competition fair.","Which commission protects consumers from unfair business practices?"],
+[7,"NRC","nuclear regulatory commission","The commission that licenses nuclear power plants.","Congress created it in 1974.","It inspects plants that use radioactive material.","It protects people from radiation dangers.","Which commission licenses nuclear power plants?"],
+[7,"NLRB","national labor relations board","The board that protects workers' rights to organize.","Created by the Wagner Act in 1935.","It runs elections for workers who want to form a union.","It stops unfair labor practices by employers and unions.","Which board protects workers' rights to organize?"],
+[7,"CPSC","consumer product safety commission","The commission that judges products for their safety.","Created in 1972.","It can recall dangerous toys, cribs, and helmets.","It protects families from dangerous products.","Which commission judges products for their safety?"],
+[7,"FCC","federal communications commission","The commission that licenses radio and TV stations.","Created in 1934.","It runs the Emergency Alert System during a national emergency.","It regulates radio, TV, phone, and internet communication.","Which commission licenses radio and TV stations?"],
+[7,"EPA","environmental protection agency","The agency that protects the nation's air and water.","Created in 1970.","It enforces the Clean Air Act and Clean Water Act.","It fights pollution.","Which agency protects the nation's air and water?"],
+[7,"FDIC","federal deposit insurance corporation","The agency that repays people if their bank fails.","Created in 1933, after thousands of banks failed.","It insures accounts up to $250,000.","It keeps people from losing their savings.","Which agency repays people if their bank fails?"],
+[7,"NASA","national aeronautics and space administration","The agency that explores outer space.","Created in 1958 after the Soviets launched Sputnik.","It flew space shuttles from 1981 to 2011.","It landed the first people on the Moon in 1969.","Which agency explores outer space?"],
+[7,"Peace Corps","the peace corps","The agency that sends American volunteers to help other countries.","Created in 1961 by President Kennedy.","Its volunteers teach languages, engineering, and farming skills.","It builds peace and friendship between nations.","Which agency sends American volunteers to help other countries?"],
+[7,"Social Security","social security administration|ssa","The program that pays money to retired and disabled workers.","Started by a law signed in 1935.","Workers pay into it from every paycheck.","It keeps millions of older Americans out of poverty.","Which program pays money to retired and disabled workers?"],
+[7,"Medicare","","The program that pays for health care for people over 65.","Created in 1965.","It is run by Health and Human Services, not Social Security.","It covers more than 65 million Americans.","Which program pays for health care for people over 65?"],
+[7,"Postal Service","usps|us postal service|post office|united states postal service","The agency that runs the nation's mail service.","Benjamin Franklin was the first postmaster general.","Its inspectors enforce laws about items sent through the mail.","It delivers to every address in the country.","Which agency runs the nation's mail service?"],
+[7,"National Endowment for the Arts","nea|national foundation on the arts and the humanities|national endowment for the humanities","The agency that makes grants to artists, writers, and museums.","Created in 1965.","It encourages the development of American art and literature.","It helps bring art to communities across the country.","Which agency makes grants to artists, writers, and museums?"],
+[7,"Civil service","civil service system","The system for hiring most government workers.","The Pendleton Act of 1883 created it.","People earn these jobs by tests and skills, not political favors.","It replaced the 'spoils system' of giving jobs to friends.","What is the system for hiring most government workers based on skills called?"],
+[8,"District courts","district court|us district courts|federal district courts|federal district court","The federal trial courts where most federal cases begin.","There are 94 of them.","They are the only federal courts that use juries.","Most federal cases begin and end here.","In which federal trial courts do most federal cases begin?"],
+[8,"Court of Appeals","courts of appeals|appeals court|appeals courts|circuit court|circuit courts|court of appeal","The courts that review cases from district courts when someone says the trial was unfair.","Congress set them up in 1891.","Panels of at least three judges decide each case.","Their decisions are usually final; few cases go higher.","Which courts review cases from district courts when someone says the trial was unfair?"],
+[8,"13","thirteen","The number of original states.","The number of federal judicial circuits.","Also the number of stripes on the U.S. flag.","The original states became the first members of the Union.","How many original states were there?"],
+[8,"Ninth Circuit","9th circuit|ninth circuit court","The largest federal circuit.","Its court of appeals sits in San Francisco.","It covers Alaska, Hawaii, and seven other Western states.","It hears more appeals than any other circuit.","Which is the largest federal circuit?"],
+[8,"Federal Circuit","court of appeals for the federal circuit","The circuit court that covers the whole nation, not one region.","It sits in Washington, D.C.","It hears appeals about patents and trade.","It replaced the Court of Customs and Patent Appeals in 1982.","Which circuit court covers the whole nation instead of one region?"],
+[8,"Court of International Trade","international trade court","The court for cases about imports and tariffs.","It sits in New York City.","It hears cases about goods brought into the country.","It settles fights over trade rules.","Which court hears cases about imports and tariffs?"],
+[8,"Court of Federal Claims","federal claims court|claims court|court of claims","The court for people who say the government owes them money.","Its judges serve 15-year terms.","People sue the U.S. government here for money.","It lets citizens hold the government to its promises.","Which court is for people who say the government owes them money?"],
+[8,"Tax Court","us tax court","The court for disagreements with the IRS.","People can bring their case here before paying a disputed tax.","Its judges are experts in tax law.","It protects taxpayers from unfair tax bills.","Which court hears disagreements with the IRS?"],
+[8,"Territorial courts","territorial court","Courts for people who live in U.S. territories.","They sit in places like Guam and the Virgin Islands.","They hear both federal and local cases.","They bring federal justice to places that are not states.","Which courts serve people who live in U.S. territories?"],
+[8,"Defendant","defendants","The person accused in a trial.","In a criminal case, the jury decides if this person is guilty.","This person has the right to a lawyer.","The Bill of Rights protects defendants from unfair treatment.","What is the person accused in a trial called?"],
+[8,"Appeal","appeals|appealed","To ask a higher court to change a decision.","It moves a case from a lower court up to a higher one.","The losing side does this if it thinks a trial was unfair.","Appeals let mistakes be corrected.","What is it called when you ask a higher court to change a decision?"],
+[8,"Supreme Court","us supreme court|the supreme court|scotus|united states supreme court","The highest court in the land.","It accepts only about 60 cases a year.","Its decisions are final and cannot be appealed.","It can rule that a law is unconstitutional.","What is the highest court in the land?"],
+[8,"Justices","justice|supreme court justices","The judges of the Supreme Court.","There are nine of them.","They serve for life during 'good behavior.'","The president picks them and the Senate must approve them.","What are the judges of the Supreme Court called?"],
+[8,"Chief Justice","chief justice of the united states","The head of the Supreme Court.","John Roberts has held this job since 2005.","Presides at a president's impeachment trial in the Senate.","Only 17 people have held this job.","Who is the head of the Supreme Court?"],
+[8,"Judicial review","","The power of courts to decide if a law goes against the Constitution.","Established by Chief Justice John Marshall in 1803.","Thomas Jefferson worried it made the Court too powerful.","It makes the courts an equal check on Congress and the president.","What is the power of courts to decide if a law goes against the Constitution called?"],
+[8,"Marbury v. Madison","marbury vs madison|marbury versus madison","The case that established judicial review.","Decided in 1803.","It started when Jefferson's government refused to deliver a judge's papers.","It made the Supreme Court a powerful branch of government.","Which case established judicial review?"],
+[8,"Unconstitutional","","Going against the Constitution.","The Court ruled school segregation this in 1954.","A law ruled this way can no longer be enforced.","Only the courts can rule a law unconstitutional.","What is a law called if it goes against the Constitution?"],
+[8,"Opinion","majority opinion|court opinion|opinions","A carefully worded written statement explaining the Court's decision.","Justices who disagree write a 'dissenting' one.","Lower courts must follow the reasoning in it.","It explains the law for future cases.","What is the written statement explaining a court's decision called?"],
+[8,"Writ of certiorari","certiorari|cert|writ","How the Supreme Court agrees to hear a case.","It takes the votes of four justices.","It orders a lower court to send up its records.","The Court turns down most cases that ask for one.","What does the Supreme Court issue when it agrees to hear a case?"],
+[8,"Thomas Jefferson","jefferson","He wrote the Declaration of Independence and was the 3rd president.","His government refused to deliver William Marbury's papers.","He thought the Supreme Court was becoming too powerful.","He feared unelected judges having the last word.","Who wrote the Declaration of Independence and became the 3rd president?"],
+[8,"Apportionment","apportion","Dividing seats in the House among the states.","It means dividing something among the states by population.","The 16th Amendment ended the need for it with income taxes.","It is done again after every census.","What is dividing seats in the House among the states called?"],
+[9,"Texas","tx","The 'Lone Star State,' largest of the lower 48 states.","It was an independent republic from 1836 to 1845.","It joined the United States in 1845.","Its entry helped lead to war with Mexico.","Which state is the 'Lone Star State,' the largest of the lower 48?"],
+[9,"Alaska","ak","The largest state by area.","The U.S. bought it from Russia in 1867.","It became the 49th state in 1959.","Critics once called its purchase 'Seward's Folly,' but it proved valuable.","Which state is the largest by area?"],
+[9,"Hawaii","hi","The 50th state, a chain of islands in the Pacific.","Its last queen, Liliuokalani, was overthrown in 1893.","It became a state in 1959, months after Alaska.","It was the last state admitted to the Union.","Which state, a chain of islands in the Pacific, was the 50th to join?"],
+[9,"Puerto Rico","pr","A Caribbean island that is a U.S. commonwealth.","The U.S. gained it after the Spanish-American War in 1898.","Its people are U.S. citizens but cannot vote for president while living there.","It governs itself but is united with the U.S.","Which Caribbean island is a U.S. commonwealth?"],
+[9,"Guam","","A U.S. territory in the western Pacific Ocean.","It is called the place 'where America's day begins.'","It is a key U.S. military base in the Pacific.","Its people are U.S. citizens but have no vote in Congress.","Which U.S. territory is in the western Pacific Ocean?"],
+[9,"American Samoa","samoa","A U.S. territory in the South Pacific.","The only U.S. territory south of the equator.","People born there are U.S. nationals, not automatically citizens.","It shows that territories have different rules than states.","Which U.S. territory is in the South Pacific?"],
+[9,"Virgin Islands","us virgin islands|usvi","A U.S. territory in the Caribbean.","The U.S. bought them from Denmark in 1917.","Includes St. Thomas, St. John, and St. Croix.","Like other territories, it sends a non-voting delegate to Congress.","Which U.S. territory is a group of islands in the Caribbean?"],
+[9,"Commonwealth","commonwealths","A place that rules itself but is united with the United States.","Puerto Rico and the Northern Mariana Islands are examples.","Pennsylvania also uses this word in its official name.","It has more self-rule than a territory.","What is a place that rules itself but is united with the United States called?"],
+[9,"Territory","territories","A region controlled by the United States that is not a state.","Guam and American Samoa are examples.","Its people have their own courts.","Many states were territories before joining the Union.","What is a region controlled by the United States that is not a state called?"],
+[9,"Reserved powers","reserved power","Powers that belong only to the states.","The 10th Amendment protects them.","Running elections and setting up schools are examples.","They let states shape daily life, like school and driving rules.","What are powers that belong only to the states called?"],
+[9,"Concurrent powers","shared powers|concurrent power","Powers shared by the national and state governments.","Collecting taxes and making laws are examples.","Both levels of government have courts that use them.","They let both levels serve the people at the same time.","What are powers shared by the national and state governments called?"],
+[9,"Delegated powers","enumerated powers|expressed powers|delegated power","Powers given only to the national government.","Printing money and declaring war are examples.","They are listed in the Constitution.","They keep the country speaking with one voice on big issues.","What are powers given only to the national government called?"],
+[9,"Governor","governors","The head of the executive branch of a state.","Can pardon prisoners in certain cases.","Commands the state's National Guard.","Governors sign or veto state laws.","Who is the head of the executive branch of a state?"],
+[9,"Lieutenant governor","lt governor|lt gov|lieutenant gov","Takes over if the governor dies or leaves office.","Often serves as leader of the state senate.","The second most important official in the state.","In Pennsylvania, this person runs on the same ticket as the governor.","Who takes over if a state's governor dies or leaves office?"],
+[9,"Comptroller","controller","The official who keeps the state's financial records.","Controls state spending.","Pays bills owed by the state.","It makes sure state money is spent properly.","Which state official keeps the state's financial records?"],
+[9,"Treasurer","state treasurer|county treasurer|campaign treasurer","The official in charge of money collected and spent.","Campaigns have one too, to pay their bills.","At the state level, collects taxes due to the state.","Careful money handling keeps government honest.","Which official is in charge of money a government collects and spends?"],
+[9,"Superintendent of public instruction","superintendent|state superintendent|superintendent of education","The official in charge of a state's public schools.","Works with the state board of education.","Sets state qualifications for teachers.","Education is a power reserved to the states.","Which official is in charge of a state's public schools?"],
+[9,"National Guard","the national guard|state militia|militia","State soldiers who help in emergencies like floods.","The governor is its commander in chief.","The president can call it into national service.","It protects communities during disasters.","What state military force helps in emergencies like floods?"],
+[9,"Sales tax","sales taxes","A tax on goods people buy.","Pennsylvania's rate is 6 percent.","It is added to the price of things you buy.","It is a major source of money for states.","What is a tax on goods people buy called?"],
+[9,"Income tax","income taxes|personal income tax","A tax on the money people earn.","The 16th Amendment allowed the federal one.","Most states also have one.","It is a major source of money for both state and federal governments.","What is a tax on the money people earn called?"],
+[9,"Grant","grants|federal grant|grant-in-aid|grants-in-aid|federal grants","Money the federal government gives to states.","States must follow federal rules to use it.","Money is given for a set purpose, like highways or schools.","It lets the federal government shape state programs.","What is money the federal government gives to states for a set purpose called?"],
+[9,"Education","public education|schools|public schools","A state's largest expense.","States require teachers to meet certain standards.","States pay for it mostly with state and local taxes.","Most of a state's school budget goes to elementary and high schools.","What is usually a state's largest expense?"],
+[9,"Session","legislative session|sessions","The period when a legislature meets to do its work.","Some states meet only every other year.","Pennsylvania's lawmakers meet for one that lasts two years.","Bills that don't pass by the end usually must start over.","What is the period when a legislature meets to do its work called?"],
+[9,"Voting district","district|districts|voting districts|legislative district","An area whose voters elect one representative.","Its lines are redrawn after each census.","Each one elects a lawmaker.","Fair district lines give voters equal power.","What is an area whose voters elect one representative called?"],
+[9,"Nebraska","ne","The only state with a one-house legislature.","Its lawmakers run without party labels.","The 37th state, in the Great Plains.","It shows states can design their own governments.","Which is the only state with a one-house legislature?"],
+[9,"Unicameral","unicameral legislature|one house","Having only one lawmaking house.","Nebraska's legislature is the only state example.","The Articles of Confederation created this kind of Congress.","Most states chose two houses instead, like Congress.","What word describes a lawmaking body with only one house?"],
+[10,"County","counties","The largest unit of local government within a state.","Louisiana calls them parishes; Alaska calls them boroughs.","Pennsylvania has 67 of them.","Counties run courts, jails, and keep public records.","What is the largest unit of local government within a state?"],
+[10,"County seat","county seats","The town where a county's government offices are.","Media is Delaware County's.","The courthouse is usually here.","It is where you go to file property deeds or serve jury duty.","What is the town where a county's government offices are called?"],
+[10,"Sheriff","sheriffs","Carries out court orders and arrests people who break the law.","Usually elected by the voters of a county.","Looks after the county jail.","Sheriffs enforce the law across a county.","Which county official carries out court orders and arrests people who break the law?"],
+[10,"Clerk","county clerk|clerks","The county official who keeps official records.","Keeps copies of deeds to property and records of births, deaths, and marriages.","You would visit this office to get a copy of a birth certificate or marriage license.","These records prove who owns land and who people are.","Which county official keeps the county's official records?"],
+[10,"Auditor","county auditor|auditors","The official who makes sure money records are correct.","Checks the work of the treasurer.","Examines county financial records.","Auditors help stop waste and stealing.","Which official checks that money records are correct?"],
+[10,"District attorney","da|prosecutor|district attorneys","Brings legal action against people who break county or state laws.","Elected by the voters of every Pennsylvania county.","Represents the people against someone accused of a crime.","This person decides which crimes to charge.","Which official brings legal action against people who break county or state laws?"],
+[10,"County board","board of commissioners|county commissioners|county council|board of supervisors","The lawmaking group that runs a county.","Delaware County's version is called County Council.","Sets the county budget and taxes.","It decides how county money is spent.","What is the lawmaking group that runs a county called?"],
+[10,"Zoning","zoning laws|zone","Rules about how land in an area can be used.","Land is often marked residential, commercial, or industrial.","It keeps factories away from homes.","It shapes what neighborhoods look like.","What are rules about how land in an area can be used called?"],
+[10,"City charter","charter|charters","The document that creates a city and its government.","The state grants it.","It lists the city's powers and type of government.","A city needs one to have legal authority.","What document creates a city and its government?"],
+[10,"Property tax","property taxes|real estate tax","A tax on land and buildings.","Based on the value of a home or land.","It is the main way local schools are paid for.","It is the largest source of money for most local governments.","What is a tax on land and buildings called?"],
+[10,"Mayor","mayors","The elected head of a city.","In a 'strong' version, this person can veto the council.","Philadelphia elects one every four years.","Mayors lead the city's executive branch.","Who is the elected head of a city?"],
+[10,"City manager","city managers","A professional who runs a city's daily business.","Hired by the city council, not elected.","A trained expert in running cities.","It keeps city services run by experts instead of politicians.","Who is the professional hired to run a city's daily business?"],
+[10,"Mayor-council","mayor council|mayor-council government","A type of city government where voters elect both a mayor and a city council.","Philadelphia uses this type.","The most common type of city government.","It works like a small version of the national government.","Which type of city government has voters elect both a mayor and a city council?"],
+[10,"Council-manager","council manager|council-manager government","A type of city government with a hired manager.","The elected council makes policy.","The council hires a professional to run the city.","Many mid-size cities use it.","Which type of city government has an elected council hire a manager?"],
+[10,"Commission","commission government|commission plan|commission form","The type of city government where a small elected board runs everything.","It began in Galveston, Texas, after a 1900 hurricane.","Each elected member runs one city department.","Few cities use it today.","Which type of city government is run by a small elected board, with no separate mayor?"],
+[10,"Town meeting","town meetings","A meeting where citizens vote directly on local laws.","Common in New England.","Every voter can speak and vote on the town budget.","It is one of the purest forms of direct democracy in the U.S.","What is a meeting where citizens vote directly on local laws called?"],
+[10,"Township","townships","A unit of local government led by an elected board or council.","Upper Darby is one.","Common in Pennsylvania and the Midwest.","Townships handle roads, police, and parks.","What type of local government, led by an elected board, covers areas outside cities and boroughs?"],
+[10,"Borough","boroughs","A self-governing town; Lansdowne and Media are examples.","New York City has five of them.","In Pennsylvania, it is a small town with its own mayor and council.","Boroughs let small towns run their own affairs.","What type of self-governing town are Lansdowne and Media?"],
+[10,"Ordinance","ordinances","A law passed by a local government.","Parking rules and curfews are examples.","It applies only within one city or county.","Local laws handle everyday matters close to home.","What is a law passed by a local government called?"],
+[11,"Republican Party","republican|republicans|gop|the republican party","One of the two major U.S. political parties; its symbol is the elephant.","Formed in 1854 from a combination of several groups.","Abraham Lincoln was its first president; it is nicknamed the GOP.","It is one of the two major parties today.","Which major U.S. political party uses the elephant as its symbol?"],
+[11,"Democratic Party","democratic|democrats|democrat|the democratic party","One of the two major U.S. political parties; its symbol is the donkey.","It formed in the late 1820s.","Andrew Jackson was its first leader.","It is one of the two major parties today.","Which major U.S. political party uses the donkey as its symbol?"],
+[11,"Democratic-Republican Party","democratic-republicans|democratic republicans|democratic republican party|jeffersonian republicans","The early political party that opposed Hamilton's Federalists.","Thomas Jefferson and James Madison started it in the 1790s.","It later changed its name to the Democratic Party.","It was the first opposition party in U.S. history.","Which early political party opposed Hamilton's Federalists?"],
+[11,"Andrew Jackson","jackson","The 7th president, nicknamed 'Old Hickory.'","He was the hero of the Battle of New Orleans.","He was the first leader of the Democratic Party.","He promised more power to ordinary voters.","Which 7th president was nicknamed 'Old Hickory'?"],
+[11,"Abraham Lincoln","lincoln","The 16th president, who led the nation through the Civil War.","He debated Stephen Douglas in 1858.","Elected in 1860 as a candidate of the new Republican Party.","His election led Southern states to secede.","Which 16th president led the nation through the Civil War?"],
+[11,"Political party","political parties|party|parties","A group of people with similar ideas who try to win elections.","Washington warned against them in his Farewell Address.","They nominate candidates and write platforms.","They give voters clear choices.","What is a group of people with similar ideas who try to win elections?"],
+[11,"Two-party system","two party system|two party|two-party","A system with two major political parties.","Great Britain and the United States both have one.","Minor parties rarely win in it.","U.S. election rules make it hard for third parties to win.","What is a system with two major political parties called?"],
+[11,"Multiparty system","multiparty|multi-party system|multi party system","A system with more than two major political parties.","Common in Europe, such as in Germany and Israel.","Parties often must team up to govern.","No single party usually wins a majority.","What is a system with more than two major political parties called?"],
+[11,"Coalition","coalitions","A group of several political parties working together.","Formed when no party wins a majority.","Parties in it share power.","It is common in nations with many parties.","What is a group of several political parties working together called?"],
+[11,"Third party","minor party|third parties|minor parties","A party other than the two major ones.","The Green Party and the Libertarian Party are examples.","It usually lacks enough voter support to win control of the government.","These parties often push new ideas that major parties later adopt.","What do we call a political party other than the two major ones?"],
+[11,"Libertarian Party","libertarian|libertarians","A party in favor of very limited government.","Founded in 1971.","It wants low taxes and few rules.","It is one of the largest minor parties in the U.S.","Which party favors very limited government?"],
+[11,"Progressive Party","bull moose party|progressives|progressive","A party in favor of reforms to change the government.","Theodore Roosevelt ran with it in 1912.","It was nicknamed the Bull Moose Party.","Many of its ideas, like direct election of senators, became law.","Which party favored reforms to change the government?"],
+[11,"Socialist Party","socialist|socialists","A party in favor of equal distribution of wealth.","Eugene Debs ran for president with it five times.","It wanted the government to own major industries.","Some of its ideas, like a minimum wage, became law.","Which party favors equal distribution of wealth?"],
+[11,"Nominate","nomination|nominated|nominating","To select someone for a job or office.","Parties do this at their national conventions.","The president does this when picking a judge.","Nominating narrows the field of candidates.","What word means to select someone for a job or office?"],
+[11,"Candidate","candidates","A person who is running for office.","Must meet age and citizenship rules.","Gives speeches and raises money.","Voters choose among them in elections.","What is a person who is running for office called?"],
+[11,"Conservative","conservatives","A person who usually does not like quick change.","This view often favors tradition and gradual change.","People with this view often prefer a smaller role for government.","Conservatives and liberals often disagree on the role of government.","What do we call a person who usually does not like quick change?"],
+[11,"Liberal","liberals","A person whose political views are open to change.","People with this view are often open to new ideas.","They often want government to take a bigger role in solving problems.","Liberals and conservatives often disagree on the role of government.","What do we call a person whose political views are open to change?"],
+[11,"Constituent","constituents","A person who lives in an official's voting district.","Lawmakers hold town halls for them.","Lawmakers' offices help them with problems.","Lawmakers are supposed to represent their constituents.","What is a person who lives in an official's voting district called?"],
+[11,"Incumbent","incumbents","The person who currently holds an office.","Has an advantage because voters already know the name.","Usually wins reelection in Congress.","Most incumbents in Congress win reelection.","What is the person who currently holds an office called?"],
+[11,"Platform","party platform|platforms","A statement of a party's ideas, policies, and beliefs.","Each part of it is called a plank.","Written by a committee before the convention.","It tells voters what the party stands for.","What is a statement of a party's ideas, policies, and beliefs called?"],
+[11,"National convention","convention|conventions|party convention|national conventions","A meeting where party members nominate candidates for president and vice president.","The party chooses a host city years ahead.","The keynote address is given early on.","It launches the general election campaign.","At what meeting do party members nominate candidates for president and vice president?"],
+[11,"Keynote address","keynote|keynote speech","The main speech that sets the theme of a convention.","Barack Obama became famous after giving one in 2004.","Given early in the convention.","It aims to unite the party.","What is the main speech that sets the theme of a convention called?"],
+[11,"Running mate","running mates","The candidate for vice president.","Kamala Harris was Joe Biden's in 2020.","The nominee for president chooses this person.","The pair runs together on the same ticket.","What is the candidate for vice president called?"],
+[11,"Primary election","primary|primaries|primary elections","An election to choose a party's candidates.","Pennsylvania holds them in the spring.","Party voters choose who will run in the general election.","It gives voters, not party bosses, the choice.","What is an election to choose a party's candidates called?"],
+[11,"Closed primary","closed primaries","A primary where only registered party members can vote.","Pennsylvania uses this type.","Independents cannot vote in it.","It keeps other parties' voters out of a party's choice.","What kind of primary lets only registered party members vote?"],
+[11,"Open primary","open primaries","A primary where any voter can take part.","Voters decide privately which party's ballot to use.","You don't have to be a registered party member.","It lets independent voters have a say.","What kind of primary lets any voter take part?"],
+[11,"Runoff","runoff primary|runoff election|run-off","A second election held to pick a winner.","Used when no candidate wins a majority.","Only the top two candidates are on the ballot.","It makes sure the winner has majority support.","What is a second election held to pick a winner called?"],
+[11,"Caucus","caucuses","A meeting of party members to pick candidates.","Iowa is famous for holding these.","Party members gather in person and discuss candidates.","Caucuses reward candidates with strong local organizations.","What is a meeting of party members to pick candidates called?"],
+[11,"Fund raiser","fundraiser|fundraising|fund-raiser|fundraisers","An event or person that raises money.","Can be a dinner with tickets costing thousands of dollars.","Campaign staff do this to seek money contributions.","Campaigns need money for ads and travel.","What is an event or person that raises money for a campaign called?"],
+[11,"Campaign manager","campaign managers","The person who plans and runs a campaign.","Every other campaign worker reports to this person.","Plans the strategy.","A good one can make the difference in a close race.","Who plans and runs a campaign?"],
+[11,"Press secretary","press secretaries","The staff member who handles contacts with the news media.","The White House one gives daily briefings.","Answers reporters' questions.","They shape how the public hears a leader's message.","Which staff member handles contacts with the news media?"],
+[11,"Poll taker","pollster|pollsters|poll takers","A person who conducts surveys to see how popular a candidate is.","Calls hundreds of people chosen at random.","Asks questions about how people plan to vote.","Polls help campaigns know where to spend time.","Who conducts surveys to see how popular a candidate is?"],
+[11,"Voter turnout","turnout","The share of eligible voters who actually vote.","It is higher in national elections than local ones.","The U.S. has a lower rate than most democracies.","Higher turnout means government reflects more people.","What is the share of eligible voters who actually vote called?"],
+[11,"Absentee ballot","mail-in ballot|mail in ballot|mail ballot|absentee","A ballot filled out and mailed in instead of voting in person.","Soldiers overseas often use one.","It must be returned by Election Day.","It lets people vote even if they can't get to the polls.","What is a ballot filled out and mailed in instead of voting in person called?"],
+[11,"Voter registration","register|registration|register to vote|registering","Signing up so you are allowed to vote.","Some states let you do it when you get a driver's license.","In Pennsylvania you must do it 15 days before an election.","You can't vote without doing this first.","What is signing up so you are allowed to vote called?"],
+[11,"Redistricting","redistrict","Changing the borders of voting districts.","It happens after every census.","States redraw the boundaries of voting areas.","It keeps districts equal in population.","What is changing the borders of voting districts called?"],
+[11,"Gerrymandering","gerrymander|gerrymandered","Drawing district lines to favor one party.","Named after Massachusetts governor Elbridge Gerry in 1812.","One district looked like a salamander.","It can make votes count less in some areas.","What is drawing district lines to favor one party called?"],
+[11,"Initiative","initiatives|ballot initiative","Proposing a law by petition and having the people vote on it.","Citizens gather signatures to start one.","California uses it often.","It lets citizens make laws directly.","What is it called when citizens propose a law by petition and then vote on it?"],
+[11,"Referendum","referendums|referenda","Sending a matter to the people for a direct vote.","Can be compulsory, optional, or by petition.","Voters approve or reject a law directly.","It gives voters the final say on some laws.","What is sending a matter to the people for a direct vote called?"],
+[11,"Recall","recall election|recalls","Voting to remove a public official before the term ends.","California voters removed their governor this way in 2003.","Citizens may want one if an official is dishonest.","It holds officials responsible between elections.","What is voting to remove a public official before the term ends called?"],
+[11,"Delaware","de","The 'First State,' just south of Pennsylvania.","The first state to ratify the Constitution.","The only state that can change its constitution without voter approval.","Its legislature alone can amend its constitution.","Which state is known as the 'First State'?"],
+[12,"Immigrant","immigrants","A person who comes to live in a new country.","More than 12 million passed through Ellis Island.","Many came to escape poor treatment in their home countries.","Immigrants have shaped American culture and the economy.","What is a person who comes to live in a new country called?"],
+[12,"Persecution","persecuted","The act of punishing people for what they believe.","The Pilgrims and Puritans fled this in England.","It can be because of religion or political beliefs.","Escaping it has drawn many people to the U.S.","What is punishing people for their religious or political beliefs called?"],
+[12,"Refugee","refugees","A person who flees to a safer place to escape danger.","The United Nations has an agency to help them.","Churches often help them find work and homes.","The U.S. accepts refugees each year.","What is a person who flees to a safer place to escape danger called?"],
+[12,"Famine","famines","A food shortage so severe that people may starve.","The potato crop failure in Ireland in the 1840s caused one.","It led a million Irish people to leave for America.","It caused one of the biggest waves of immigration.","What is a food shortage so severe that people may starve called?"],
+[12,"Quota","quotas","A set number or limit.","1920s laws used these to limit people from certain countries.","In trade, they limit the amount of a good that can come in.","Immigration quotas based on national origin ended in 1965.","What is a set number or limit called?"],
+[12,"Alien","aliens|noncitizen|non-citizen|resident alien","A person who lives in a country but is a citizen of another.","Must carry papers showing legal status.","Can live and work here with a green card.","Many aliens later become citizens by naturalization.","What is a person who lives in a country but is a citizen of another called?"],
+[12,"Naturalization","naturalize|naturalized","The process of giving full citizenship to a person born in another country.","Run by a part of Homeland Security called USCIS.","Applicants must pass a test on U.S. history and government.","Naturalized citizens have the same rights as those born here, except running for president.","What is the process of giving full citizenship to a person born in another country?"],
+[12,"Oath of Allegiance","allegiance|oath of citizenship","The promise new citizens make to the United States.","Sworn at a naturalization ceremony.","Applicants promise not to support any other government.","It marks the moment a person becomes a U.S. citizen.","What promise do new citizens make to the United States?"],
+[12,"18","eighteen","The voting age set by the 26th Amendment.","Young men must register with Selective Service at this age.","The minimum age to apply for naturalization.","It is the age of adult rights and duties in the U.S.","What is the voting age in the United States?"],
+[12,"Five years","5 years|five|5","How long a person usually must live in the U.S. before applying for citizenship.","Three years is enough if married to a U.S. citizen.","Applicants must have a green card first.","It gives newcomers time to learn about the country.","How long must a person usually live in the U.S. before applying for citizenship?"],
+[12,"Political asylum","asylum","Protection the U.S. gives to people fleeing danger from their government.","It is often given to people fleeing war or persecution.","Seekers must prove a real fear of harm at home.","It reflects the nation's tradition of protecting the persecuted.","What protection does the U.S. give to people fleeing danger from their own government?"],
+[12,"Green card","green cards|permanent resident card","A card that shows a person can live in the U.S. permanently.","Its official name is Permanent Resident Card.","Holders can live and work in the U.S. long-term.","It is usually the step before citizenship.","What card shows a person can live in the U.S. permanently?"],
+[12,"Citizen","citizens|us citizen","A member of a nation with full rights.","You can become one by birth or by naturalization.","Only these people can vote in federal elections.","Citizens have rights and also duties, like jury service.","What is a member of a nation with full rights called?"],
+[12,"Jury duty","jury service","Serving on a jury when called.","Your name is chosen from voter or driver's license lists.","It is a civic duty, like obeying the law.","Trials by jury need ordinary citizens to serve.","What civic duty requires citizens to help decide court cases when they are called?"],
+[12,"Draft","conscription|military draft","Requiring people to serve in the military.","Ended in 1973.","Today the U.S. military is all-volunteer.","Men must still register in case it ever returns.","What is it called when the government requires people to serve in the military?"],
+[12,"Lobbyist","lobbyists|lobbying|lobby","A person who tries to influence lawmakers.","The name may come from people who waited in lobbies to talk to lawmakers.","Often works for an interest group.","Lobbying is legal and protected by the right to petition.","What is a person who tries to influence lawmakers called?"],
+[12,"Interest group","interest groups|special interest group","People who share a goal and work to influence government.","The AARP and the Sierra Club are examples.","Some are economic; others focus on public issues.","They give people a stronger voice together.","What is a group of people who share a goal and work to influence government called?"],
+[12,"PAC","political action committee|pacs","A group that raises money and gives it to candidates.","Formed by interest groups.","Its full name is Political Action Committee.","They are a major source of campaign money.","What is a group that raises money and gives it to candidates called?"],
+[12,"Public policy","policy|public policies","The government's plan of action on an issue.","Includes things like foreign affairs, health, and the economy.","Made by lawmakers and the president.","Voters shape it through elections.","What is the government's plan of action on an issue called?"],
+[12,"Opinion poll","poll|public opinion poll|survey","A survey of what people think about an issue.","Asks a small, random group of people.","Reported often in the news before elections.","It helps leaders know what the public wants.","What is a survey of what people think about an issue called?"],
+[12,"Media","news media|mass media|the media","TV, newspapers, radio, and the internet.","It can be print, broadcast, or online.","It helps form public opinion.","A free press keeps the public informed.","What do TV, newspapers, radio, and the internet together make up?"],
+[12,"Mapp v. Ohio","mapp vs ohio|mapp versus ohio","Said illegally gathered evidence can't be used in state courts.","Decided in 1961.","Police found evidence without a proper search warrant.","It created the 'exclusionary rule' for states, protecting 4th Amendment rights.","Which case said illegally gathered evidence can't be used in state courts?"],
+[12,"Escobedo v. Illinois","escobedo vs illinois|escobedo versus illinois","Said suspects have a right to a lawyer during police questioning.","Decided in 1964.","Police would not let the suspect see his lawyer.","It led two years later to Miranda warnings.","Which case said suspects have a right to a lawyer during police questioning?"],
+[12,"Miranda v. Arizona","miranda vs arizona|miranda versus arizona|miranda","Said police must tell suspects their rights before questioning.","Decided in 1966.","Police must say 'You have the right to remain silent.'","Police across the country read these warnings every day.","Which case said police must tell suspects their rights before questioning?"],
+[12,"Brown v. Board of Education","brown vs board of education|brown v board|brown vs board|brown","Ruled that segregated public schools are unconstitutional.","Decided in 1954.","Thurgood Marshall argued it before the Supreme Court.","It overturned 'separate but equal' and fueled the civil rights movement.","Which case ruled that segregated public schools are unconstitutional?"],
+[12,"Civil Rights Act of 1964","civil rights act|1964 civil rights act","A law that outlawed discrimination based on race, religion, sex, or national origin.","Signed by President Lyndon Johnson.","It banned discrimination in jobs and public places like restaurants.","It ended legal segregation in public places.","Which law outlawed discrimination based on race, religion, sex, or national origin?"],
+[12,"Voting Rights Act","voting rights act of 1965","A law that protected Black Americans' right to vote.","Signed in 1965 after the march in Selma, Alabama.","It stopped the use of literacy tests to block voters.","It finally enforced the promise of the 15th Amendment.","Which law protected Black Americans' right to vote by stopping unfair voting tests?"],
+[12,"Civil liberties","civil liberty","Basic freedoms like speech and religion.","The Bill of Rights lists many of them.","They protect people from government.","Courts protect them when government goes too far.","What are basic freedoms like speech and religion called?"],
+[13,"Economics","","The study of how people use resources to meet their needs and wants.","Adam Smith is called its father.","It studies producing, sharing, and using goods.","Economic choices affect every government decision.","What is the study of how people use resources to meet their needs and wants?"],
+[13,"Feudalism","feudal system","A system where lords own the land and peasants work it.","A system in medieval Europe.","Lords gave land to people in return for loyalty and work.","It shows how economic and political power can be tied together.","What system let lords own the land while peasants worked it?"],
+[13,"Mercantilism","","A system where a nation grows rich by exporting more than it imports.","Britain used it to control the colonies' trade.","Colonies supplied raw materials and bought goods from the home country.","Its trade limits angered the American colonists.","What system says a nation grows rich by exporting more than it imports?"],
+[13,"Natural resources","natural resource","Materials found in nature used to make goods.","Water, soil, oil, and trees are examples.","A factor of production that comes from nature.","Nations rich in them have an economic advantage.","What are materials found in nature that are used to make goods called?"],
+[13,"Labor","workers","Work done by people.","A factor of production.","It means the human effort used to make goods and services.","Labor laws protect workers' pay and safety.","What is the work done by people to make goods and services called?"],
+[13,"Capital","","Things made by people used to produce other goods.","Factories and computers are examples.","Also means money used to start a business.","Capital helps workers produce more.","What are tools, machines, and buildings used to produce other goods called?"],
+[13,"Scarcity","","Not having enough of something.","It is the basic problem of economics.","A drought that leaves too little water for farms is an example.","It forces people and governments to make choices.","What is not having enough of something to meet everyone's wants called?"],
+[13,"Supply","","The amount of a product that is available to buy.","As price goes up, producers usually make more.","It is one side of the market.","Supply and demand together set prices.","What is the amount of a product that is available to buy called?"],
+[13,"Demand","","The amount of a product people want to buy.","As price goes up, people usually buy less.","It is how much people want something and can pay for it.","When demand is high, prices usually rise.","What is the amount of a product people want to buy called?"],
+[13,"Market","markets","A place where goods and services are bought and sold.","It can be a physical place or online.","Buyers and sellers meet here.","Markets set prices without a central planner.","What is a place where goods and services are bought and sold called?"],
+[13,"Traditional economy","traditional economic system|traditional","An economy where people plant and harvest crops the way their families always have.","Many developing countries have one.","Goods are made the same way for generations.","Many new nations start with this kind of economy.","What kind of economy has people plant and harvest crops the way their families always have?"],
+[13,"Free enterprise","capitalism|market economy|free market|free-enterprise","An economy where people own businesses and make decisions for profit.","Democratic countries usually have this system.","Competition drives it.","The U.S. economy is based on it.","What kind of economy lets people own businesses and make decisions for profit?"],
+[13,"Mixed economy","mixed|mixed economic system","An economy that combines free markets with government control.","The U.S. is really an example.","The government controls some industries and makes some rules.","Most nations today have one.","What kind of economy combines free markets with some government control?"],
+[13,"Socialism","socialist economy","An economic system in which the government owns many businesses and shares wealth.","Sweden is known for high taxes and many government services, a step toward this idea.","Government owns or controls major industries.","It aims to reduce gaps between rich and poor.","What economic system has the government own many businesses and share wealth?"],
+[13,"Communism","communist","A system in which the government owns all property and businesses.","Karl Marx wrote about it in 1848.","The Soviet Union was built on it.","Most Communist countries changed their economies after 1990.","What system has the government own all property and businesses?"],
+[13,"Cuba","","An island 90 miles from Florida; the only Communist nation in the West.","Fidel Castro took control of it in 1959.","The U.S. has had an embargo against it since the 1960s.","It shows how the Cold War shaped the Americas.","Which island 90 miles from Florida is the only Communist nation in the West?"],
+[13,"Hong Kong","","A city long known as an example of a free market economy.","Britain ruled it until 1997.","It is now part of China, but kept its own economic system.","It shows a market economy inside a Communist country.","Which city has long been known as an example of a free market economy?"],
+[13,"Civil society","","Groups that citizens form on their own to help their communities.","Churches, clubs, and charities are part of it.","It is separate from both government and business.","A strong one keeps democracy healthy.","What are the groups citizens form on their own to help their communities called?"],
+[13,"Competition","","Businesses trying to win the same customers.","It pushes businesses to lower prices.","It makes businesses improve their products.","It drives the American free enterprise system.","What is it called when businesses try to win the same customers?"],
+[13,"Consumer","consumers","A buyer of goods and services.","Businesses become this when they buy supplies.","When their spending is high, businesses make more.","Consumer spending drives most of the U.S. economy.","What is a buyer of goods and services called?"],
+[13,"Profit","profits","What a business earns beyond what it spends.","Money left after paying all costs.","It is the reward for taking business risks.","The chance to earn it motivates people to start businesses.","What is the money a business earns beyond what it spends called?"],
+[13,"Monopoly","monopolies","A business with no competition.","Standard Oil was a famous one.","One company controls all of a product.","Monopolies can charge high prices, so the law limits them.","What is a business with no competition called?"],
+[13,"Sherman Antitrust Act","sherman act|sherman anti-trust act","The law that banned monopolies that limit trade.","Passed in 1890.","Used to break up Standard Oil in 1911.","It was the first federal law against monopolies.","Which law banned monopolies that limit trade?"],
+[13,"Robinson-Patman Act","robinson patman act","A law against charging different prices to different businesses to hurt competition.","Passed in 1936.","It protects small stores from big chains.","It protects fair competition.","Which law stops businesses from charging different prices to hurt competition?"],
+[13,"Wagner Act","national labor relations act|nlra","A law that protects workers' right to form unions.","Passed in 1935.","It created the National Labor Relations Board.","It made union bargaining legal and protected.","Which law protects workers' right to form unions?"],
+[13,"Social Security Act","","The law that created payments for retired workers.","Signed by FDR in 1935.","It created unemployment insurance too.","It was a key part of the New Deal.","Which law created payments for retired workers?"],
+[13,"Fair Labor Standards Act","flsa","The law that created the first federal minimum wage.","Passed in 1938.","It limited child labor and set a 40-hour workweek.","Its protections still cover most workers.","Which law created the first federal minimum wage?"],
+[13,"Minimum wage","minimum wages","The lowest hourly pay allowed by law.","The federal rate has been $7.25 an hour since 2009.","Many states, cities, and businesses set a higher one.","It sets a floor under workers' pay.","What is the lowest hourly pay allowed by law called?"],
+[13,"Labor union","union|unions|labor unions|trade union","A group of workers who join together for better pay and conditions.","Members may go on strike.","They bargain with employers for workers.","Unions helped win the weekend and safer workplaces.","What is a group of workers who join together for better pay and conditions called?"],
+[13,"Global economy","world economy","An economic system in which the economies of countries affect one another.","Events in one country affect jobs in another.","Trade connects nations around the world.","U.S. businesses and workers depend on it.","What is an economic system where the economies of countries affect one another called?"],
+[13,"Free trade","","Trade between nations without barriers.","No tariffs or quotas.","Supporters say it lowers prices.","Trade agreements aim to increase it.","What is trade between nations without barriers called?"],
+[13,"Protectionism","protectionist|protectionists","Protecting a country's businesses from foreign competition.","People who favor this are against free trade.","It uses tariffs and quotas.","It can save some jobs but raise prices.","What is protecting a country's businesses from foreign competition called?"],
+[13,"Tariff","tariffs","A tax on goods coming into a country.","A tax consumers end up paying on foreign goods.","It makes imported goods cost more.","Tariffs have been a major issue in U.S. politics.","What is a tax on goods coming into a country called?"],
+[14,"Foreign policy","","A nation's plan for dealing with other nations.","The president and Congress share power over it.","Goals include peace, trade, and spreading democracy.","It affects security, jobs, and prices at home.","What is a nation's plan for dealing with other nations called?"],
+[14,"Embassy","embassies","An official office of one country in another country's capital.","The U.S. has one in almost every country.","Led by an ambassador.","Embassies keep nations talking.","What is the official office of one country in another country's capital called?"],
+[14,"Secretary of Defense","defense secretary|secretary of war","The Cabinet member in charge of the U.S. military.","Must be a civilian, not an active military officer.","Advises the president on military matters.","Civilian control of the military protects democracy.","Which Cabinet member is in charge of the U.S. military?"],
+[14,"Foreign aid","aid","Help that one country gives another.","The U.S. can deny it to nations that abuse their people.","It can be money, food, or weapons.","It builds friends and stability abroad.","What is help that one country gives another called?"],
+[14,"Embargo","embargoes","Completely stopping trade with a foreign nation.","The U.S. has one against Cuba.","More serious than a quota or tariff.","It is a strong tool short of war.","What is completely stopping trade with a foreign nation called?"],
+[14,"Sanction","sanctions","An action taken to force a foreign nation to do something.","Often used against nations that build weapons illegally.","Freezing a country's money is one type.","It pressures nations without fighting.","What is an action taken to force a foreign nation to do something called?"],
+[14,"Export","exports","To sell goods to other nations.","Soybeans and airplanes are big U.S. examples.","Sales to other countries.","Exports create jobs at home.","What word means to sell goods to other nations?"],
+[14,"Import","imports","To buy goods from other nations.","Most cell phones sold in the U.S. are this.","Things bought from other countries.","Imports give consumers more choices.","What word means to buy goods from other nations?"],
+[14,"Balance of trade","trade balance","The difference in value between what a nation sells and buys abroad.","It can be a surplus or a deficit.","Compares total exports to total imports.","It is one measure of a nation's economic health.","What is the difference in value between what a nation sells and buys abroad called?"],
+[14,"Trade deficit","deficit|trade deficits","A trade balance when a nation buys more than it sells.","The U.S. has had one for decades.","Imports are greater than exports.","It means money flows out to other countries.","What is it called when a nation buys more from other countries than it sells?"],
+[14,"Trade surplus","surplus|trade surpluses","A trade balance when a nation sells more than it buys.","China has a large one.","Exports are greater than imports.","It brings money into a country.","What is it called when a nation sells more to other countries than it buys?"],
+[14,"Trade barriers","trade barrier","Rules that make it harder to trade.","Tariffs and quotas are examples.","They slow trade between nations.","Trade groups work to lower them.","What are rules that make it harder for nations to trade with each other called?"],
+[14,"GATT","general agreement on tariffs and trade","An agreement among many nations to lower tariffs and other trade barriers.","Signed in 1947.","Its full name is the General Agreement on Tariffs and Trade.","The WTO replaced it in 1995.","Which agreement among many nations lowered tariffs and other trade barriers after World War II?"],
+[14,"WTO","world trade organization","The world organization that sets trade rules and settles trade arguments between nations.","Created in 1995.","Its full name is the World Trade Organization.","It sets rules for most world trade.","Which world organization sets trade rules and settles trade arguments between nations?"],
+[14,"NAFTA","north american free trade agreement","A trade deal that removed most trade barriers between the U.S., Canada, and Mexico.","Took effect in 1994.","Its full name is the North American Free Trade Agreement.","It was replaced by the USMCA in 2020.","Which trade deal removed most trade barriers between the U.S., Canada, and Mexico?"],
+[14,"USMCA","united states mexico canada agreement|us mexico canada agreement","The trade deal between the U.S., Mexico, and Canada that replaced NAFTA.","Took effect in 2020.","Updated rules for cars and online trade.","It governs trade with our two neighbors.","Which trade deal between the U.S., Mexico, and Canada replaced NAFTA?"],
+[14,"European Union","eu","A group of European nations joined for trade and cooperation.","Created in 1993.","Many members use the euro.","It is one of the world's largest economies.","What group of European nations joined together for trade and cooperation?"],
+[14,"NATO","north atlantic treaty organization","The military alliance of the U.S., Canada, and many European nations.","Formed in 1949 after World War II.","An attack on one member is an attack on all.","It was created to stop Soviet expansion.","What is the military alliance of the U.S., Canada, and many European nations?"],
+[14,"ANZUS","anzus treaty","A security treaty among Australia, New Zealand, and the United States.","Signed in 1951.","Its name stands for its members.","It ties the U.S. to allies in the Pacific.","What is the security treaty among Australia, New Zealand, and the United States?"],
+[14,"United Nations","un|the united nations","The world organization working for peace.","Founded in 1945.","Its headquarters is in New York City.","Nearly every country is a member.","What world organization works for peace among nearly every country?"],
+[14,"General Assembly","un general assembly","The part of the UN where all members discuss world issues.","Every member nation has one vote.","Meets each September in New York.","It is the closest thing to a world parliament.","In which part of the UN does every member nation discuss world issues?"],
+[14,"Security Council","un security council","The UN group responsible for keeping world peace.","The U.S., U.K., France, Russia, and China are permanent members.","Any permanent member can veto its decisions.","It can send peacekeepers and approve sanctions.","Which UN group is responsible for keeping world peace?"],
+[14,"International Court of Justice","world court|icj","The UN's court.","Sits in The Hague, Netherlands.","It settles legal disputes between nations.","It is often called the World Court.","What is the United Nations' court called?"],
+[14,"Secretariat","un secretariat","The UN's administrative office.","Led by the Secretary-General.","Its offices are at UN headquarters in New York City.","It keeps the UN running every day.","What is the UN office that runs its daily work called?"],
+[14,"UNICEF","united nations childrens fund|united nations children's fund","The UN fund that helps children around the world.","Created in 1946.","Trick-or-treat boxes once raised money for it.","It provides vaccines, food, and schools for kids.","Which UN fund helps children around the world?"],
+[14,"World Health Organization","who","The UN agency for world health.","Helped wipe out smallpox.","Tracks disease outbreaks around the world.","It coordinates the response to pandemics.","Which UN agency works on world health?"],
+[14,"UNESCO","united nations educational scientific and cultural organization|educational scientific and cultural organization","The UN group for education, science, and culture.","Names World Heritage Sites.","It also protects historic places and cultures.","It protects important places and cultures.","Which UN group works on education, science, and culture?"],
+[14,"World Bank","world bank group","A UN-linked bank that funds development.","Created in 1944.","It is based in Washington, D.C.","It helps nations build roads, schools, and power plants.","Which UN-linked bank lends money to help poorer countries develop?"],
+[14,"Terrorism","terrorist|terrorists","Using violence against civilians to frighten people.","Uses fear to reach political goals.","The September 11 attacks are an example.","Fighting it is a major goal of U.S. foreign policy.","What is using violence against civilians to frighten people for political goals called?"],
+[14,"Rebellion","rebellions","A fight against a country's government.","Shays' uprising of farmers in 1786 showed the Articles were weak.","Can lead to civil war.","It shows why stable governments matter.","What is a fight against a country's own government called?"],
+[15,"Prime minister","pm","The leader of Great Britain's government.","Usually the leader of the largest party in Parliament.","Lives at 10 Downing Street in London.","Unlike a president, this person must keep Parliament's support.","Who is the leader of Great Britain's government?"],
+[15,"Constitutional monarchy","constitutional monarchies","A government with a monarch whose power is limited by law.","Great Britain, Japan, and Sweden have one.","The king or queen has little real power.","It keeps tradition while letting elected leaders govern.","What is a government with a king or queen whose power is limited by law?"],
+[15,"Riksdag","the riksdag","Sweden's lawmaking body.","It has only one house.","Its members are elected every four years.","Sweden's elected parliament holds the real power.","What is Sweden's lawmaking body called?"],
+[15,"Berlin Wall","the berlin wall","The wall that kept people from crossing between East and West Berlin.","Built by East Germany in 1961.","Torn down in 1989.","Its fall became a symbol of the end of the Cold War.","What kept people from crossing between East and West Berlin?"],
+[15,"Federal Republic of Germany","germany|west germany","The official name of the country that joined East and West together in 1990.","It was the formal name of West Germany.","Its capital is Berlin.","Germany is a federal democracy like the U.S.","What is the official name of the country that joined East and West together in 1990?"],
+[15,"Bundestag","the bundestag","Germany's main lawmaking body.","Meets in the Reichstag building in Berlin.","Elects the chancellor.","It shows how a parliament chooses a nation's leader.","What is Germany's main lawmaking body called?"],
+[15,"National Assembly","assemblee nationale","The lower house of France's lawmaking body.","Its members are elected for five-year terms.","It works with the French Senate.","It can force the prime minister to resign.","What is the lower house of France's lawmaking body called?"],
+[15,"Mikhail Gorbachev","gorbachev","The last leader of the Soviet Union; resigned in 1991.","Began economic reforms called perestroika in 1985.","Won the Nobel Peace Prize in 1990.","His reforms helped end the Cold War.","Who was the last leader of the Soviet Union?"],
+[15,"Soviet Union","ussr|soviet|the soviet union|union of soviet socialist republics","The Communist nation that was the U.S. rival in the Cold War.","Broke apart in 1991 into 15 nations.","Russia was the largest part.","Its collapse ended the Cold War.","Which Communist nation was the main U.S. rival in the Cold War?"],
+[15,"Lech Walesa","walesa","Polish shipyard worker who led the Solidarity union.","Won the Nobel Peace Prize in 1983.","Was elected president of Poland in 1990.","He helped end Communist rule in Poland.","Which Polish shipyard worker led the Solidarity union?"],
+[15,"Solidarity","","Lech Walesa's trade union in Poland.","Formed in 1980 at a Polish shipyard.","The first independent labor union in a Soviet-bloc country.","It helped bring democracy to Poland.","What was Lech Walesa's trade union in Poland called?"],
+[15,"Velvet Revolution","the velvet revolution","The peaceful protests that ended Communist rule in Czechoslovakia.","Happened in 1989.","Led by the playwright Václav Havel.","It showed change can come without violence.","What peaceful protests ended Communist rule in Czechoslovakia?"],
+[15,"Czechoslovakia","","A former country in Central Europe.","The Velvet Revolution happened there in 1989.","In 1993 it split into the Czech Republic and Slovakia.","Its split is called the 'Velvet Divorce.'","Which former country in Central Europe no longer exists today?"],
+[15,"National People's Congress","npc|national peoples congress","The highest lawmaking body in China.","Meets in Beijing.","Has nearly 3,000 members.","Real power stays with the Communist Party.","What is the highest lawmaking body in China?"],
+[15,"Taiwan","","An island off China's coast with its own democratic government.","China's one-China policy rejects any move by it to become independent.","Its government fled there from China in 1949.","Its future is a major U.S.-China issue.","Which island off China's coast has its own democratic government?"],
+[15,"Richard Nixon","nixon","The president who resigned after the Watergate scandal.","Visited China in 1972.","Opened diplomatic relations with China.","His trip to China changed Cold War politics.","Which president resigned after the Watergate scandal?"],
+[15,"Korean War","korea war","The war between North and South Korea in the 1950s.","Fought from 1950 to 1953.","Ended in a truce, not a peace treaty.","Korea is still divided today.","What war was fought between North and South Korea in the 1950s?"],
+[15,"North Korea","dprk","A Communist nation with nuclear weapons.","Tested its first nuclear weapon in 2006.","Its border with the South is the most guarded in the world.","Its weapons are a major worry for the U.S. and its allies.","Which Communist nation in Asia has nuclear weapons?"],
+[15,"Japan","","An island nation in Asia with a constitutional monarchy and parliamentary democracy.","Its lawmaking body is the Diet.","Its emperor has no political power.","It is a close U.S. ally and trading partner.","Which Asian island nation has an emperor and a parliamentary democracy?"],
+[15,"Canada","","The U.S.'s northern neighbor.","It has 10 provinces and 3 territories.","Signed the Smart Border Declaration with the U.S. in 2001.","Our two nations share the world's longest border.","Which country is the United States' northern neighbor?"],
+[15,"Mexico","","The U.S.'s southern neighbor.","It has 31 states and one capital city that governs itself.","Its president serves one six-year term.","It is one of the biggest trading partners of the United States.","Which country is the United States' southern neighbor?"],
+[15,"Central America","","The region between Mexico and South America.","Includes Guatemala, Honduras, and Panama.","Bananas are a major crop there.","It faces the loss of its rain forests.","What is the region between Mexico and South America called?"],
+[15,"Panama Canal","the panama canal","The waterway that connects the Atlantic and Pacific oceans.","Opened in 1914.","The U.S. handed it over to Panama in 1999.","It cuts thousands of miles off ship journeys.","What waterway connects the Atlantic and Pacific oceans?"],
+[15,"Haiti","","A Caribbean country that shares an island with the Dominican Republic.","Became independent in 1804 after a slave revolt.","Its first democratically elected president, Jean-Bertrand Aristide, took office in 1991.","Its struggles show how hard building democracy can be.","Which Caribbean country shares an island with the Dominican Republic?"],
+[15,"Fidel Castro","castro","The Communist leader of Cuba.","Took over the government in 1959.","Ruled until 2008.","He made Cuba a Soviet ally next to the U.S.","Who was the Communist leader of Cuba?"],
+[15,"Cuban Missile Crisis","cuban missile crisis of 1962","The 13-day standoff over Soviet missiles in Cuba.","Happened in October 1962.","The U.S. blockaded the island.","It brought the world close to nuclear war.","What was the 13-day standoff over Soviet missiles in Cuba called?"],
+[15,"Brazil","","The largest country in South America.","Its lawmaking body is the National Congress.","Its official language is Portuguese.","It has the largest economy in Latin America.","What is the largest country in South America?"],
+[15,"Argentina","","A large South American country named after silver.","Its Justicialist Party is also called the Perónists.","Its capital is Buenos Aires.","Its politics show the power of political parties.","Which large South American country is named after silver?"],
+[15,"Jordan","","A Middle Eastern kingdom next to Israel.","King Abdullah II rules it.","A constitutional monarchy where the prime minister runs the government.","It is a key U.S. partner in the Middle East.","Which Middle Eastern kingdom is next to Israel?"],
+[15,"Iraq","","The country ruled by Saddam Hussein until 2003.","Invaded Kuwait in 1990.","Was defeated in the Persian Gulf War in 1991.","U.S. involvement there shaped foreign policy for years.","Which country was ruled by Saddam Hussein until 2003?"],
+[15,"Afghanistan","","A mountain country in Central Asia.","Held its first free presidential election in 2004.","The Taliban ruled it from 1996 to 2001, and again since 2021.","The longest war in U.S. history was fought there.","Which mountain country in Central Asia was ruled by the Taliban?"],
+[15,"Knesset","the knesset","Israel's parliament.","Has 120 members.","Meets in Jerusalem.","It shows how a parliamentary democracy works in the Middle East.","What is Israel's parliament called?"],
+[15,"Iran","","A Middle Eastern nation ruled by a theocracy.","Became an Islamic republic in 1979.","Its supreme leader is a religious leader.","It shows how religion can control government.","Which Middle Eastern nation is ruled by a theocracy?"],
+[15,"Saudi Arabia","","A kingdom ruled by a monarch and his family with strong religious values.","Contains Islam's holiest cities, Mecca and Medina.","The royal family holds almost all power.","It is a major oil producer.","Which kingdom is ruled by a monarch and his family with strong religious values?"],
+[15,"Egypt","","An Arab-speaking republic in Africa, home of the pyramids.","Its lawmaking branch is now called the House of Representatives.","It is home to the Suez Canal.","It is a key U.S. partner in the region.","Which Arab-speaking republic in Africa is home to the pyramids?"],
+[15,"Theocracy","theocracies","Government by religious leaders.","Iran is an example.","In this system, religious law is also the law of the land.","The 1st Amendment keeps the U.S. from becoming one.","What is government by religious leaders called?"],
+[15,"Apartheid","","South Africa's system of racial segregation.","Ended in the early 1990s.","Nelson Mandela fought against it.","The world used sanctions to help end it.","What was South Africa's system of racial segregation called?"],
+[15,"Nelson Mandela","mandela","South Africa's first Black president, elected in 1994.","Spent 27 years in prison.","Won the Nobel Peace Prize in 1993.","He led South Africa's peaceful move to democracy.","Who became South Africa's first Black president in 1994?"],
+[15,"Ethiopia","","An ancient country in East Africa.","Its army defeated Italy at the Battle of Adwa in 1896.","Along with Liberia, it is often called never colonized.","It is a symbol of African independence.","Which ancient country in East Africa defeated Italy and avoided being colonized?"],
+[15,"Kenya","","An East African country known for its wildlife.","Gained independence from Britain in 1963.","The Mau Mau uprising pushed Britain out.","Its fight for freedom inspired others in Africa.","Which East African country is famous for its wildlife and its fight for independence from Britain?"],
+[15,"Zimbabwe","","A country in southern Africa.","Its former name was Rhodesia.","Became independent in 1980.","Its name change marked the end of white minority rule.","Which country in southern Africa used to be called Rhodesia?"],
+[15,"Somalia","","A country on the Horn of Africa.","The U.S. sent troops there in 1992.","They went to help deliver food during a famine.","The mission showed the risks of peacekeeping.","Which country sits on the Horn of Africa, along the Indian Ocean?"],
+[15,"HIPC","heavily indebted poor countries","A program that cancels debt for the world's poorest nations.","Started in 1996.","Its full name is the Heavily Indebted Poor Countries program.","It frees money for schools and health care.","Which program cancels debt for the world's poorest nations?"]
+];
+
+const Q = BANK.map((r,i)=>({i,ch:r[0],answer:r[1],alts:r[2]?r[2].split("|"):[],clues:[r[3],r[4],r[5]],fact:r[6],prompt:r[7]}));
+
+
+/* ---------- teacher settings (read from the page link so a whole class shares them) ---------- */
+const DEFAULTS = {count:7, points:[300,200,100], secs:15, bonus:true};
+function clampInt(v,lo,hi,dflt){ v=parseInt(v,10); return isFinite(v)?Math.min(hi,Math.max(lo,v)):dflt; }
+function readSettings(){
+  let q; try{ q=new URLSearchParams(location.search); }catch(e){ q=new URLSearchParams(""); }
+  const s={count:DEFAULTS.count, points:DEFAULTS.points.slice(), secs:DEFAULTS.secs, bonus:DEFAULTS.bonus};
+  if(q.has("q")) s.count=clampInt(q.get("q"),3,20,s.count);
+  if(q.has("p")){ const p=String(q.get("p")).split(/[-,.]/); if(p.length===3) s.points=[clampInt(p[0],1,1000,300),clampInt(p[1],0,1000,200),clampInt(p[2],0,1000,100)]; }
+  if(q.has("t")) s.secs=clampInt(q.get("t"),5,60,s.secs);
+  if(q.has("b")) s.bonus=q.get("b")!=="0";
+  return s;
+}
+function modeOf(s){
+  const std=s.count===DEFAULTS.count&&s.points.join()===DEFAULTS.points.join()&&s.secs===DEFAULTS.secs&&s.bonus===DEFAULTS.bonus;
+  return std?"":"q"+s.count+"-p"+s.points.join(".")+"-t"+s.secs+"-b"+(s.bonus?1:0);
+}
+function linkFor(s){
+  const u=new URL(location.href); u.search=""; u.hash="";
+  const m=modeOf(s);
+  if(m){ u.searchParams.set("q",s.count); u.searchParams.set("p",s.points.join("-")); u.searchParams.set("t",s.secs); u.searchParams.set("b",s.bonus?1:0); }
+  return u.toString();
+}
+const S = readSettings(), MODE = modeOf(S), BASE_PER_DAY = DEFAULTS.count;
+const HINT_SECS = S.secs, PER_DAY = S.count, BONUS_MAX = S.bonus?Math.round(S.points[0]/10):0;
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function fmt(n){ return Number(n||0).toLocaleString("en-US"); }
+let toastT=null;
+function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},2600); }
+function lsGet(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+
+/* ---------- today's seven (same for everyone) ---------- */
+function todayStr(){ return new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()); }
+function prettyDate(d){ const [y,m,dd]=d.split("-").map(Number); return new Date(Date.UTC(y,m-1,dd,12)).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric",timeZone:"UTC"}); }
+function dayNumber(d){ const [y,m,dd]=d.split("-").map(Number); return Math.floor(Date.UTC(y,m-1,dd)/86400000); }
+function hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function shuffle(a,r){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const permCache={}, CYCLE_DAYS=Math.max(1,Math.floor(Q.length/BASE_PER_DAY)), CYCLE0=Math.floor(Date.UTC(2026,8,1)/86400000/CYCLE_DAYS);
+function perm(c){
+  if(permCache[c]) return permCache[c];
+  const r=rng(hashStr("capitol-clues-cycle-"+c)), a=Q.map((_,i)=>i);
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  /* questions from the last 30 days of the previous cycle go to the back, so recent ones don't come right back */
+  if(c>CYCLE0){
+    const prev=perm(c-1), used=CYCLE_DAYS*BASE_PER_DAY, recent=new Set(prev.slice(Math.max(0,used-30*BASE_PER_DAY),used));
+    return (permCache[c]=a.filter(i=>!recent.has(i)).concat(a.filter(i=>recent.has(i))));
+  }
+  return (permCache[c]=a);
+}
+/* Walks through the whole bank in a shuffled order, 7 a day. Each cycle lasts floor(bank/7) days
+   (65 days with 458 questions) and nothing repeats inside a cycle; the next cycle reshuffles. */
+function dailyList(d){
+  const n=dayNumber(d);
+  const p=perm(Math.floor(n/CYCLE_DAYS)), start=(n%CYCLE_DAYS)*BASE_PER_DAY;
+  return p.slice(start,start+BASE_PER_DAY).map(i=>Q[i]);
+}
+
+/* ---------- answer matching ---------- */
+function norm(x){ return String(x).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\b(the|a|an)\b/g,"").replace(/\bversus\b|\bvs\b/g,"v").replace(/\//g,"x").replace(/[^a-z0-9]/g,""); }
+function lev(a,b){ const m=a.length,n=b.length; if(Math.abs(m-n)>3) return 9; let p=Array(n+1).fill(0).map((_,j)=>j); for(let i=1;i<=m;i++){ const c=[i]; for(let j=1;j<=n;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; } return p[n]; }
+function allow(len){ return len>=16?3:len>=10?2:len>=5?1:0; }
+const KEYS=[]; const EXACT={};
+Q.forEach(q=>{ [q.answer].concat(q.alts).forEach(s=>{ const k=norm(s); if(!k) return; KEYS.push({k,q}); if(!EXACT[k]) EXACT[k]=q; }); });
+function keysOf(q){ return [q.answer].concat(q.alts).map(norm).filter(Boolean); }
+function resolveGuess(g,cur){
+  const f=norm(g); if(!f) return {none:true};
+  if(EXACT[f]) return {q:EXACT[f]};
+  /* forgive small spelling mistakes on the right answer first */
+  if(keysOf(cur).some(k=>lev(f,k)<=allow(Math.max(f.length,k.length)))) return {q:cur};
+  let best=null,bd=9,tie=false;
+  KEYS.forEach(x=>{ const d=lev(f,x.k); if(d<bd){bd=d;best=x.q;tie=false;} else if(d===bd && x.q!==best) tie=true; });
+  if(best && !tie && bd<=allow(f.length)) return {q:best};
+  return {none:true};
+}
+
+
+/* today's questions for the chosen count: the standard daily set first, then extra picks
+   (same for everyone on the same day) when a teacher asks for more */
+function todaysList(d){
+  const base=dailyList(d);
+  if(PER_DAY<=base.length) return base.slice(0,PER_DAY);
+  const have=new Set(base.map(q=>q.i));
+  const extra=shuffle(Q.filter(q=>!have.has(q.i)),rng(hashStr("capitol-clues-extra-"+d)));
+  return base.concat(extra.slice(0,PER_DAY-base.length));
+}
+
+/* ---------- leaderboard ---------- */
+let lastBoard=null;
+function renderBoard(el, data, meName){
+  if(!SCORES_URL){ el.innerHTML='<p class="note">The leaderboard isn\'t connected yet. Paste the Google Sheet web app address into SCORES_URL at the top of this file.</p>'; return; }
+  if(!data){ el.innerHTML='<p class="note">Loading scores…</p>'; return; }
+  if(data.error){ el.innerHTML='<p class="note">Couldn\'t load the leaderboard. Check your connection and press Refresh.</p>'; return; }
+  const rows=data.rows||[];
+  if(!rows.length){ el.innerHTML='<p class="note">No scores yet today. Be the first on the board.</p>'; return; }
+  const t=rows[0];
+  let h='<div class="top"><div class="big">'+fmt(t.score)+'</div><div><div class="eyebrow">Top score today</div><div style="font-weight:800">'+esc(t.name)+'</div>'+(t.group?'<div class="muted">'+esc(t.group)+'</div>':'')+'</div></div>';
+  h+='<div class="board-wrap"><table class="board"><thead><tr><th>#</th><th>Player</th><th style="text-align:right">Correct</th><th style="text-align:right">Score</th></tr></thead><tbody>';
+  let rank=0,prev=null;
+  rows.slice(0,25).forEach((r,i)=>{
+    if(r.score!==prev){ rank=i+1; prev=r.score; }
+    const me = meName && String(r.name).toLowerCase()===meName.toLowerCase();
+    h+='<tr'+(me?' class="me"':'')+'><td>'+rank+'</td><td>'+esc(r.name)+(r.group?' <span class="grp">· '+esc(r.group)+'</span>':'')+'</td><td class="n">'+esc(r.correct)+'/'+PER_DAY+'</td><td class="n">'+fmt(r.score)+'</td></tr>';
+  });
+  h+='</tbody></table></div>'+(rows.length>25?'<p class="note">Showing the top 25 of '+rows.length+' players.</p>':'');
+  el.innerHTML=h;
+}
+function loadBoard(){
+  const me=(lsGet("cc_player")||{}).name||"";
+  ["board","board2"].forEach(id=>renderBoard($(id),null,me));
+  if(!SCORES_URL) return Promise.resolve();
+  return Promise.resolve().then(()=>fetch(SCORES_URL+"?date="+encodeURIComponent(TODAY)+"&mode="+encodeURIComponent(MODE)+"&t="+Date.now()))
+    .then(r=>r.json()).then(d=>{ lastBoard=d; })
+    .catch(()=>{ lastBoard={error:true}; })
+    .then(()=>{ ["board","board2"].forEach(id=>renderBoard($(id),lastBoard,me)); });
+}
+function submitScore(res){
+  if(!SCORES_URL){ $("submitMsg").textContent="Leaderboard not connected; score saved on this device."; return; }
+  $("submitMsg").textContent="Sending your score…";
+  const body=JSON.stringify({date:TODAY,mode:MODE,name:res.name,group:res.group,score:res.score,correct:res.correct,secs:res.secs});
+  Promise.resolve().then(()=>fetch(SCORES_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body}))
+    .then(()=>{ $("submitMsg").textContent="Score posted to today's leaderboard."; res.posted=true; lsSet("cc_day_"+TODAY+MODE,res); setTimeout(loadBoard,1500); })
+    .catch(()=>{ $("submitMsg").textContent="Couldn't reach the leaderboard. Your score is saved on this device."; });
+}
+
+/* ---------- game ---------- */
+const TODAY=todayStr();
+const LIST=todaysList(TODAY);
+const C=2*Math.PI*38;
+let G=null, tick=null;
+
+function showScreen(id){ ["home","play","results"].forEach(s=>{ $(s).hidden=(s!==id); }); window.scrollTo(0,0); }
+
+function start(){
+  const name=$("pName").value.trim(), group=$("pGroup").value.trim();
+  if(!name){ $("startMsg").textContent="Enter your name first."; $("pName").focus(); return; }
+  lsSet("cc_player",{name,group});
+  G={name,group,i:-1,score:0,results:[],t0:performance.now(),pausedMs:0};
+  showScreen("play"); nextQuestion();
+}
+
+/* pause: freezes the clock and locks answering; the question and clues stay on screen */
+function pause(){
+  if(!G||!G.cur||G.cur.done||G.paused||$("play").hidden) return;
+  G.paused=true; G.pauseT0=performance.now();
+  const s=Math.ceil(G.cur.left/1000);
+  $("pauseInfo").textContent="Clock stopped at "+s+" second"+(s===1?"":"s")+" · answering is locked until you resume";
+  $("pauseCard").hidden=false; $("pauseBtn").textContent="Resume"; $("clockBox").classList.add("paused");
+  $("guessIn").disabled=true; $("skipBtn").disabled=true;
+  renderWorth();
+  $("resumeBtn").focus();
+}
+function resume(){
+  if(!G||!G.paused) return;
+  G.paused=false; G.pausedMs+=performance.now()-G.pauseT0;
+  $("pauseCard").hidden=true; $("pauseBtn").textContent="Pause"; $("clockBox").classList.remove("paused");
+  $("guessIn").disabled=false; $("skipBtn").disabled=false;
+  renderWorth();
+  $("guessIn").focus();
+}
+function nextQuestion(){
+  stop();
+  G.i++;
+  if(G.i>=LIST.length){ finish(); return; }
+  const q=LIST[G.i];
+  G.cur={q,stage:0,left:HINT_SECS*1000,wrong:0,done:false,correct:false};
+  G.paused=false; $("pauseBtn").hidden=false; $("pauseBtn").textContent="Pause"; $("pauseCard").hidden=true; $("clockBox").classList.remove("paused"); $("skipBtn").disabled=false; $("guessIn").disabled=false;
+  $("progLabel").textContent="Question "+(G.i+1)+" of "+LIST.length;
+  $("chapNum").textContent="Chapter "+q.ch+" · "+(CHAPTERS[q.ch]||"");
+  $("qText").textContent=q.prompt;
+  $("reveal").hidden=true; $("nextBtn").hidden=true;
+  $("guessForm").hidden=false; $("guessIn").value=""; $("feedback").textContent=""; $("feedback").className="feedback";
+  renderDots(); renderHints(); renderWorth(); renderStrikes(); renderTiles();
+  $("guessIn").focus();
+  run();
+}
+
+/* letter boxes: one per letter or digit, punctuation shown as-is, first letters revealed at clue 3 */
+function renderTiles(){
+  const c=G.cur, ans=c.q.answer, words=ans.split(/\s+/);
+  const letters=ans.replace(/[^A-Za-z0-9]/g,"").length;
+  $("shapeLabel").textContent = words.length+(words.length===1?" word":" words")+" · "+letters+(letters===1?" letter":" letters")+(c.stage>=2&&!c.done?" · first letters shown":"");
+  $("tiles").innerHTML=words.map(w=>{
+    let first=true;
+    return '<div class="word">'+w.split("").map(ch=>{
+      const isL=/[A-Za-z0-9]/.test(ch);
+      if(!isL) return '<span class="tile p">'+esc(ch)+'</span>';
+      let show="", cls="tile";
+      if(c.done){ show=ch; cls+=c.correct?" win":" miss"; }
+      else if(c.stage>=2 && first){ show=ch; cls+=" lead"; }
+      first=false;
+      return '<span class="'+cls+'">'+esc(show)+'</span>';
+    }).join("")+'</div>';
+  }).join("");
+}
+
+function basePts(){ return S.points[G.cur.stage]; }
+function bonus(){ return BONUS_MAX?Math.ceil(BONUS_MAX*Math.max(0,G.cur.left)/(HINT_SECS*1000)):0; }
+
+function renderDots(){
+  $("dots").innerHTML=LIST.map((_,k)=>{ const r=G.results[k]; const cls = r ? (r.correct?"d"+r.stage:"dx") : (k===G.i?"cur":""); return '<i class="'+cls+'"></i>'; }).join("");
+  $("scoreLabel").textContent=fmt(G.score)+" pts";
+}
+function renderHints(){
+  const c=G.cur;
+  $("hints").innerHTML=[1,2].map(k=>{
+    const open=k<=c.stage||c.done;
+    return '<div class="hint '+(open?"open":"locked")+'"><div class="num">'+k+'</div><div class="txt">'+(open?esc(c.q.clues[k]):(k===c.stage+1?"Unlocks when the timer runs out":"Locked"))+'</div></div>';
+  }).join("");
+}
+function renderStrikes(){ const w=G.cur.wrong; $("strikes").textContent = G.cur.done ? "" : (w ? (MAX_WRONG-w)+" guess"+(MAX_WRONG-w===1?"":"es")+" left for this question" : MAX_WRONG+" guesses per question"); }
+function renderWorth(){
+  const c=G.cur, s=Math.ceil(c.left/1000);
+  $("secs").textContent=c.done?"0":s;
+  $("pts").textContent=c.done?"—":fmt(basePts()+bonus());
+  $("worthSub").textContent=c.done?"":G.paused?"Paused":(c.stage<2?"Clue "+(c.stage+1)+" in "+s+" second"+(s===1?"":"s"):"Last chance: "+s+"s");
+  $("ringBar").setAttribute("stroke-dashoffset",String(C*(1-(c.done?0:Math.max(0,c.left/(HINT_SECS*1000))))));
+  $("ring").classList.toggle("low",!c.done&&s<=5);
+}
+function run(){
+  stop(); let last=performance.now();
+  tick=setInterval(()=>{
+    const now=performance.now(), dt=now-last; last=now;
+    const c=G&&G.cur; if(!c||c.done||G.paused) return;
+    c.left-=dt;
+    if(c.left<=0){
+      if(c.stage<2){ c.stage++; c.left=HINT_SECS*1000; renderHints(); renderTiles(); }
+      else { c.left=0; endQuestion(false,"Time's up."); return; }
+    }
+    renderWorth();
+  },100);
+}
+function stop(){ if(tick){ clearInterval(tick); tick=null; } }
+
+function guess(e){
+  e.preventDefault();
+  const c=G.cur; if(!c||c.done||G.paused) return;
+  const raw=$("guessIn").value.trim(); if(!raw) return;
+  const r=resolveGuess(raw,c.q), fb=$("feedback");
+  if(r.q && r.q===c.q){ endQuestion(true); return; }
+  const inp=$("guessIn"); inp.classList.remove("shake"); void inp.offsetWidth; inp.classList.add("shake");
+  if(!r.q){ fb.className="feedback"; fb.textContent="\""+raw+"\" isn't one of the game's answers. Check the spelling (this doesn't count as a guess)."; return; }
+  c.wrong++; inp.value="";
+  if(c.wrong>=MAX_WRONG){ endQuestion(false,"Out of guesses."); return; }
+  fb.className="feedback bad"; fb.textContent="Not "+r.q.answer+".";
+  renderStrikes();
+}
+
+function endQuestion(correct,why){
+  const c=G.cur; if(c.done) return;
+  const pts=correct?basePts()+bonus():0;
+  c.done=true; c.correct=correct; stop(); $("pauseBtn").hidden=true;
+  G.score+=pts;
+  G.results[G.i]={answer:c.q.answer,correct,stage:c.stage,pts};
+  $("reveal").hidden=false; $("revealWho").textContent=c.q.answer;
+  $("revealFact").textContent="Why it matters: "+c.q.fact;
+  const fb=$("feedback");
+  fb.className="feedback "+(correct?"good":"bad");
+  fb.textContent=correct?("Correct! +"+fmt(pts)+" points"):((why||"")+" The answer was "+c.q.answer+".");
+  $("guessForm").hidden=true; $("strikes").textContent="";
+  $("nextBtn").textContent = G.i+1<LIST.length ? "Next question" : "See my result";
+  $("nextBtn").hidden=false; $("nextBtn").focus();
+  renderHints(); renderWorth(); renderDots(); renderTiles();
+}
+
+function shareLines(res){
+  const sq={0:"🟩",1:"🟨",2:"🟧"};
+  return "Capitol Clues Daily"+(MODE?" (class game)":"")+" · "+prettyDate(TODAY).replace(/^\w+, /,"")+"\n"+fmt(res.score)+" pts · "+res.correct+"/"+PER_DAY+"\n"+res.marks.map(m=>m<0?"⬛":sq[m]).join("");
+}
+function finish(){
+  stop();
+  const correct=G.results.filter(r=>r.correct).length;
+  const res={date:TODAY,name:G.name,group:G.group,score:G.score,correct,secs:Math.round((performance.now()-G.t0-G.pausedMs)/1000),
+    marks:G.results.map(r=>r.correct?r.stage:-1),list:G.results.map(r=>({answer:r.answer,pts:r.pts,correct:r.correct,stage:r.stage}))};
+  lsSet("cc_day_"+TODAY+MODE,res);
+  showResults(res);
+  submitScore(res);
+}
+function showResults(res){
+  showScreen("results");
+  $("dateLabel2").textContent=prettyDate(TODAY);
+  $("finalScore").textContent=fmt(res.score);
+  $("finalCorrect").textContent=res.correct+" of "+PER_DAY+" correct";
+  const col={0:"var(--good)",1:"var(--brass)",2:"#e08a4f"};
+  $("recap").innerHTML=(res.list||[]).map(r=>'<li><i style="background:'+(r.correct?col[r.stage]:"#7a8599")+'"></i><span>'+esc(r.answer)+'</span><b>'+(r.correct?"+"+fmt(r.pts):"—")+'</b></li>').join("");
+  $("shareText").textContent=shareLines(res);
+  if(res.posted) $("submitMsg").textContent="Score posted to today's leaderboard.";
+  loadBoard();
+}
+
+
+/* ---------- rules text and teacher panel ---------- */
+function renderRules(){
+  const p=S.points, n=PER_DAY;
+  $("startTitle").textContent="Today's "+n+" questions";
+  $("startSub").textContent="Everyone "+(MODE?"using this link ":"")+"gets the same "+n+" today. New questions at midnight Eastern.";
+  $("customTag").hidden=!MODE;
+  $("rules").innerHTML='<li>Read the question and type the answer. The boxes show how many letters it has.</li>'+
+    '<li>Stuck? Every '+S.secs+' seconds a clue unlocks to help you, up to two clues.</li>'+
+    '<li>Answer from the question alone for '+fmt(p[0])+' pts, after clue 1 for '+fmt(p[1])+', or after clue 2 for '+fmt(p[2])+' (and you see the first letters).'+(BONUS_MAX?' Answer fast for up to '+BONUS_MAX+' bonus points.':'')+'</li>'+
+    '<li>Three wrong guesses or running out of time ends that question.</li>';
+  $("ladder").innerHTML=p.map((v,k)=>'<span'+(k===0?' class="on"':'')+'>'+fmt(v)+'</span>').join("");
+  $("playBtn").textContent="Play today's "+n;
+  $("playedNote").textContent="Come back after midnight Eastern for "+n+" new questions.";
+}
+function panelSettings(){
+  return {count:clampInt($("setCount").value,3,20,S.count),
+    points:[clampInt($("setP0").value,1,1000,S.points[0]),clampInt($("setP1").value,0,1000,S.points[1]),clampInt($("setP2").value,0,1000,S.points[2])],
+    secs:clampInt($("setSecs").value,5,60,S.secs), bonus:$("setBonus").checked};
+}
+function fillPanel(s){
+  $("setCount").value=s.count; $("setP0").value=s.points[0]; $("setP1").value=s.points[1]; $("setP2").value=s.points[2];
+  $("setSecs").value=s.secs; $("setBonus").checked=s.bonus;
+  $("setLink").textContent=linkFor(s);
+}
+function initPanel(){
+  fillPanel(S);
+  if(MODE) $("teacherPanel").open=true;
+  ["setCount","setP0","setP1","setP2","setSecs","setBonus"].forEach(id=>$(id).addEventListener("input",()=>{ $("setLink").textContent=linkFor(panelSettings()); $("setMsg").textContent=""; }));
+  $("setApply").addEventListener("click",()=>{ location.href=linkFor(panelSettings()); });
+  $("setReset").addEventListener("click",()=>{ location.href=linkFor(DEFAULTS); });
+  $("setCopy").addEventListener("click",()=>{
+    const s=panelSettings(), url=linkFor(s); fillPanel(s);
+    const done=()=>{ $("setMsg").textContent="Link copied. Share it with your class."; };
+    const fallback=()=>{ const r=document.createRange(); r.selectNodeContents($("setLink")); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); $("setMsg").textContent="Link selected. Press Ctrl+C to copy."; };
+    try{ navigator.clipboard.writeText(url).then(done,fallback); }catch(e){ fallback(); }
+  });
+}
+
+/* ---------- home ---------- */
+function home(){
+  $("dateLabel").textContent=prettyDate(TODAY);
+  renderRules(); initPanel();
+  const p=lsGet("cc_player"); if(p){ $("pName").value=p.name||""; $("pGroup").value=p.group||""; }
+  const done=lsGet("cc_day_"+TODAY+MODE);
+  if(done){
+    $("startCard").hidden=true; $("playedCard").hidden=false;
+    $("playedSummary").innerHTML='<p style="font-size:1.2rem;margin:.2rem 0"><b>'+fmt(done.score)+' pts</b> · '+done.correct+'/'+PER_DAY+' correct</p><button class="btn" id="viewRes">See my result</button>';
+    $("viewRes").addEventListener("click",()=>showResults(done));
+  }
+  const names=Array.from(new Set(Q.map(q=>q.answer))).sort((a,b)=>a.localeCompare(b));
+  $("names").innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join("");
+  loadBoard();
+}
+
+$("playBtn").addEventListener("click",start);
+$("pName").addEventListener("keydown",e=>{ if(e.key==="Enter") start(); });
+$("guessForm").addEventListener("submit",guess);
+$("skipBtn").addEventListener("click",()=>endQuestion(false,"Skipped."));
+$("pauseBtn").addEventListener("click",()=>{ if(G&&G.paused) resume(); else pause(); });
+$("resumeBtn").addEventListener("click",resume);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("play").hidden){ if(G&&G.paused) resume(); else pause(); } });
+/* switching tabs or minimizing pauses automatically */
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) pause(); });
+$("nextBtn").addEventListener("click",nextQuestion);
+$("refreshBtn").addEventListener("click",loadBoard);
+$("refreshBtn2").addEventListener("click",loadBoard);
+$("copyBtn").addEventListener("click",()=>{
+  const txt=$("shareText").textContent;
+  const fallback=()=>{ const r=document.createRange(); r.selectNodeContents($("shareText")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("Selected. Press Ctrl+C to copy."); };
+  try{ navigator.clipboard.writeText(txt).then(()=>toast("Copied. Paste it in your group chat."),fallback); }catch(e){ fallback(); }
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Enter" && !$("nextBtn").hidden && !$("play").hidden && document.activeElement!==$("nextBtn")){ e.preventDefault(); nextQuestion(); } });
+
+/* test hook for the answer checker (no effect on play) */
+window.__cc={Q,resolveGuess,dailyList,norm};
+
+home();
+})();
+</script>
+</body>
+</html>

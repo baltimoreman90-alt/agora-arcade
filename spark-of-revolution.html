@@ -1,0 +1,1416 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Spark of Revolution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
+<style>
+/* Layout: one projector screen. Engraved sea chart on the left fills the room's view; the active
+   movement's control desk docks on the right; standings run along the bottom like a ledger line. */
+:root{
+  color-scheme: dark;
+  --sea:#0c1d31; --sea-hi:#12304d; --land:#1f364b; --coast:#5d7f98; --grat:#17324f;
+  --panel:#091726; --panel-2:#0f2338; --rule:#1d3955; --rule-hi:#2c5276;
+  --ink:#eceadf; --ink-2:#a8b6c3; --ink-3:#7489a0;
+  --gold:#d9b45a; --gold-dim:#8f7637; --on-gold:#1a1304;
+  --crown:#66748f; --danger:#ec6a52; --ok:#72cc8f;
+  --f-display:'IM Fell English SC','IM Fell English',Georgia,'Times New Roman',serif;
+  --f-fell:'IM Fell English',Georgia,'Times New Roman',serif;
+  --f-body:'Alegreya Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  --s-1:.8125rem; --s0:1rem; --s1:1.1875rem; --s2:1.5rem; --s3:2.125rem; --s4:3.5rem; --s5:6.5rem;
+  --radius:6px;
+  --t-ideal:#d9b45a; --t-spread:#62bfcc; --t-resil:#de8c6c;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--sea);color:var(--ink);font-family:var(--f-body);font-size:var(--s0);line-height:1.4}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+#app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.top{display:flex;align-items:center;gap:1.25rem;padding:.55rem 16px;background:var(--panel);border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-size:var(--s2);letter-spacing:.02em;white-space:nowrap;line-height:1}
+.brand em{font-family:var(--f-fell);font-style:italic;color:var(--gold);font-size:.8em;padding:0 .15em}
+.era{display:flex;align-items:baseline;gap:.6rem;min-width:0}
+.era .yr{font-family:var(--f-display);font-size:var(--s2);color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+.era .lbl{color:var(--ink-2);font-size:var(--s-1);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.era .ttl{font-family:var(--f-fell);font-style:italic;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.react{margin-left:auto;display:flex;align-items:center;gap:.6rem}
+.react .lbl{font-size:var(--s-1);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);white-space:nowrap}
+.meter{width:clamp(90px,12vw,190px);height:12px;border:1px solid var(--rule-hi);border-radius:2px;background:var(--panel-2);overflow:hidden;position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(135deg,var(--danger) 0 6px,#c65441 6px 12px);transition:width .6s}
+.react b{font-variant-numeric:tabular-nums;min-width:2.6ch;text-align:right}
+.tools{display:flex;gap:.4rem}
+.btn{border:1px solid var(--rule-hi);background:var(--panel-2);border-radius:var(--radius);padding:.45rem .8rem;font-weight:500;line-height:1.2}
+.btn:hover{border-color:var(--gold-dim)}
+.btn.gold{background:var(--gold);color:var(--on-gold);border-color:var(--gold);font-weight:800}
+.btn.gold:hover{filter:brightness(1.08)}
+.btn.big{font-size:var(--s1);padding:.7rem 1.3rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent}
+
+.stage{display:grid;grid-template-columns:minmax(0,1fr) clamp(320px,27vw,430px);min-height:0}
+.mapwrap{position:relative;min-height:0;min-width:0;overflow:hidden;background:radial-gradient(ellipse at 45% 40%,var(--sea-hi),var(--sea) 70%)}
+#map{width:100%;height:100%;display:block}
+.zoom{position:absolute;left:12px;top:12px;display:flex;gap:2px;background:var(--panel);border:1px solid var(--rule-hi);border-radius:var(--radius);padding:2px;z-index:2}
+.zoom button{border:0;background:transparent;padding:.35rem .7rem;border-radius:4px;font-size:var(--s-1);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.zoom button[aria-pressed="true"]{background:var(--gold);color:var(--on-gold)}
+.legend{position:absolute;left:12px;bottom:10px;display:flex;gap:1rem;flex-wrap:wrap;font-size:var(--s-1);color:var(--ink-2);background:color-mix(in srgb,var(--panel) 85%,transparent);padding:.35rem .6rem;border-radius:var(--radius);pointer-events:none}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend svg{flex:none}
+
+/* map marks */
+.land{fill:var(--land);stroke:var(--coast);stroke-width:.7;stroke-linejoin:round}
+.grat{fill:none;stroke:var(--grat);stroke-width:.6}
+.lk{fill:none;stroke:#6f8fa8;stroke-opacity:.35;stroke-width:1.2}
+.lk.S{stroke-dasharray:4 5}
+.lk.hot{stroke:var(--gold);stroke-opacity:.9;stroke-width:2}
+.anchor{fill:#9db3c6;opacity:.7}
+.leader{stroke:#9db3c6;stroke-opacity:.45;stroke-width:.8}
+.node{cursor:pointer}
+.node .base{fill:var(--crown);stroke:#0b1626;stroke-width:1.5}
+.node .nlab{font-family:var(--f-body);font-weight:700;text-transform:uppercase;letter-spacing:.06em;fill:var(--ink);paint-order:stroke;stroke:#08131f;stroke-width:3.5px;stroke-linejoin:round;pointer-events:none}
+.node .pct{font-family:var(--f-body);font-weight:800;fill:#08131f;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.node .sel{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-dasharray:5 4}
+.node .reach{fill:none;stroke-width:2;stroke-dasharray:2 3;opacity:.9}
+.node:hover .base{stroke:var(--ink)}
+.node.flash{animation:flash 1.2s ease-out 3}
+@keyframes flash{0%{filter:drop-shadow(0 0 0 var(--gold))}40%{filter:drop-shadow(0 0 10px var(--gold))}100%{filter:drop-shadow(0 0 0 transparent)}}
+
+/* side desk */
+.side{background:var(--panel);border-left:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;min-width:0}
+.desk-head{padding:1rem 1rem .8rem;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.8rem;align-items:center}
+.desk-head .who{min-width:0}
+.desk-head .kick{font-size:var(--s-1);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+.desk-head h2{margin:0;font-family:var(--f-display);font-size:var(--s2);font-weight:400;line-height:1.05;overflow-wrap:anywhere}
+.timer{--p:1;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--p)*360deg),var(--rule) 0);position:relative;font-weight:800;font-variant-numeric:tabular-nums}
+.timer::before{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--panel)}
+.timer span{position:relative;font-size:var(--s1)}
+.timer.late{background:conic-gradient(var(--danger) 360deg,var(--danger) 0);animation:pulse 1s infinite}
+.timer.off{background:var(--rule)}
+@keyframes pulse{50%{opacity:.6}}
+.purse{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;padding:.7rem 1rem;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.purse .m{font-family:var(--f-display);font-size:var(--s3);line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.purse .m small{font-family:var(--f-body);font-size:var(--s-1);color:var(--ink-2);text-transform:uppercase;letter-spacing:.08em;margin-left:.35rem}
+.purse .info{font-size:var(--s-1);color:var(--ink-2);text-align:right}
+.scroll{overflow:auto;min-height:0;flex:1}
+.rcard{padding:.9rem 1rem;border-bottom:1px solid var(--rule)}
+.rcard h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--s2);line-height:1.1}
+.rcard .hint{color:var(--ink-2);margin:0}
+.chips{display:flex;gap:.3rem;flex-wrap:wrap;margin:.4rem 0 .6rem}
+.chip{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;border:1px solid var(--rule-hi);border-radius:3px;padding:.1rem .4rem;color:var(--ink-2)}
+.chip.free{border-color:currentColor;font-weight:800}
+.bars{display:grid;gap:.25rem;margin:.4rem 0 .7rem}
+.bar{display:grid;grid-template-columns:7.5rem minmax(0,1fr) 3ch;gap:.5rem;align-items:center;font-size:var(--s-1)}
+.bar .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .t{height:9px;background:var(--panel-2);border-radius:2px;overflow:hidden}
+.bar .t i{display:block;height:100%}
+.bar b{text-align:right;font-variant-numeric:tabular-nums}
+.kv{display:flex;justify-content:space-between;gap:.5rem;font-size:var(--s-1);color:var(--ink-2);padding:.1rem 0}
+.kv b{color:var(--ink)}
+.camp{width:100%;margin-top:.6rem}
+.why{font-size:var(--s-1);color:var(--ink-3);margin:.35rem 0 0}
+
+.tabs{display:flex;border-bottom:1px solid var(--rule);padding:0 .5rem;gap:.2rem;position:sticky;top:0;background:var(--panel);z-index:1}
+.tabs button{border:0;background:transparent;padding:.65rem .7rem;font-weight:700;color:var(--ink-2);border-bottom:3px solid transparent;text-transform:uppercase;letter-spacing:.07em;font-size:var(--s-1)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.ups{display:grid;gap:.45rem;padding:.7rem .7rem 1rem}
+.up{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.15rem .7rem;text-align:left;border:1px solid var(--rule-hi);background:var(--panel-2);border-radius:var(--radius);padding:.6rem .7rem}
+.up:hover:not(:disabled){border-color:var(--gold)}
+.up .nm{font-weight:800}
+.up .cost{font-family:var(--f-display);color:var(--gold);font-size:var(--s1);line-height:1;align-self:start;font-variant-numeric:tabular-nums}
+.up .ds{grid-column:1/-1;font-size:var(--s-1);color:var(--ink-2)}
+.up .fx{grid-column:1/-1;font-size:.78rem;display:flex;gap:.6rem;flex-wrap:wrap;color:var(--ink-3)}
+.up .fx .warn{color:var(--danger)} .up .fx .calm{color:var(--ok)}
+.up.owned{border-color:var(--gold-dim);background:transparent}
+.up.owned .cost{font-family:var(--f-body);font-size:var(--s-1);text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.up:disabled{cursor:not-allowed}
+.up.poor:disabled,.up.locked:disabled{opacity:.5}
+.deskfoot{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.75rem 1rem;border-top:1px solid var(--rule)}
+.deskfoot .end{grid-column:1/-1}
+.deskfoot .end.late{animation:pulse 1s infinite}
+
+.standings{display:flex;gap:0;background:var(--panel);border-top:1px solid var(--rule);overflow-x:auto}
+.st{flex:1 1 0;min-width:170px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.1rem .6rem;align-items:center;padding:.5rem 16px;border-right:1px solid var(--rule)}
+.st.now{background:var(--panel-2);box-shadow:inset 0 3px 0 var(--gold)}
+.st .nm{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st .sub{grid-column:2;font-size:var(--s-1);color:var(--ink-2);white-space:nowrap}
+.st .pts{grid-row:1/3;grid-column:3;font-family:var(--f-display);font-size:var(--s2);line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.st .pts small{display:block;font-family:var(--f-body);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.st svg{grid-row:1/3}
+
+
+/* desk mode switch */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;padding:.6rem 1rem;border-bottom:1px solid var(--rule)}
+.modes button{border:1px solid var(--rule-hi);background:var(--panel-2);border-radius:var(--radius);padding:.55rem .6rem;font-weight:800;text-align:left;line-height:1.15}
+.modes button small{display:block;font-weight:400;font-size:var(--s-1);color:var(--ink-2);margin-top:.15rem}
+.modes button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.modes button[aria-pressed="true"] small{color:var(--on-gold);opacity:.8}
+.chip.t-ideal{color:var(--t-ideal);border-color:currentColor}
+.chip.t-spread{color:var(--t-spread);border-color:currentColor}
+.chip.t-resil{color:var(--t-resil);border-color:currentColor}
+.detail{--tc:var(--gold)} .detail.t-spread{--tc:var(--t-spread)} .detail.t-resil{--tc:var(--t-resil)}
+.detail .trk{color:var(--tc)}
+.detail h3{font-size:var(--s3);margin-bottom:.35rem}
+.detail .dl{font-family:var(--f-fell);font-size:var(--s1);color:var(--ink);margin:0 0 .8rem;line-height:1.35}
+.detail .camp{margin:0 0 .9rem}
+.detail .box{margin-top:.2rem}
+.fxl{margin:.2rem 0 0;padding-left:1.1rem;display:grid;gap:.2rem}
+.fxl .warn{color:var(--danger)} .fxl .calm{color:var(--ok)}
+.eff{margin:.1rem 0 0;font-size:var(--s1)}
+.mm{width:100%;height:auto;display:block;margin-top:.3rem}
+.mm-key{display:flex;gap:.8rem;flex-wrap:wrap;font-size:.75rem;color:var(--ink-2);margin:.3rem 0 0}
+.mm-key span{display:inline-flex;align-items:center;gap:.3rem}
+.mm-key i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* movement board: fills the map area during a turn */
+.board{position:absolute;inset:0;overflow:auto;padding:1rem 16px 1.4rem;background:linear-gradient(180deg,var(--panel) 0,var(--sea) 220px);display:flex;flex-direction:column;gap:1rem}
+.bhead{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap}
+.bhead .who{display:flex;align-items:center;gap:.8rem;margin-right:auto;min-width:0}
+.bhead .who .kicker{margin:0}
+.bhead h2{font-family:var(--f-display);font-weight:400;font-size:var(--s3);margin:0;line-height:1}
+.bstat{display:flex;flex-direction:column;gap:.15rem}
+.bstat .v{font-family:var(--f-display);font-size:var(--s4);line-height:.8;color:var(--gold);font-variant-numeric:tabular-nums}
+.bstat .l{font-size:var(--s-1);text-transform:uppercase;letter-spacing:.09em;color:var(--ink-2);font-weight:700}
+.bstat .s{font-size:.75rem;color:var(--ink-3);max-width:24ch}
+.bstat.alarm .meter{width:180px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;align-items:start}
+.col{--tc:var(--t-ideal);border-top:4px solid var(--tc);background:color-mix(in srgb,var(--panel) 80%,transparent);border-radius:0 0 var(--radius) var(--radius);padding:.9rem .9rem 1rem}
+.col.t-spread{--tc:var(--t-spread)} .col.t-resil{--tc:var(--t-resil)}
+.col header h3{font-family:var(--f-display);font-weight:400;font-size:var(--s3);margin:0;color:var(--tc);line-height:1}
+.col header p{font-size:var(--s-1);color:var(--ink-2);margin:.35rem 0 .9rem;min-height:3.9em}
+.tiles{display:grid;gap:.55rem}
+.tile{display:grid;grid-template-columns:56px minmax(0,1fr);gap:.8rem;align-items:center;text-align:left;border:1.5px solid var(--rule-hi);background:var(--panel-2);border-radius:var(--radius);padding:.6rem .75rem .6rem .6rem;min-height:76px;position:relative;transition:transform .12s,border-color .12s}
+.tile:hover{border-color:var(--tc);transform:translateY(-1px)}
+.tile .seal{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:1.7rem;color:var(--tc);border:2px solid var(--tc);background:color-mix(in srgb,var(--tc) 12%,transparent);font-variant-numeric:tabular-nums}
+.tile .tx{display:flex;flex-direction:column;min-width:0}
+.tile .tn{font-weight:800;font-size:var(--s1);line-height:1.15}
+.tile .tg{font-size:var(--s-1);color:var(--ink-2);margin-top:.15rem}
+.tile .ts{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--ink-3);margin-top:.3rem}
+.tile.ok .ts{color:var(--tc)}
+.tile.ok{border-color:color-mix(in srgb,var(--tc) 55%,var(--rule-hi))}
+.tile.owned{background:color-mix(in srgb,var(--tc) 16%,var(--panel-2));border-color:var(--tc)}
+.tile.owned .seal{background:var(--tc);color:var(--on-gold)}
+.tile.owned .ts{color:var(--tc)}
+.tile.poor .seal,.tile.locked .seal{opacity:.55}
+.tile.poor .tn,.tile.locked .tn{color:var(--ink-2)}
+.tile.locked{border-style:dashed}
+.tile.child{margin-left:1.4rem}
+.tile.child::before{content:"";position:absolute;left:calc(-1.4rem + 2px);top:-.6rem;width:calc(1.4rem - 4px);height:calc(50% + .6rem);border-left:2px solid var(--tc);border-bottom:2px solid var(--tc);border-bottom-left-radius:8px;opacity:.6}
+.tile.picked{box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--tc)}
+.tile.flash{animation:adopt .9s ease-out}
+@keyframes adopt{0%{box-shadow:0 0 0 0 var(--tc)}100%{box-shadow:0 0 0 18px transparent}}
+
+
+/* upgrade pop-up */
+.upop{--tc:var(--t-ideal)} .upop.t-spread{--tc:var(--t-spread)} .upop.t-resil{--tc:var(--t-resil)}
+.uhead{display:flex;align-items:center;gap:1rem}
+.uhead .seal{flex:none;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:2.3rem;color:var(--tc);border:2.5px solid var(--tc);background:color-mix(in srgb,var(--tc) 12%,transparent)}
+.uhead .seal.owned{background:var(--tc);color:var(--on-gold)}
+.uhead .kicker{margin:0 0 .2rem;color:var(--tc)}
+.upop h2{font-size:clamp(2rem,4vw,3rem)}
+.upop .dl{font-family:var(--f-fell);font-size:clamp(1.15rem,1.8vw,1.45rem);line-height:1.35;margin:.8rem 0 1rem;max-width:60ch}
+.ugrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}
+.ugrid .fxl,.ugrid .eff{font-size:var(--s1)}
+.ufoot{position:sticky;bottom:calc(-1 * clamp(1.1rem,3vw,2.2rem));margin:1rem calc(-1 * clamp(1.1rem,3vw,2.2rem)) calc(-1 * clamp(1.1rem,3vw,2.2rem));padding:1rem clamp(1.1rem,3vw,2.2rem);background:var(--panel);border-top:1px solid var(--rule);display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.ufoot .btn.gold{font-size:var(--s2);padding:.8rem 1.6rem}
+.ufoot .left{color:var(--ink-2);font-size:var(--s-1)}
+.toast{position:fixed;left:50%;bottom:calc(5.5rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--gold);color:var(--on-gold);padding:.75rem 1.3rem;border-radius:var(--radius);font-size:var(--s1);z-index:20;box-shadow:0 8px 30px rgba(0,0,0,.45);max-width:calc(100% - 32px);text-align:center}
+.toast.show{animation:toastIn .25s ease-out}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (max-width: 860px){ .ugrid{grid-template-columns:1fr} }
+
+
+/* question banks */
+.sheet.wide{width:min(100%,1180px)}
+.bankpick{display:flex;gap:.7rem;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--rule-hi);border-radius:var(--radius);padding:.55rem .7rem;font-size:var(--s-1);color:var(--ink-2)}
+.bankpick b{color:var(--ink)}
+.bgrid{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:1.4rem;align-items:start;margin-top:.6rem}
+.blist{display:grid;gap:.4rem}
+.bk{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:stretch;border:1px solid var(--rule-hi);border-radius:var(--radius);background:var(--panel-2)}
+.bk.cur{border-color:var(--gold)}
+.bk .use{display:grid;place-items:center;padding:0 .6rem;border-right:1px solid var(--rule)}
+.bk .use input{width:20px;height:20px;accent-color:var(--gold)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.bkname{border:0;background:transparent;text-align:left;padding:.55rem .7rem;min-width:0}
+.bkname b{display:block;overflow-wrap:anywhere} .bkname small{color:var(--ink-3)}
+.newbank{display:grid;gap:.35rem;margin-top:.6rem;border-top:1px solid var(--rule);padding-top:.8rem}
+.bdetail{min-width:0}
+.bhd{display:grid;gap:.5rem;margin-bottom:.8rem}
+.bhd h3{font-family:var(--f-display);font-weight:400;font-size:var(--s3);margin:0}
+.fl{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);font-weight:800;margin:.5rem 0 .2rem}
+.fl.ok{color:var(--ok)}
+.sheet input:not([type]),.sheet textarea{width:100%;background:var(--panel-2);border:1px solid var(--rule-hi);border-radius:var(--radius);padding:.5rem .6rem;resize:vertical}
+.rename{font-family:var(--f-display);font-size:var(--s2)!important}
+.qform{border:1px solid var(--rule-hi);border-radius:var(--radius);padding:.6rem .9rem .9rem;background:color-mix(in srgb,var(--panel-2) 60%,transparent)}
+.qform .row{margin-top:.8rem}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:0 .7rem}
+.err{color:var(--danger);font-weight:700;margin:.6rem 0 0}
+.okmsg{color:var(--ok);font-weight:700;margin:0 0 .4rem}
+.paste{margin-top:.8rem;border:1px dashed var(--rule-hi);border-radius:var(--radius);padding:.6rem .9rem}
+.paste summary{cursor:pointer;font-weight:800}
+.paste textarea{margin:.3rem 0 .6rem}
+.paste code{font-size:.8rem;color:var(--ink);overflow-wrap:anywhere}
+.export{margin-bottom:.3rem;font-size:.8rem}
+.qlist{list-style:decimal;padding-left:1.6rem;margin:0;display:grid;gap:.5rem}
+.qlist li{padding:.45rem .6rem;border-bottom:1px solid var(--rule)}
+.qlist li.editing{background:var(--panel-2);border-radius:var(--radius)}
+.qt{font-weight:700}
+.qa{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
+.qa span{font-size:.8rem;border:1px solid var(--rule-hi);border-radius:3px;padding:.05rem .4rem;color:var(--ink-2)}
+.qa span.right{border-color:var(--ok);color:var(--ok);font-weight:700}
+.qbtn{margin-top:.35rem;gap:.35rem}
+.qbtn .btn{padding:.25rem .6rem;font-size:var(--s-1)}
+.btn.danger{border-color:var(--danger);color:var(--danger)}
+@media (max-width: 860px){ .bgrid{grid-template-columns:1fr} .ans{grid-template-columns:1fr} }
+
+/* overlays */
+.overlay{position:fixed;inset:0;background:rgba(4,10,18,.78);display:grid;place-items:center;padding:16px;z-index:10;overflow:auto}
+.sheet{width:min(100%,920px);max-height:100%;overflow:auto;background:var(--panel);border:1px solid var(--rule-hi);border-radius:8px;padding:clamp(1.1rem,3vw,2.2rem);position:relative}
+.sheet h1,.sheet h2{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.05;text-wrap:balance}
+.sheet h1{font-size:var(--s4)}
+.sheet h2{font-size:var(--s3)}
+.sheet p{max-width:65ch}
+.kicker{font-size:var(--s-1);text-transform:uppercase;letter-spacing:.12em;color:var(--gold);font-weight:700;margin:0 0 .4rem}
+.close{position:absolute;top:.8rem;right:.8rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.lede{font-family:var(--f-fell);font-size:var(--s1);color:var(--ink-2);margin:.5rem 0 1rem}
+
+/* event card: an engraved broadside */
+.event{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 2rem;align-items:start}
+.event .yr{font-family:var(--f-display);font-size:clamp(4rem,11vw,8.5rem);line-height:.82;color:var(--gold);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.event .body{min-width:0}
+.event h2{font-size:clamp(1.9rem,3.6vw,2.8rem);margin-bottom:.6rem}
+.event p.story{font-size:var(--s1);line-height:1.5;margin:0 0 1rem}
+.box{border:1px solid var(--rule-hi);border-radius:var(--radius);padding:.75rem .9rem;margin:0 0 .75rem;background:var(--panel-2)}
+.box .k{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:800;margin-bottom:.2rem}
+.box.ask{background:transparent;border-style:dashed}
+.box.ask p{font-family:var(--f-fell);font-style:italic;font-size:var(--s1);margin:0}
+
+/* setup */
+.setup-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1.6rem;margin-top:1.2rem}
+.gr{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto;gap:.5rem;align-items:center;margin-bottom:.5rem}
+.gr input,.gr select,.teach select{background:var(--panel-2);border:1px solid var(--rule-hi);border-radius:var(--radius);padding:.5rem .55rem;min-width:0;width:100%}
+.lab{font-size:var(--s-1);text-transform:uppercase;letter-spacing:.09em;color:var(--ink-2);font-weight:700;margin:0 0 .45rem}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--rule-hi);border-radius:var(--radius);overflow:hidden;margin-bottom:.35rem}
+.seg button{flex:1;border:0;background:var(--panel-2);padding:.5rem .6rem;font-weight:700;border-right:1px solid var(--rule-hi)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--on-gold)}
+.note{font-size:var(--s-1);color:var(--ink-3);margin:0 0 1rem}
+.resume{border:1px solid var(--gold-dim);border-radius:var(--radius);padding:.7rem .9rem;margin-top:1rem;display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+
+/* report + end */
+.list{display:grid;gap:.4rem;margin:.6rem 0 1.2rem;padding:0;list-style:none}
+.list li{display:flex;gap:.7rem;align-items:center;padding:.5rem .7rem;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel-2)}
+.list li.bad{border-color:color-mix(in srgb,var(--danger) 50%,var(--rule))}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--rule)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:800}
+td.num,th.num{text-align:right}
+.up-d{color:var(--ok)} .dn-d{color:var(--danger)}
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.5rem;margin:.6rem 0 1.2rem}
+.hist div{border:1px solid var(--rule);border-radius:var(--radius);padding:.55rem .7rem;font-size:var(--s-1);color:var(--ink-2)}
+.hist b{display:block;color:var(--ink);font-size:var(--s0)}
+.hist .res{display:block;font-weight:800;margin:.1rem 0 .2rem}
+.winner{font-family:var(--f-display);font-size:clamp(2.6rem,7vw,5rem);line-height:1;margin:.2rem 0 .3rem}
+
+/* quiz */
+.opts{display:grid;gap:.5rem;margin:1rem 0}
+.opt{text-align:left;border:1px solid var(--rule-hi);background:var(--panel-2);border-radius:var(--radius);padding:.75rem .9rem;font-size:var(--s1)}
+.opt:hover:not(:disabled){border-color:var(--gold)}
+.opt.right{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
+.opt.wrong{border-color:var(--danger);box-shadow:inset 4px 0 0 var(--danger)}
+.teach .grow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.6rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--rule)}
+.teach .grow .row{gap:.3rem}
+.teach .grow .btn{padding:.3rem .55rem}
+.help ol{padding-left:1.2rem;max-width:68ch} .help li{margin:.35rem 0}
+.help h3{font-family:var(--f-display);font-weight:400;font-size:var(--s2);margin:1.2rem 0 .3rem}
+
+@media (max-width: 860px){
+  #app{height:auto;min-height:100%}
+  .stage{grid-template-columns:1fr}
+  .mapwrap{height:62vh;min-height:320px}
+  .side{border-left:0;border-top:1px solid var(--rule)}
+  .setup-grid{grid-template-columns:1fr}
+  .event{grid-template-columns:1fr}
+  .era .ttl{display:none}
+  .react{margin-left:0}
+  .gr{grid-template-columns:auto minmax(0,1fr) auto}
+  .gr select{grid-column:2/4}
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">Spark <em>of</em> Revolution</div>
+    <div class="era" id="eraBox"></div>
+    <div class="react" id="reactBox" title="Old Order Reaction: how hard kings and emperors crack down. Higher means more support removed and more revolutions crushed."></div>
+    <div class="tools">
+      <button class="btn ghost" id="fsBtn" data-act="fs">Full screen</button>
+      <button class="btn ghost" data-act="help">How to play</button>
+      <button class="btn ghost" data-act="teacher">Teacher</button>
+    </div>
+  </header>
+  <main class="stage">
+    <section class="mapwrap" aria-label="Map of the Atlantic world">
+      <div class="zoom" role="group" aria-label="Map view">
+        <button data-zoom="world" aria-pressed="true">World</button>
+        <button data-zoom="americas" aria-pressed="false">Americas</button>
+        <button data-zoom="europe" aria-pressed="false">Europe</button>
+      </div>
+      <svg id="map" viewBox="140 0 880 700" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Regions of the Atlantic world, 1775–1848">
+        <g id="mBase"></g><g id="mLinks"></g><g id="mNodes"></g>
+      </svg>
+      <div class="legend" id="legend"></div>
+      <div class="board" id="board" hidden></div>
+    </section>
+    <aside class="side" id="side"></aside>
+  </main>
+  <footer class="standings" id="stand"></footer>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+</div>
+
+<script>
+var GEO = {"W":1200,"H":700,"land":"M1055.5,505.2L1055.9,513L1057.2,516.1L1056.4,519.2L1055.3,521.1L1053.7,517.3L1052.5,519.2L1053.3,524L1052.6,526.8L1051,528.3L1050.2,533.8L1047.5,541.3L1044.1,550.3L1039.7,562.6L1036.8,571.7L1033.6,579.2L1029.1,580.7L1024.1,583.5L1021.1,581.8L1017,579.5L1015.8,576.1L1016,570.3L1014.5,565.1L1014.3,560.4L1015.7,555.7L1018.3,554.6L1018.5,552.5L1021.4,547.5L1022.2,543.4L1021.2,540.3L1020.4,536.2L1020.3,530.2L1022.5,526.6L1023.5,522.5L1026.2,522.2L1029.4,520.9L1031.5,519.7L1033.9,519.7L1037.3,516L1042.1,512L1043.9,508.7L1043.3,505.9L1045.6,506.7L1048.9,502.2L1049.2,498.3L1051.2,495.4L1053,498.2L1054.3,501ZM439,352.1L434.3,352.8L433.4,352.2L435.1,350.4L435.1,347.9L438.3,347L439.5,347.3ZM417.1,299.5L415.5,301.1L411.4,301L408.1,301.3L408.1,298.5L409,297.6L413.5,297.6L416.2,298.2ZM354.6,301.8L352.8,302.9L349.8,301.8L346.9,299.5L347.8,298L350.1,297.5L351.4,297.8L355,298.3L357.7,299.9L358.4,301.7ZM379.8,288.8L384.5,289.8L385.3,288.7L389.5,288.7L392.6,290.4L394.1,290.2L394.8,292.5L397.8,292.4L397.4,294.3L399.9,294.6L402.3,297L400,299.6L397.5,298.2L395,298.5L393.2,298.2L392.1,299.3L389.9,299.7L389.3,298.2L387.3,299.1L384.7,303.5L383.4,302.5L383.3,300.6L379.7,299.5L377.1,300L373.8,299.5L371.1,300.7L368.4,298.7L369.1,296.6L374,297.5L378.1,298L380.3,296.6L378.1,293.8L378.4,291.3L375.1,290.3L376.5,288.5ZM343.5,270L345.3,272.3L350.5,271.6L352.2,273.1L356.3,277.2L359.3,280.1L361.1,280L364.2,281.3L363.6,283.2L367.6,283.4L371.4,286.1L370.5,287.6L366.8,288.4L363.1,288.8L359.3,288.3L351.4,288.9L355.5,285.3L353.5,283.6L350.1,283.1L348.4,281.3L347.6,277.6L344.5,277.8L339.6,276.1L338.2,274.7L331.2,273.7L329.5,272.4L331.8,270.8L326.5,270.5L322.1,273.8L319.8,273.9L318.8,275.5L316,276.2L313.7,275.6L316.9,273.6L318.4,271.3L321.1,269.8L324.1,268.5L328.3,267.9L329.8,267.2L334.4,267.7L338.7,267.7ZM356.1,263.5L354.7,263.8L353.9,260.1L352.2,258.2L354,254.1L355.6,254.3L356.7,259.7ZM357.5,245.1L351.5,246.2L351.5,243.8L354.1,243.2L357.7,243.4ZM362,245.1L360.3,249.7L359.4,248.9L360.1,245.5L358.1,242.9L358.2,242.1ZM959.5,185.9L956.3,188.7L956.8,189.9L957,190.5L951.8,193.1L949.2,192.3L947.7,189.6L950.2,189.4L950.6,189.4L951.2,187.8L954.9,187.9ZM902.4,185.7L905.5,187.9L909.5,187.5L913.5,188L913.4,189.1L916.2,188.4L915.7,190.3L908.2,190.8L908.2,189.8L901.6,188.5ZM858.7,169.3L857.1,174.4L857.9,176.5L857,179.8L852.9,177.3L850.2,176.6L842.8,173.3L843.4,170L849.5,170.6L854.8,169.9ZM825.3,150.1L828.5,154.7L828.1,163.2L825.7,162.8L823.7,165L821.7,163.3L821.2,155.5L820,151.8L822.8,152.1ZM826.9,144L825.3,149L823,147.7L821.7,143.3L822.6,141L825.8,138.5ZM460.1,115.9L463.5,116.8L468.1,116.6L465,119.2L463.1,119.6L457.4,116.9L456.8,114.8L459.2,112.8ZM473.7,99.8L471.3,99.9L465.5,97.9L461.8,95L463.7,94.4L469.6,96L473.9,98.6ZM167.8,103.5L164.9,104.4L158.4,101.5L158.1,99.3L155,97.1L155.2,95.3L150.8,94.2L151,90.8L152.3,89.3L156.5,90.7L159,91.6L163.2,92.3L163.6,94.5L164.3,97.4L167.7,100ZM504.2,89.9L499.6,95.3L503.3,93.2L506.3,94.6L504,96.7L507.9,98.5L510.5,96.9L515,98.9L512.3,103.5L516,102.4L515.9,105.7L516.5,109.7L513.1,115.2L510.8,115.5L507.8,114.3L510.1,109.1L508.9,108.3L501.9,113.8L498.9,113.6L503.2,110.6L498.8,109.1L493.3,109.4L483.7,109.2L483.5,107.4L487.1,105.1L485.4,103.4L490.6,99.6L498.3,89.7L502.3,86.1L507.1,84L509.3,84.3L507.9,85.9ZM144.3,69.1L149.2,68.6L143.1,75.6L144,80.6L142.1,80.6L141.1,77.7L141.1,74.9L140,73L141,70.3L142.6,68.3ZM745.3,80.1L736.5,83.8L729.7,82.8L733.9,76.4L731.7,70.1L738.4,65.3L742.2,62.4L746.1,62.2L751.1,66L748.4,70.2L749.1,74.6ZM838,59.5L835.5,64.5L830.3,61L829.5,58.5L836.3,56.5ZM62.6,50.4L56,52.7L54.9,51.2L56.6,48.4L62.7,46.2L65.9,45.3L68.7,45.7L69.1,47.6ZM764.2,41.4L759.1,47.8L763.8,47L768.9,47L767.7,51.9L763.3,57.3L768.2,57.7L772.8,65.5L776,66.5L778.9,73.5L780.3,75.9L786.2,77.1L785.6,81.1L783.1,82.9L785.1,86.1L780.7,89.4L774.2,89.3L765.9,91L763.6,89.8L760.4,92.7L755.9,92L752.4,94.4L749.8,93.2L757.1,86.6L761.5,85.3L753.9,84.2L752.6,81.8L757.7,79.8L755.1,76.5L756.1,72.5L763.2,73L764,69.5L760.8,65.6L755,64.5L754,62.9L755.7,60.2L754.2,58.5L751.6,61.4L751.5,55.5L749.2,52.4L751.1,46.2L754.9,41.4L758.6,41.8ZM19.6,33.8L15.8,34.7L13.9,33.6L12.7,32L18.2,31L21.3,31.5ZM421.2,20.6L418,23.7L416.2,23.2L415.9,21.4L416.3,21L418.9,19.3L420.7,19.4ZM411,17.4L404.1,20.6L401,20.5L400.8,18.9L405.6,16.2L411.7,16.3ZM15.1,11.2L16.6,12.3L20,11.7L22,13.3L25.6,14L24.6,14.7L19.9,15.9L17.8,14.6L17.2,13.6L12.9,13.9L12.4,13.4ZM405.6,0.6L405,3.1L407.7,2.2L409.5,3.7L413.2,5.6L417.3,7.4L416.3,10.1L419.8,9.7L422,11.6L417.1,13.4L410.9,12L409.8,9.4L403.8,12.5L395.8,15.5L396.1,12.1L389.8,12.6L395.2,9.8L398.2,5.3L402.7,0.1ZM714,0L718.3,3.6L712.1,7.9L698.9,11.8L695,12.9L689.2,12L677.1,10.2L681.8,7.7L672.6,4.9L680.5,3.8L680.6,2.1L671.6,0.8L672.4,0L687.9,0L687.9,0L688.1,0.1L688.4,0L714,0ZM1029.8,149.6L1033.3,154.2L1035.7,154.5L1037.6,156.2L1033.5,156.8L1033.4,161.8L1032.9,164L1031.3,165.6L1031.9,168.8L1034.4,173.5L1039.5,174.9L1043.7,178.1L1051.3,179.3L1059.1,177.6L1059.4,176L1057.6,171.4L1057.1,164.7L1052.7,162.5L1053.2,158.1L1049.7,157.7L1049.9,152.2L1055,153.8L1059.1,151.8L1054.6,147.9L1052.4,144.2L1048.6,145.9L1049,150.6L1046.6,146.4L1046,144.8L1046.8,142.2L1045.3,139.9L1039,137.7L1035.6,132L1032.4,130.3L1031.9,128.3L1036.9,128.9L1036.1,124.2L1040.2,123.2L1044.8,124.1L1044.3,117.9L1042.5,114L1037.6,114.3L1033,112.7L1027.9,115.5L1023.5,116.9L1022,120.6L1017.3,121.7L1013.6,128.3L1019.3,134.3L1019.6,138.7L1026.5,146.2ZM1200,346.9L1199,344.3L1196.8,341.3L1193.4,335L1191.4,326.9L1190.1,322.9L1184.2,314L1180.7,301.4L1178.1,293.1L1177.2,285.2L1175.4,279.1L1167.9,283L1163.9,282.2L1155.8,274.4L1158.2,272L1156.2,269.5L1149.1,263.9L1144.9,262.3L1142.7,257.6L1137.8,252.7L1128,253.9L1119.2,254L1111.6,254.9L1101.2,252.9L1095.1,251.4L1088.9,250.6L1085.6,242.6L1082.9,241.5L1078.8,242.6L1073.8,245.8L1066.9,243.6L1060.9,238.6L1055.5,236.8L1051.1,230.6L1046.1,221.9L1043.4,222.9L1039.7,220.8L1038,223.3L1034.8,223L1036.3,225.9L1036,227.4L1038.2,232.3L1041,237.9L1043.8,239.4L1045,241.7L1049,244.4L1049.6,247.1L1049.3,249.3L1050.2,251.5L1052,253.3L1052.9,255.4L1053.9,257L1053,252.3L1054.1,248.9L1055.5,248.2L1057.4,250.2L1057.9,254L1057.1,257.8L1058.4,260.3L1059.3,260L1059.7,261.8L1063.9,260.8L1068.4,260.9L1071.7,261.1L1074.9,256.7L1078.5,252.6L1081.5,248.5L1082.8,246.3L1083.5,246.9L1083.3,249.6L1082.7,250.8L1084.1,255.9L1087,260.4L1090.3,262.7L1094.4,263.6L1097.8,264.8L1100.7,268.5L1102.4,270.6L1104.4,271.5L1104.6,272.9L1103,276.8L1102.3,278.6L1100.2,280.7L1098.6,285.1L1096.1,284.8L1095.1,286.4L1094.5,289.7L1095.6,294L1095.2,294.8L1092.6,294.8L1089.4,297.2L1089.1,300.4L1088,301.7L1084.6,301.7L1082.5,303.3L1082.8,306L1080.2,307.8L1077.2,307.1L1073.6,309.3L1071.1,309.7L1067.2,311.4L1066.4,314.3L1066.4,316.5L1061,319.3L1052.4,322.3L1047.7,326.9L1045.3,327.2L1043.6,326.8L1040.5,329.5L1037,330.8L1032.4,331.1L1031,331.5L1029.9,333.2L1028.4,333.7L1027.7,335.3L1024.9,335.2L1023.2,336.1L1019.3,335.7L1017.7,331.9L1017.7,328.4L1016.7,326.5L1015.4,321.7L1013.7,319L1014.7,318.7L1014,315.7L1014.6,314.5L1014.2,311.7L1013.4,308.9L1011.6,306.9L1011,304.3L1008,302L1004.7,296.6L1002.8,291.3L998.8,286.8L996.2,285.7L992.2,279.5L991.2,275L991.2,271.2L987.6,264L984.8,261.4L981.8,260.1L979.7,256.3L979.9,254.9L978.1,251.5L976.4,250L973.9,245.2L970.2,239.9L967.1,235.5L964.4,235.5L965,231.9L965,229.6L965.5,227L965.2,226.1L963.9,228.7L963.2,233.6L962,237L960.8,238.2L958.9,236.1L956.2,233.2L951.6,223.8L951.1,224.4L953.9,231.3L957.7,237.8L962.6,248L964.8,251.5L966.8,255.2L972.2,262.4L971.2,263.5L971.7,267.8L978.4,273.6L979.5,274.9L981.6,281.3L980.5,282.5L981.7,289.2L984.2,297L986.4,298.5L989.5,301L993.1,308.5L995,314.4L998.2,317.6L1006,323.7L1009.2,327.4L1012.4,331.1L1014.3,333.4L1017.1,335.3L1018.5,337.3L1018.4,340L1015.3,341.6L1017.8,343.3L1019.6,344.5L1020.8,347.2L1023.4,349.9L1026.2,349.9L1031.4,348.3L1037.4,347.5L1042.2,345.5L1044.9,345.1L1046.9,343.9L1050,343.7L1051.8,343.5L1054.3,342.6L1057.2,341.9L1059.8,339.7L1061.9,339.7L1062.1,341.5L1061.7,345.3L1061.9,348.7L1060.8,351L1059.5,358L1057.1,365.2L1053.9,373.5L1049.3,383L1044.7,390.2L1038.3,399L1032.7,404.3L1024.4,410.7L1019.2,415.6L1013.1,423.4L1011.8,426.9L1010.5,428.4L1006.6,431L1005.2,433.7L1003.1,434.1L1002.2,438.7L1000.4,441.3L999.3,445.6L997,447.7L994.3,455.7L994.5,459.4L998,461.7L998.2,463.4L996.6,467.3L996.8,469.3L996.4,472.4L998.2,476.4L1000.3,482.8L1002.3,484.3L1003.1,487.2L1002.7,493.6L1003.1,499.3L1002.9,509.4L1003.7,512.6L1001.8,517.2L999.4,521.7L995.7,525.8L990.5,528.2L984.2,531.4L977.6,538.4L975.4,539.5L971.3,544.2L968.9,545.7L968.2,550.3L970.5,555.2L971.4,559L971.3,561L972.3,560.7L971.7,567L970.6,570L971.8,571.2L970.8,573.9L968.4,576.2L963.8,578.4L957,581.9L954.5,584.3L954.7,587.1L956.1,587.5L955.4,590.9L953.7,595.7L952.6,601.1L951,604L947.1,607.3L946,608.3L943.5,611.6L941.7,614.9L938.3,619.6L931.8,626.3L927.7,630.2L923.5,633.2L917.8,635.7L915,636L914.2,637.8L911.1,636.9L908.4,638.1L902.7,636.9L899.5,637.6L897.3,637.3L891.7,639.9L887.1,640.9L883.7,643.4L881.3,643.5L879.2,641.2L877.5,641.1L875.3,638.2L875,639.1L874.4,637.3L874.7,633.5L873.2,629.2L874.9,628L875,623L871.8,616.9L869.4,611.4L869.4,611.3L865.9,602.9L862.1,598L860.1,593.2L859.1,586.9L858,582.1L856.4,572.1L856.5,564.3L855.9,560.8L853.9,558.1L851.2,552.7L848.4,544.9L847.3,540.9L843,534.5L842.7,529.5L842.3,525.5L843.1,519.8L845.1,513.8L845.5,511L847.3,505.2L848.7,502.5L851.9,498.3L853.8,495.4L854.4,490.6L854.1,486.9L852.5,484.6L851.1,480.7L849.7,476.8L850.1,475.5L851.8,472.9L850.2,466.6L849,462.3L846.3,458.2L846.8,456.9L846,454.9L844.6,450.1L840,443.2L834.3,436.7L830.6,431.4L827.2,424.7L827.4,422.5L828.6,420.5L830,415.8L831.1,411L830.1,410L832,402.7L832.8,397.6L830.6,393.4L828,392.3L826.9,389.4L825.5,388.4L825.5,386.6L819.7,389L817.6,388.6L815.5,390.1L811,389.9L808,385.9L806.2,381.2L802.2,376.9L798,377L793.1,377L788.5,377.8L784,379.2L775.2,382.9L772.1,385.2L767.1,387L762.1,385.2L759.6,385.3L755.7,384L752.1,384.1L745.5,385.2L741.6,387.1L736.1,389.4L735,389.3L733.5,389.3L727.8,386.2L722.7,381.3L718,377.8L714.2,373.6L712.7,373.1L708.7,370.5L705.9,367.1L704.9,364.7L704.3,359.9L701.9,356.1L699.7,353.5L698.3,352.7L697,351.4L696.3,348.6L695.5,347.1L694,346.1L691,343.4L688.7,342.9L687.4,341.1L687.5,340.1L685.8,338.7L685.5,337.4L684.7,332.4L685.4,329.5L683.2,324.5L680.5,322.2L683,320.9L685.7,316.4L687.1,313L686.7,309.5L688.4,306.3L689.2,300.2L688.7,293.8L688.1,290.6L688.8,287.3L687.4,284.2L684.6,281.4L685,278.7L685.3,275.7L687.4,273.9L689.3,270.5L689,268.3L691.1,263.7L694.2,259.6L696.1,258.5L697.7,254.7L697.9,251.3L699.9,247.3L703.6,244.9L707.3,238.2L710.1,235.6L715.2,234.9L719.5,230.5L722.3,228.7L726.9,223.3L725.7,215.2L727.9,209.6L728.7,206.1L732.2,201.8L737.6,198.8L741.6,196.1L745.2,189.4L746.9,185.4L750.8,185.4L753.9,188.2L758.9,187.7L764.4,189.1L766.6,189.2L771.7,185.7L777.4,184.5L780.7,181.9L785.7,179.9L794.6,178.7L803.2,178.2L805.9,179.2L810.7,176.6L816.3,176.6L818.5,178.1L822,177.7L827.6,175L831.3,175.8L831.3,179.1L835.6,176.7L836,178L833.5,181.1L833.6,184.2L835.5,185.8L835,191.4L831.6,194.7L832.7,198.2L835.4,198.3L836.9,201.4L838.9,202.4L845.2,204.7L847.4,204.1L851.9,205.2L859,208.1L861.8,213.9L866.6,215.2L874.3,217.9L880.1,221.1L882.6,219.4L885,216.4L883.5,211.4L885,208.3L888.7,205.2L892.3,204.3L899.5,205.7L901.5,208.6L903.5,208.6L905.3,209.7L910.6,210.5L912.1,212.6L919.1,212.5L924.4,214.2L929.8,216.2L932.4,217.2L936.3,215.1L938.3,213.3L943,212.7L946.9,213.5L948.6,216.8L949.6,214.6L954,216.2L958.2,216.6L960.7,214.9L962.1,212.8L961.7,212.4L962.8,209.4L963.4,204.4L964,202.8L964.1,202.7L965.5,197.4L967.6,192.8L967.7,192.6L966.7,187.6L967.7,185L965.4,182L967.1,179.6L964,180.1L959.5,178.6L956.3,182.4L948.4,183.1L943.8,179.6L938.1,179.4L937.2,182.1L933.6,182.9L928.3,179.4L922.6,179.5L918.9,173.1L914.8,169.5L916.9,164.5L913.3,161.4L918.5,155.2L926.4,154.9L928,150L937.9,150.9L943.6,146.7L949.3,144.9L957.7,144.7L967.3,149.3L975,151.8L980.8,150.8L985.3,151.4L990.9,148L991.2,145.2L989.2,140.9L985.9,138.5L983,137.8L980.8,135.8L973.5,130.4L967.4,128L962.5,124.2L966,123.2L969.3,117.9L966.1,115.4L973.1,112.8L972.7,111.4L968.4,112.4L964.5,112.9L961.5,115L956.9,115.3L952.9,117.7L953.8,121.6L956.5,123.2L961.6,122.8L960.9,125L955.6,126.2L949.2,129.9L946.2,128.6L946.9,125.6L941.2,123.7L941.9,122.5L946.4,120.3L944.8,118.9L936.8,117.3L936.1,114.9L931.6,115.7L930.2,119.2L926.9,123.9L927.2,125.5L924.9,126.9L923.3,126.3L922.8,134L920.5,136.7L919.1,141.3L921.1,144.9L922,147.4L926.7,149.5L925.9,151.1L919.8,151.4L917.8,153.4L913.9,156.9L912,153.9L911.9,152.6L908.8,152.4L906,151.8L900,153.5L903.8,157.1L901.3,158.1L898.5,158.1L895.5,154.8L894.6,156.2L896.1,160.1L898.9,163.1L897,164.6L900.2,167.5L902.9,169.4L903.2,173.1L898.3,171.3L900.1,174.7L896.8,175.3L899.2,181.1L895.8,181.1L891.3,178.3L889,173.1L887.7,168.8L885.5,165.8L882.6,162.2L882.1,160.3L881.2,159.9L881,158.4L878,156.3L877.4,153.2L877.5,148.8L878,146.8L877.1,145.8L876,145.3L874.4,143.2L872.1,141.9L867.2,139.5L864.1,137.2L859.3,135.3L854.8,130.6L855.8,130.1L853.3,127.4L853.1,125.3L849.8,124.3L848.4,127L846.8,124.9L846.8,122.7L846.9,122.6L848,122L844,121.1L840,123.3L840.4,126.5L839.9,128.3L841.7,131.6L846.7,134.8L849.5,140.1L855.5,145.3L859.4,145.3L860.8,146.7L859.4,148L864.2,150.3L868,152.2L872.7,155.6L873.3,156.8L872.5,159.1L869.4,156.1L864.9,155L863,159.2L866.8,161.6L866.4,165L864.3,165.4L861.8,170.9L859.6,171.4L859.6,169.4L860.4,166L861.5,164.6L859.3,160.8L857.5,157.6L855.3,156.8L853.7,154L850.3,152.8L848,150.2L844.1,149.8L840,146.9L835.1,142.7L831.5,139L829.7,132.7L827.2,131.9L823,129.8L820.7,130.7L817.8,133.7L815.7,134.1L811.2,137.8L801.2,136L793.8,138.1L793.3,142L793.6,145.7L788.8,150L782.2,151.3L781.8,153.5L778.6,157.1L776.6,162.4L778.6,166.1L775.6,168.9L774.5,173.1L770.6,174.4L766.8,179.4L760.2,179.5L755.2,179.4L751.9,181.7L749.9,184.2L747.3,183.6L745.4,181.4L744,177.7L739.1,176.7L737,178.4L734.3,177.5L731.6,178.2L732.5,173.1L732.1,169.1L729.8,168.5L728.7,166.1L729.2,161.8L731.3,159.5L731.8,156.9L733,153L733,150.3L732,147.9L731.9,145.8L732.3,141.2L730.3,138.4L737.6,133.8L743.8,134.9L750.6,134.9L756,136L760.2,135.7L768.4,135.9L771,132L772.1,119.3L767,112.7L763.3,109.4L755.8,107L755.4,102.4L761.8,101L770.1,102.7L768.6,95.6L773.2,98.3L784.6,93.4L786,88.2L790.3,87L794.2,85.8L796.6,84.1L800.7,74.9L807.2,72.4L811.2,72.5L812,71.2L816,70.9L817,72.3L820.1,69.2L818.9,66.9L818.5,63.5L816.4,60.1L816,53.9L816.7,52.3L818,50.5L822.1,50.1L823.7,48.4L827.3,46.8L827.3,49.8L826.1,51.8L826.7,53.5L829.3,54.4L828.3,56.7L826.9,56L823.7,60.4L825.1,63.4L825.3,65.7L830.2,67.1L830.3,69.3L835.1,68.2L837.7,66.5L843.2,68.9L845.6,70.9L848.7,69.1L856,66.2L861.8,64.2L866.6,65.2L867.1,66.7L871.7,66.8L872.5,64.1L878.8,62.1L877.3,57L876.9,52.4L878.7,48.7L882.9,46.6L887.2,51.1L890.9,51L891.2,46.4L891.2,42.8L889.6,43.6L886.4,41.5L885.6,38.1L891.1,36.4L896.8,35.6L901.9,36.5L906.7,36.4L911.3,33.1L906.1,30.3L897.9,30.8L890.1,32.9L882.9,34.2L879.8,31L875.1,29L875.4,23.3L872.5,18L874.2,14.7L877.7,11L886.9,4.9L889.6,3.7L888.8,1.3L885.7,0L930.2,0L930.2,0L932.5,7.6L938.6,9.4L942.4,10.9L942.3,8.1L939,5.5L941.4,3.5L952.9,7L956.3,5.6L952.2,1.5L954.5,0L1200,0ZM875.9,0L875,0.2L871.3,4.2L872.5,7.6L866.1,12.2L858,17.2L855.6,25.4L859.3,29.5L864,32.8L860.5,39.4L855.8,40.8L855,50.9L852.8,56.5L847.1,56L844.8,60.8L839.3,61L837.4,55.3L833,48.5L829,40L825.6,36.4L816.9,43.3L810.8,44.7L804.3,41.6L802.4,35.2L800.6,21.7L804.6,18L816.2,13.1L824.6,7.2L831.4,0L875.9,0ZM33.4,0L29.9,1.2L22,1.8L15.7,7.4L12.6,8.5L8.6,8.4L7.5,6.4L3.5,4.7L5.4,2.3L2,1.4L0,1.6L0,0ZM400.4,0L395.9,3.1L393.3,5.6L385.9,9.4L379.4,9.8L374.5,12.2L372.1,16L366.4,16.7L358.3,21.4L349.6,28L345.2,32.6L341.2,39.5L347.4,40.5L346.6,46.1L346.4,50.6L353.5,49.4L360.9,52L364.5,54.3L366.5,57.2L371.7,58.8L375.5,61.4L383.2,61.8L388.1,62.4L385,67.6L383.9,73.8L384.6,80.7L389.5,86.6L394,84.6L399.1,78.2L400.4,68.5L398.4,65.3L407.2,62.4L414.3,58.2L418.7,53.9L420,49.9L419,44.8L415.4,40.3L423.6,34.1L424.1,28.8L426.9,19.7L430.7,18.3L437.6,19.9L442,20.5L446.4,19L449.7,20.9L453.8,24.3L454.2,26.6L462.1,27L459.9,31.9L458.4,39.4L462.2,40.4L464.2,43.9L472.2,40.6L479.1,34L483.2,31.3L484.7,36.5L488,44.1L490.7,51.3L487.5,55.1L492.6,58.5L495.8,62L502.9,63.6L505.3,65.5L505.7,70.7L509.2,71.5L510.4,73.9L508.9,80.8L504.7,83.1L500.6,85.3L492,87.5L484.4,92.6L475.9,93.7L465.8,92.3L458.5,92.3L453.3,92.7L447.8,97.2L440.6,100L430.9,108.3L423.4,114.2L428,113.1L438.5,104.8L450.4,99.6L458,99L461.4,102L455.5,106.3L455.2,113.1L455.5,117.9L461.2,121.1L469.7,120.1L476.5,113L475.7,117.6L478.4,119.9L471.1,124.1L459,127.9L453.3,130.5L446.5,135.1L442.8,134.6L444,129.2L454.1,123.9L446,124.1L440.2,124.9L440.5,127L434.3,130.1L428.5,132.3L422.6,134.2L418.6,138.4L417.7,139.4L416.7,142.8L417.5,146.3L419.6,146.4L419.6,144.1L420.8,145.5L419.9,147.3L416.2,148.4L413.8,148.3L409.7,149.4L407.4,149.7L404.3,150L399.5,151.9L407.4,150.7L408.6,151.9L400.9,153.8L397.6,153.8L398,153.1L395.9,154.8L397.4,155.1L395.1,159.8L390,164.8L390.1,163.1L389,162.7L387.7,161.1L387.9,164.6L388.8,165.8L388.4,168.2L386.1,170.7L381.9,175.9L381.5,175.7L384.2,171.2L382.1,168.8L382.9,163.4L381.2,166.2L381.2,170.3L378.2,169.3L381.1,171.4L379.8,177.5L381.2,178L381.2,180.2L380.4,186.7L376,191.6L370.1,193.5L365.8,197.3L363,197.7L359.8,200.1L358.6,202.3L351.8,206.5L348.1,209.6L344.8,213.5L343,218.1L343,222.6L343.6,228.2L345.1,232.8L344.6,235.6L345.8,243.2L344.9,247.6L344.2,250.1L342.2,254.1L340.4,254.9L337.9,254.1L337.5,251.3L335.7,249.8L333.8,244.2L332.2,239.2L331.9,236.6L333.9,232.3L333.1,228.7L330,223.3L328.2,222.3L322.1,225.2L321.2,224.9L319.3,221.9L316.3,220.2L310.1,221.1L305.5,220.3L301.3,220.8L298.8,221.7L299.4,223.5L298.8,226.2L299.6,227.5L298.4,228.3L296.6,227.4L294.3,228.6L290.5,228.4L287.3,225L282.4,225.8L278.9,224.3L275.4,224.7L270.6,226.2L264.6,231.1L258.6,233.9L254.9,237L253,239.9L252,244.4L251.6,247.5L252.2,249.8L252.2,249.8L252.2,249.8L248.9,255.5L247,260.2L245,268.9L243.9,272.1L244.2,275.6L245.3,278.8L245.6,283.8L248.4,288.6L249.2,292.4L250.8,295.6L256.4,297.3L258.3,300L263.4,298.2L267.7,297.5L272,296.4L275.6,295.2L279.4,292.6L281.3,288.8L282.6,283.3L283.8,281.4L287.8,279.7L293.8,278.2L298.6,278.5L302,277.9L303.1,279.3L302.5,282.4L299,286.3L297.1,290.2L297.9,291.4L296.7,294.2L294.7,299.2L293.5,297.6L292.3,297.7L292.2,298.6L293.3,298.7L292.9,300.4L291.7,303.2L292,304.2L291.2,306.6L291.5,307.2L290.4,310.5L289.1,312.2L288.1,312.4L286.8,314.7L288.4,315.8L289,314.9L290.6,315.7L291.1,315.9L292.4,314.8L294,314.7L294.5,315.2L295.4,314.9L297.9,315.5L300.4,315.3L302.3,314.6L303,313.9L304.8,314.2L306,314.7L307.5,314.5L308.6,313.9L311.1,314.8L311.9,315L313.5,316.2L314.9,317.6L316.8,318.6L318.1,320.4L317.6,321.1L317.1,322.5L317.5,324.9L316,327.1L315.2,329.7L314.7,332.6L314.9,334.2L314.8,337.1L313.9,337.8L313.1,340.5L313.4,342.3L312.1,343.9L312.2,345.7L313,346.7L314.2,350.2L316.1,352.8L318.6,355.6L320.4,357.9L320.2,359.3L322.4,359.6L323,359.1L324.4,360.7L327.2,360.2L329.7,358.6L333.1,357.3L335.1,355.3L338.2,355.7L337.9,356.3L341,356.6L343.5,357.7L345.1,359.6L347.2,361.4L350,361.6L354.5,357.1L356.8,356.4L357,354.3L358.3,348.8L361.7,345.8L365.2,345.7L365.7,344.3L370.1,344.9L374.6,341.6L376.9,340.1L379.8,337L381.8,337.4L383.1,339.1L381.9,341.3L381.6,342.8L378.3,343.6L379.9,346.5L379.7,349.9L377,353.7L378.8,358.8L381.2,358.4L382.7,353.7L381.1,351.4L381.1,346.5L388.2,343.9L387.7,340.8L389.7,338.8L391.4,343.4L395.3,343.5L398.7,347.1L398.8,349.2L403.8,349.3L409.8,348.6L412.8,351.5L417,352.3L420.2,350.3L420.4,348.7L427.3,348.3L434,348.2L429.2,350.1L430.9,353.1L435.3,353.6L439.4,356.8L440.1,362L443,361.9L445.1,363.4L448.7,365.8L451.9,370L452,373.3L454.1,373.5L457,376.6L459.1,378.9L465.8,380.2L466.4,379L470.9,378.5L476.9,380.3L478.8,381L482.8,382.5L488.6,388L489.5,390.6L491.4,390.3L492.8,393.9L495.7,405.2L498.7,406.3L498.9,410.7L494.7,416.1L496.4,418L506.3,419L506.5,425.5L510.7,421.3L517.7,423.6L527.1,427.5L529.8,431.3L528.9,434.9L535.4,432.9L546.3,436.3L554.6,436.1L563,441.4L570.2,448.7L574.5,450.5L579.3,450.8L581.4,452.8L583.4,461.1L584.4,465L582.4,475.7L579.7,479.9L572.1,488.9L568.8,496.3L565,501.9L563.6,502L562.2,506.8L563.2,518.9L562.2,528.9L561.8,533.2L560.2,535.8L559.8,544.5L554.8,552.9L554.3,559.6L550.1,562.5L549.1,566.4L543.2,566.4L534.9,568.9L531.3,571.8L525.4,573.7L519.5,578.8L515.5,585.3L515.2,590.2L516.5,593.7L516.3,600.3L515.4,603.5L512.1,607.1L507.6,618.6L503.6,623.7L500.4,626.8L498.9,633L496,636.7L494.3,640.8L489,644.4L484.9,643.1L482.1,643.8L476.8,641L473.2,641.2L469.4,637.6L469.6,641L477.3,646.6L477.3,651L481.1,653.9L481.4,657L477.9,665.4L470.9,668.8L460.8,670.2L455,669.5L456.9,673.4L456.9,678.2L458.6,681.5L456,683.7L450.9,684.6L445.5,682.3L443.8,684L446.1,690.4L450,692.3L452.3,690.3L454.6,693.6L450.4,695.6L447.4,699.6L447.4,700L407.7,700L407.7,700L407.1,692.5L403.2,690.8L403.9,698.8L400.4,697.9L399.5,688.7L398,676.7L399.3,672.3L396.2,666L394.1,658.7L396.2,658.5L397,648L398.4,637.6L398.7,627.9L395.6,618.1L396.3,612.8L394.2,604.7L396,596.8L395,584.2L394.8,570.7L394.6,556.1L393,545.5L390.9,536.3L384.9,532.6L384.2,529.9L372.6,523.4L362,516.3L357.4,512.3L354.6,507L355.4,505.1L350,496.6L343.7,484.6L337.7,471.7L335.2,468.8L333.3,464L328.7,459.8L324.6,457.2L326.3,454.3L323.4,448.1L325,443.6L329.4,439.5L332.3,434.7L331,431.9L328.9,434.9L325.6,432L326.7,430.2L325.6,424.3L327.6,423.4L328.6,419.3L330.7,415.2L330.3,412.5L333.4,411.1L337.3,408.6L336.6,406.6L338.6,406.1L338.4,402.8L339.8,400.5L342.6,400.1L345,396L347.2,392.6L345.2,391.1L346.3,387.3L345.3,381.4L346.5,379.7L345.8,374.2L343.7,370.8L342,368.9L340.9,365.4L342.4,363.7L341,363.2L340.1,361.1L337.4,359.3L335,359.7L333.7,362L331.4,363.6L330.1,363.8L329.5,365.2L332,368.7L330.5,369.5L329.6,370.5L327,370.8L326.2,366.9L325.4,368L323.6,367.7L322.6,365L320.3,364.6L318.9,363.9L316.6,363.9L316.3,365.3L315.7,364.3L312.8,362.9L311.7,361.5L312.4,360.4L312.3,359L310.9,357.4L308.8,356.1L306.9,355.3L306.6,353.4L305.3,352.2L305.5,354.1L304.3,355.7L303.1,353.9L301.4,353.2L300.7,351.9L300.9,350L301.8,347.9L300.3,347L301.7,345.8L299.9,343.7L297.5,341.1L296.5,338.9L294.3,336.9L291.8,334L292.5,332.9L293.3,333.9L293.8,333.5L293,331.4L291.4,330.9L290.6,332.4L287.4,332.3L285.5,331.7L283.3,330.4L280.3,330L278.8,328.6L276.1,327.5L272.6,327.4L270.2,326.1L267.6,323.4L262.1,316.4L259.5,314.3L255.2,312.6L252,313.1L247.3,315.5L244.4,316.2L240.8,314.5L236.8,313.2L232,310.2L228,309.3L222.2,306.3L218,303.2L216.9,301.5L213.8,301.1L208.5,299L206.7,296.1L201.4,292.4L199.3,288.3L198.6,285.1L200.5,284.5L200.3,282.6L201.8,280.9L202.3,278.7L201,275.8L201,273.2L199.8,269.9L196.3,263.4L191.9,258.4L190.2,254.3L186.1,251.6L185.5,250L187.3,246L184.9,244.5L182.5,241.3L182.3,236.8L179.5,236.3L177.3,232.8L175.6,229.7L175.9,227.6L174.4,222.7L174,217.7L174.8,215.2L171.7,212.6L169.9,212.9L167.4,211.1L165.7,213.8L165.6,216.9L164.7,221.8L165.8,224.5L168.5,229L169,230.5L169.7,231L169.8,233.2L170.7,233.1L170.7,237.3L171.9,239L172.5,241.3L175.1,244.6L175.4,250.6L176.3,253.5L177.1,256.6L176.7,260L179.2,260.2L180.8,263.2L182.1,266.1L181.8,267.2L179,269.6L178,269.6L177.4,265.6L174.6,261.9L171.4,258.8L169,257.1L170.3,252.4L170.3,248.8L168.2,246.8L165.2,243.9L164.3,244.7L163.4,243L160.5,241.5L158.3,237.7L158.8,237.2L160.9,237.6L163.6,235.1L164.5,232.2L161.7,227.5L159.1,225.7L158.3,221.7L157.6,217.4L156.7,212.2L156.4,206.3L156.6,203L154.4,199.3L152.2,198.5L152.2,196.6L149.4,196.3L148.1,194.6L143.4,193.9L142.5,192.9L143.1,189.3L140.4,182.8L139.6,173.7L140.4,172.2L138.9,170.1L137.1,164.7L138.7,159.4L137.5,155.9L141,150.5L143.3,145L144,140.1L148.9,134L155.8,122.4L159.4,113.9L160.7,108.5L160.9,105.6L162.2,104.3L168.1,106.5L167.6,112.4L169.7,110.8L171.7,105.6L172.9,100.4L172.2,100.4L166.2,94.3L164.3,91.6L157,89L157.6,83.5L160.7,79.7L156.2,77L158.6,72.1L155.8,67.6L157.8,64.5L156.8,62.2L154,60.2L156.4,54.9L153.9,50.1L155.7,44.4L151.5,44L144.2,43.9L140.1,42.1L135.5,36L132.1,34.9L125.8,32.8L119,33.3L112.4,30.6L109.2,28L103,29.3L100.4,33.4L97.5,33.8L91.1,35L85.3,37L79.1,38.3L81.5,34.8L88.8,29L95.2,27.2L95.3,25.7L86.6,29L79.9,32.9L69.5,37.1L70.3,40L62.2,44.3L55,46.8L48.8,48.6L45.3,51.3L35.3,54.4L31.4,57.2L23.7,59.8L20.8,59.3L14.9,61L8.4,63.1L2.7,65.1L0,65.6L0,63.3L0,63.3L0.8,63L7,61.1L15,57.8L21.4,57.1L25.9,54.6L35.5,51L37.6,49.8L43,47.7L47.8,43.2L53.3,39.7L46.3,41.5L45.8,40.4L41.3,42.6L41.1,39.6L37.9,41.7L38.8,38.8L32,41.1L29.2,41.1L32.1,37.6L35,35.4L34,33.3L27,34.4L25.8,31.7L24.1,30.3L27.3,26.9L26.3,24.5L31.5,21.1L38.5,17.9L43.1,14.9L47.1,14.5L49.3,15.4L55.7,12.6L58.4,13.1L63.6,11.3L65.5,8.7L64.1,7.7L69.6,5.5L66.9,5.6L60.9,6.8L58.2,8.1L56.1,6.8L49.2,7.4L44.1,6.1L44.8,3.8L42.8,0.5L44.7,0L400.4,0ZM503.7,0L496.9,4.3L492.5,1.9L491,0L503.7,0ZM480.3,0L480.1,0.4L483.2,3.7L488.1,6.3L489.3,7.8L489.8,13.5L486.6,17.6L481.6,16.1L472.4,11.5L476.5,16.4L479.8,19.9L479.7,21.9L468.4,19.6L460.3,16.3L456.1,13.5L458.4,11.8L453.1,8.9L448,6.1L447.3,7.8L434.1,8.7L431.3,6.7L436.3,2.5L444.6,2.4L454,1.7L453.6,0L480.3,0ZM611.9,0L610.3,0.4L603.6,1.7L598.9,5.2L597.8,9.2L594.6,13L586.1,17.6L586.7,22.1L583.4,26.9L579.6,32.7L573.1,33L567.7,28.2L558.6,28.2L555.1,25L553.8,19.3L548.4,12.1L547.3,8.4L548.5,3.3L545.8,0L611.9,0Z","grat":"M0,57.8L1.8,55.7L33.6,22.3L57.4,0M17.6,700L2.5,673.1L0,667.9M0,167.1L2.5,161.9L22.7,125.8L46.1,90.3L72.4,55.7L101.3,22.3L122.9,0M93.6,700L80,673.1L64.5,636.6L51.7,599.9L41.3,563.3L33.4,526.8L27.8,490.3L24.5,453.9L23.4,417.5L24.5,381.1L27.8,344.7L33.4,308.2L41.3,271.7L51.7,235.1L64.5,198.4L80,161.9L98.3,125.8L119.3,90.3L143,55.7L169,22.3L188.4,0M169.7,700L157.6,673.1L143.8,636.6L132.4,599.9L123.2,563.3L116.1,526.8L111.2,490.3L108.2,453.9L107.2,417.5L108.2,381.1L111.2,344.7L116.1,308.2L123.2,271.7L132.4,235.1L143.8,198.4L157.6,161.9L173.8,125.8L192.5,90.3L213.5,55.7L236.6,22.3L253.9,0M245.7,700L235.1,673.1L223.1,636.6L213.1,599.9L205,563.3L198.9,526.8L194.5,490.3L192,453.9L191.1,417.5L192,381.1L194.5,344.7L198.9,308.2L205,271.7L213.1,235.1L223.1,198.4L235.1,161.9L249.3,125.8L265.7,90.3L284.1,55.7L304.3,22.3L319.4,0M321.8,700L312.7,673.1L302.4,636.6L293.8,599.9L286.9,563.3L281.6,526.8L277.9,490.3L275.7,453.9L274.9,417.5L275.7,381.1L277.9,344.7L281.6,308.2L286.9,271.7L293.8,235.1L302.4,198.4L312.7,161.9L324.9,125.8L338.9,90.3L354.7,55.7L372,22.3L385,0M397.8,700L390.3,673.1L381.6,636.6L368.8,563.3L361.3,490.3L358.8,417.5L361.3,344.7L368.8,271.7L381.6,198.4L390.3,161.9L400.4,125.8L412.1,90.3L425.2,55.7L439.7,22.3L450.5,0M474,700L460.9,636.6L450.6,563.3L444.6,490.3L442.6,417.5L444.6,344.7L450.6,271.7L460.9,198.4L475.9,125.8L495.8,55.7L516.2,0M550,700L540.2,636.6L532.5,563.3L528,490.3L526.5,417.5L528,344.7L532.5,271.7L540.2,198.4L551.5,125.8L566.4,55.7L581.7,0M626,700L619.5,636.6L614.3,563.3L611.3,490.3L610.4,417.5L611.3,344.7L614.3,271.7L619.5,198.4L627,125.8L636.9,55.7L647.1,0M702.1,700L696.2,563.3L694.2,417.5L696.2,271.7L702.5,125.8L712.7,0M778.1,700L778.1,563.3L778.1,417.5L778.1,271.7L778.1,125.8L778.1,0M854,700L859.9,563.3L861.9,417.5L859.9,271.7L853.6,125.8L843.4,0M930.1,700L936.6,636.6L941.8,563.3L944.8,490.3L945.8,417.5L944.8,344.7L941.8,271.7L936.6,198.4L929.1,125.8L919.2,55.7L909,0M1006.1,700L1015.9,636.6L1023.6,563.3L1028.1,490.3L1029.6,417.5L1028.1,344.7L1023.6,271.7L1015.9,198.4L1004.6,125.8L989.8,55.7L974.4,0M1082.1,700L1095.2,636.6L1105.5,563.3L1111.5,490.3L1113.5,417.5L1111.5,344.7L1105.5,271.7L1095.2,198.4L1080.2,125.8L1060.3,55.7L1039.9,0M1158.3,700L1165.9,673.1L1174.5,636.6L1187.3,563.3L1194.8,490.3L1197.3,417.5L1194.8,344.7L1187.3,271.7L1174.5,198.4L1165.9,161.9L1155.7,125.8L1144,90.3L1130.9,55.7L1116.4,22.3L1105.6,0M1200,52.9L1184.1,22.3L1171.2,0M0,612.1L2.1,612.1L15.5,612.1L28.9,612.1L42.3,612.1L55.6,612.1L69,612.1L82.4,612.1L95.8,612.1L109.2,612.1L122.5,612.1L135.9,612.1L149.3,612.1L162.7,612.1L176.1,612.1L189.4,612.1L202.8,612.1L216.2,612.1L229.6,612.1L242.9,612.1L256.3,612.1L269.7,612.1L283.1,612.1L296.5,612.1L309.8,612.1L323.2,612.1L336.6,612.1L350,612.1L363.3,612.1L376.7,612.1L390.1,612.1L403.5,612.1L416.9,612.1L430.2,612.1L443.6,612.1L457,612.1L470.4,612.1L483.7,612.1L497.1,612.1L510.5,612.1L523.9,612.1L537.3,612.1L550.6,612.1L564,612.1L577.4,612.1L590.8,612.1L604.1,612.1L617.5,612.1L630.9,612.1L644.3,612.1L657.7,612.1L671,612.1L684.4,612.1L697.8,612.1L711.2,612.1L724.5,612.1L737.9,612.1L751.3,612.1L764.7,612.1L778.1,612.1L791.4,612.1L804.8,612.1L818.2,612.1L831.6,612.1L844.9,612.1L858.3,612.1L871.7,612.1L885.1,612.1L898.5,612.1L911.8,612.1L925.2,612.1L938.6,612.1L952,612.1L965.3,612.1L978.7,612.1L992.1,612.1L1005.5,612.1L1018.9,612.1L1032.2,612.1L1045.6,612.1L1059,612.1L1072.4,612.1L1085.7,612.1L1099.1,612.1L1112.5,612.1L1125.9,612.1L1139.3,612.1L1152.6,612.1L1166,612.1L1179.4,612.1L1192.8,612.1L1200,612.1M0,514.6L3.6,514.6L17.5,514.6L31.3,514.6L45.1,514.6L58.9,514.6L72.8,514.6L86.6,514.6L100.4,514.6L114.3,514.6L128.1,514.6L141.9,514.6L155.8,514.6L169.6,514.6L183.4,514.6L197.2,514.6L211.1,514.6L224.9,514.6L238.7,514.6L252.6,514.6L266.4,514.6L280.2,514.6L294,514.6L307.9,514.6L321.7,514.6L335.5,514.6L349.4,514.6L363.2,514.6L377,514.6L390.8,514.6L404.7,514.6L418.5,514.6L432.3,514.6L446.2,514.6L460,514.6L473.8,514.6L487.6,514.6L501.5,514.6L515.3,514.6L529.1,514.6L543,514.6L556.8,514.6L570.6,514.6L584.4,514.6L598.3,514.6L612.1,514.6L625.9,514.6L639.8,514.6L653.6,514.6L667.4,514.6L681.3,514.6L695.1,514.6L708.9,514.6L722.7,514.6L736.6,514.6L750.4,514.6L764.2,514.6L778.1,514.6L791.9,514.6L805.7,514.6L819.5,514.6L833.4,514.6L847.2,514.6L861,514.6L874.9,514.6L888.7,514.6L902.5,514.6L916.3,514.6L930.2,514.6L944,514.6L957.8,514.6L971.7,514.6L985.5,514.6L999.3,514.6L1013.1,514.6L1027,514.6L1040.8,514.6L1054.6,514.6L1068.5,514.6L1082.3,514.6L1096.1,514.6L1109.9,514.6L1123.8,514.6L1137.6,514.6L1151.4,514.6L1165.3,514.6L1179.1,514.6L1192.9,514.6L1200,514.6M0,417.5L9.4,417.5L23.4,417.5L37.4,417.5L51.3,417.5L65.3,417.5L79.3,417.5L93.3,417.5L107.2,417.5L121.2,417.5L135.2,417.5L149.2,417.5L163.1,417.5L177.1,417.5L191.1,417.5L205.1,417.5L219,417.5L233,417.5L247,417.5L261,417.5L274.9,417.5L288.9,417.5L302.9,417.5L316.9,417.5L330.8,417.5L344.8,417.5L358.8,417.5L372.8,417.5L386.7,417.5L400.7,417.5L414.7,417.5L428.7,417.5L442.6,417.5L456.6,417.5L470.6,417.5L484.6,417.5L498.6,417.5L512.5,417.5L526.5,417.5L540.5,417.5L554.5,417.5L568.4,417.5L582.4,417.5L596.4,417.5L610.4,417.5L624.3,417.5L638.3,417.5L652.3,417.5L666.3,417.5L680.2,417.5L694.2,417.5L708.2,417.5L722.2,417.5L736.1,417.5L750.1,417.5L764.1,417.5L778.1,417.5L792,417.5L806,417.5L820,417.5L834,417.5L847.9,417.5L861.9,417.5L875.9,417.5L889.9,417.5L903.8,417.5L917.8,417.5L931.8,417.5L945.8,417.5L959.7,417.5L973.7,417.5L987.7,417.5L1001.7,417.5L1015.6,417.5L1029.6,417.5L1043.6,417.5L1057.6,417.5L1071.5,417.5L1085.5,417.5L1099.5,417.5L1113.5,417.5L1127.4,417.5L1141.4,417.5L1155.4,417.5L1169.4,417.5L1183.3,417.5L1197.3,417.5L1200,417.5M0,320.4L3.6,320.4L17.5,320.4L31.3,320.4L45.1,320.4L58.9,320.4L72.8,320.4L86.6,320.4L100.4,320.4L114.3,320.4L128.1,320.4L141.9,320.4L155.8,320.4L169.6,320.4L183.4,320.4L197.2,320.4L211.1,320.4L224.9,320.4L238.7,320.4L252.6,320.4L266.4,320.4L280.2,320.4L294,320.4L307.9,320.4L321.7,320.4L335.5,320.4L349.4,320.4L363.2,320.4L377,320.4L390.8,320.4L404.7,320.4L418.5,320.4L432.3,320.4L446.2,320.4L460,320.4L473.8,320.4L487.6,320.4L501.5,320.4L515.3,320.4L529.1,320.4L543,320.4L556.8,320.4L570.6,320.4L584.4,320.4L598.3,320.4L612.1,320.4L625.9,320.4L639.8,320.4L653.6,320.4L667.4,320.4L681.3,320.4L695.1,320.4L708.9,320.4L722.7,320.4L736.6,320.4L750.4,320.4L764.2,320.4L778.1,320.4L791.9,320.4L805.7,320.4L819.5,320.4L833.4,320.4L847.2,320.4L861,320.4L874.9,320.4L888.7,320.4L902.5,320.4L916.3,320.4L930.2,320.4L944,320.4L957.8,320.4L971.7,320.4L985.5,320.4L999.3,320.4L1013.1,320.4L1027,320.4L1040.8,320.4L1054.6,320.4L1068.5,320.4L1082.3,320.4L1096.1,320.4L1109.9,320.4L1123.8,320.4L1137.6,320.4L1151.4,320.4L1165.3,320.4L1179.1,320.4L1192.9,320.4L1200,320.4M0,222.9L2.1,222.9L15.5,222.9L28.9,222.9L42.3,222.9L55.6,222.9L69,222.9L82.4,222.9L95.8,222.9L109.2,222.9L122.5,222.9L135.9,222.9L149.3,222.9L162.7,222.9L176.1,222.9L189.4,222.9L202.8,222.9L216.2,222.9L229.6,222.9L242.9,222.9L256.3,222.9L269.7,222.9L283.1,222.9L296.5,222.9L309.8,222.9L323.2,222.9L336.6,222.9L350,222.9L363.3,222.9L376.7,222.9L390.1,222.9L403.5,222.9L416.9,222.9L430.2,222.9L443.6,222.9L457,222.9L470.4,222.9L483.7,222.9L497.1,222.9L510.5,222.9L523.9,222.9L537.3,222.9L550.6,222.9L564,222.9L577.4,222.9L590.8,222.9L604.1,222.9L617.5,222.9L630.9,222.9L644.3,222.9L657.7,222.9L671,222.9L684.4,222.9L697.8,222.9L711.2,222.9L724.5,222.9L737.9,222.9L751.3,222.9L764.7,222.9L778.1,222.9L791.4,222.9L804.8,222.9L818.2,222.9L831.6,222.9L844.9,222.9L858.3,222.9L871.7,222.9L885.1,222.9L898.5,222.9L911.8,222.9L925.2,222.9L938.6,222.9L952,222.9L965.3,222.9L978.7,222.9L992.1,222.9L1005.5,222.9L1018.9,222.9L1032.2,222.9L1045.6,222.9L1059,222.9L1072.4,222.9L1085.7,222.9L1099.1,222.9L1112.5,222.9L1125.9,222.9L1139.3,222.9L1152.6,222.9L1166,222.9L1179.4,222.9L1192.8,222.9L1200,222.9M0,125.8L10.2,125.8L22.7,125.8L35.3,125.8L47.9,125.8L60.5,125.8L73.1,125.8L85.7,125.8L98.3,125.8L110.9,125.8L123.4,125.8L136,125.8L148.6,125.8L161.2,125.8L173.8,125.8L186.4,125.8L199,125.8L211.6,125.8L224.2,125.8L236.7,125.8L249.3,125.8L261.9,125.8L274.5,125.8L287.1,125.8L299.7,125.8L312.3,125.8L324.9,125.8L337.5,125.8L350,125.8L362.6,125.8L375.2,125.8L387.8,125.8L400.4,125.8L413,125.8L425.6,125.8L438.2,125.8L450.8,125.8L463.3,125.8L475.9,125.8L488.5,125.8L501.1,125.8L513.7,125.8L526.3,125.8L538.9,125.8L551.5,125.8L564,125.8L576.6,125.8L589.2,125.8L601.8,125.8L614.4,125.8L627,125.8L639.6,125.8L652.2,125.8L664.8,125.8L677.3,125.8L689.9,125.8L702.5,125.8L715.1,125.8L727.7,125.8L740.3,125.8L752.9,125.8L765.5,125.8L778.1,125.8L790.6,125.8L803.2,125.8L815.8,125.8L828.4,125.8L841,125.8L853.6,125.8L866.2,125.8L878.8,125.8L891.4,125.8L903.9,125.8L916.5,125.8L929.1,125.8L941.7,125.8L954.3,125.8L966.9,125.8L979.5,125.8L992.1,125.8L1004.6,125.8L1017.2,125.8L1029.8,125.8L1042.4,125.8L1055,125.8L1067.6,125.8L1080.2,125.8L1092.8,125.8L1105.4,125.8L1117.9,125.8L1130.5,125.8L1143.1,125.8L1155.7,125.8L1168.3,125.8L1180.9,125.8L1193.5,125.8L1200,125.8M0,33.3L11.3,33.3L22.7,33.3L34.2,33.3L45.6,33.3L57.1,33.3L68.5,33.3L79.9,33.3L91.4,33.3L102.8,33.3L114.3,33.3L125.7,33.3L137.2,33.3L148.6,33.3L160.1,33.3L171.5,33.3L182.9,33.3L194.4,33.3L205.8,33.3L217.3,33.3L228.7,33.3L240.2,33.3L251.6,33.3L263.1,33.3L274.5,33.3L285.9,33.3L297.4,33.3L308.8,33.3L320.3,33.3L331.7,33.3L343.2,33.3L354.6,33.3L366.1,33.3L377.5,33.3L388.9,33.3L400.4,33.3L411.8,33.3L423.3,33.3L434.7,33.3L446.2,33.3L457.6,33.3L469.1,33.3L480.5,33.3L491.9,33.3L503.4,33.3L514.8,33.3L526.3,33.3L537.7,33.3L549.2,33.3L560.6,33.3L572.1,33.3L583.5,33.3L594.9,33.3L606.4,33.3L617.8,33.3L629.3,33.3L640.7,33.3L652.2,33.3L663.6,33.3L675.1,33.3L686.5,33.3L697.9,33.3L709.4,33.3L720.8,33.3L732.3,33.3L743.7,33.3L755.2,33.3L766.6,33.3L778.1,33.3L789.5,33.3L800.9,33.3L812.4,33.3L823.8,33.3L835.3,33.3L846.7,33.3L858.2,33.3L869.6,33.3L881.1,33.3L892.5,33.3L903.9,33.3L915.4,33.3L926.8,33.3L938.3,33.3L949.7,33.3L961.2,33.3L972.6,33.3L984.1,33.3L995.5,33.3L1006.9,33.3L1018.4,33.3L1029.8,33.3L1041.3,33.3L1052.7,33.3L1064.2,33.3L1075.6,33.3L1087.1,33.3L1098.5,33.3L1109.9,33.3L1121.4,33.3L1132.8,33.3L1144.3,33.3L1155.7,33.3L1167.2,33.3L1178.6,33.3L1190,33.3L1200,33.3","pos":{"thirteen":[379,164,379,164],"canada":[333,82,333,82],"newspain":[221,275,221,275],"caribbean":[338,277,341,278],"haiti":[385,298,382,297],"granada":[370,385,370,385],"peru":[361,489,361,489],"plata":[449,632,449,632],"brazil":[523,495,523,495],"westafrica":[734,353,734,353],"britain":[762,83,771,76],"ireland":[713,71,740,76],"france":[794,123,791,116],"spain":[771,169,763,158],"portugal":[721,159,734,161],"lowlands":[805,57,802,83],"german":[837,95,829,91],"italy":[838,149,844,142],"austria":[881,121,863,110],"poland":[887,71,879,79],"russia":[967,57,967,57],"scandinavia":[851,34,846,27],"greece":[893,172,892,168],"ottoman":[949,164,949,164],"egypt":[945,242,945,242]}};
+/* ===== Spark of Revolution — game data and rules (no DOM) ===== */
+var COLORS = ['#ef5b43', '#f2c94c', '#56b6ef', '#5cc983', '#bb94f2', '#f28dbd'];
+
+var REG = {
+  thirteen:   {name:'Thirteen Colonies', short:'13 Colonies', pop:3, resist:.35, area:'am', tags:['colony','urban'], hist:'Won independence as the United States; the Treaty of Paris (1783) recognized it.'},
+  canada:     {name:'British North America', short:'Canada', pop:1, resist:.55, area:'am', tags:['colony'], hist:'Stayed British. Loyalists moved north after 1783, and the Rebellions of 1837–38 failed.'},
+  newspain:   {name:'New Spain (Mexico)', short:'New Spain', pop:3, resist:.42, area:'am', tags:['colony','peasant'], hist:'Hidalgo’s 1810 revolt was crushed, but Mexico won independence in 1821.'},
+  caribbean:  {name:'Caribbean Islands', short:'Caribbean', pop:2, resist:.65, area:'am', tags:['colony','slavery'], hist:'Mostly stayed colonies. Britain abolished slavery in 1833–34; Spain held Cuba until 1898.'},
+  haiti:      {name:'Saint-Domingue (Haiti)', short:'St-Domingue', pop:1, resist:.5, area:'am', tags:['colony','slavery'], hist:'Enslaved people overthrew French rule. Haiti declared independence in 1804.'},
+  granada:    {name:'New Granada', short:'New Granada', pop:2, resist:.38, area:'am', tags:['colony'], hist:'Bolívar freed it by 1819–22 as Gran Colombia, which later split into Colombia, Venezuela, and Ecuador.'},
+  peru:       {name:'Peru', short:'Peru', pop:2, resist:.48, area:'am', tags:['colony','peasant'], hist:'A royalist stronghold. San Martín declared independence in 1821; Bolívar’s forces finished the war in 1824.'},
+  plata:      {name:'Río de la Plata', short:'Río de la Plata', pop:1, resist:.32, area:'am', tags:['colony'], hist:'Formed a junta in 1810 and declared independence in 1816 (today’s Argentina).'},
+  brazil:     {name:'Brazil', short:'Brazil', pop:3, resist:.45, area:'am', tags:['colony','slavery'], hist:'The Portuguese court fled here in 1808. Brazil became independent in 1822 under Pedro I; slavery lasted until 1888.'},
+  westafrica: {name:'West Africa', short:'W. Africa', pop:3, resist:.5, area:'af', tags:['slavery'], hist:'Britain banned the slave trade in 1807. Freed people settled Sierra Leone; European colonization grew later.'},
+  britain:    {name:'Britain', short:'Britain', pop:4, resist:.7, area:'eu', tags:['crown','urban'], hist:'Avoided revolution and reformed slowly, as with the Reform Act of 1832.'},
+  ireland:    {name:'Ireland', short:'Ireland', pop:2, resist:.6, area:'eu', tags:['nation','peasant'], hist:'The United Irishmen rising of 1798 was crushed. Ireland joined the United Kingdom in 1801.'},
+  france:     {name:'France', short:'France', pop:5, resist:.72, area:'eu', tags:['crown','urban','peasant'], hist:'Revolution in 1789, a republic, then Napoleon’s empire. Kings returned in 1815; revolutions again in 1830 and 1848.'},
+  spain:      {name:'Spain', short:'Spain', pop:3, resist:.65, area:'eu', tags:['crown','peasant'], hist:'A liberal revolution in 1820 was crushed by French troops in 1823.'},
+  portugal:   {name:'Portugal', short:'Portugal', pop:2, resist:.55, area:'eu', tags:['crown'], hist:'A liberal revolution in 1820 led to civil war; it ended in 1834 with a constitutional monarchy.'},
+  lowlands:   {name:'Low Countries', short:'Low Ctrs.', pop:2, resist:.56, area:'eu', tags:['urban','nation'], hist:'Belgium broke away from the Netherlands in the revolution of 1830.'},
+  german:     {name:'German States', short:'German St.', pop:4, resist:.66, area:'eu', tags:['nation','urban'], hist:'The 1848 revolutions and the Frankfurt Parliament failed. Germany unified only in 1871.'},
+  italy:      {name:'Italian States', short:'Italian St.', pop:4, resist:.7, area:'eu', tags:['nation'], hist:'Carbonari risings (1820–21) and the 1848 revolutions were crushed. Italy unified in 1861.'},
+  austria:    {name:'Austrian Empire', short:'Austria', pop:4, resist:.8, area:'eu', tags:['crown','nation'], hist:'Revolts in Vienna and Hungary in 1848 were crushed, with Russian help in 1849.'},
+  poland:     {name:'Poland', short:'Poland', pop:3, resist:.7, area:'eu', tags:['nation','peasant'], hist:'Divided among its neighbors by 1795. The November Uprising of 1830–31 was crushed by Russia.'},
+  russia:     {name:'Russia', short:'Russia', pop:5, resist:.85, area:'eu', tags:['crown','peasant'], hist:'The Decembrist revolt of 1825 was crushed. Serfdom lasted until 1861.'},
+  scandinavia:{name:'Scandinavia', short:'Scandinavia', pop:2, resist:.45, area:'eu', tags:['crown'], hist:'Norway adopted one of Europe’s most liberal constitutions in 1814.'},
+  greece:     {name:'Greece', short:'Greece', pop:1, resist:.55, area:'eu', tags:['nation'], hist:'Rose against the Ottomans in 1821 and won independence by 1830–32, with British, French, and Russian help.'},
+  ottoman:    {name:'Ottoman Empire', short:'Ottomans', pop:4, resist:.7, area:'me', tags:['crown'], hist:'Lost Greece and faced nationalist revolts. It began the Tanzimat reforms in 1839.'},
+  egypt:      {name:'Egypt', short:'Egypt', pop:2, resist:.6, area:'me', tags:['peasant'], hist:'Muhammad Ali built a nearly independent state inside the Ottoman Empire.'}
+};
+var RIDS = Object.keys(REG);
+
+var LINKS = [
+  ['thirteen','canada','L'],['thirteen','caribbean','S'],['thirteen','britain','S'],['thirteen','france','S'],['thirteen','newspain','L'],['thirteen','haiti','S'],
+  ['canada','britain','S'],
+  ['newspain','caribbean','S'],['newspain','granada','L'],
+  ['caribbean','haiti','S'],['caribbean','granada','S'],['caribbean','spain','S'],['caribbean','britain','S'],['caribbean','westafrica','S'],
+  ['haiti','france','S'],['haiti','granada','S'],
+  ['granada','peru','L'],['peru','plata','L'],['peru','brazil','L'],['plata','brazil','L'],['plata','spain','S'],
+  ['brazil','portugal','S'],['brazil','westafrica','S'],
+  ['westafrica','portugal','S'],['westafrica','britain','S'],
+  ['britain','ireland','S'],['britain','france','S'],['britain','lowlands','S'],['britain','scandinavia','S'],
+  ['ireland','france','S'],
+  ['france','spain','L'],['france','lowlands','L'],['france','german','L'],['france','italy','L'],
+  ['spain','portugal','L'],['spain','italy','S'],
+  ['lowlands','german','L'],['german','austria','L'],['german','poland','L'],['german','scandinavia','S'],
+  ['italy','austria','L'],['italy','greece','S'],
+  ['austria','poland','L'],['austria','ottoman','L'],['poland','russia','L'],
+  ['russia','scandinavia','L'],['russia','ottoman','L'],
+  ['greece','ottoman','L'],['ottoman','egypt','L'],['egypt','greece','S']
+];
+var NB = {};
+RIDS.forEach(function(r){ NB[r] = []; });
+LINKS.forEach(function(l){ NB[l[0]].push([l[1], l[2]]); NB[l[1]].push([l[0], l[2]]); });
+
+var TAGNAME = {colony:'Colonies', urban:'Cities', slavery:'Slave societies', nation:'Divided nations', crown:'Old monarchies', peasant:'Peasant lands'};
+
+var CRADLES = {
+  thirteen:'Sons of Liberty', france:'The Jacobins', haiti:'Army of Louverture', newspain:'Hidalgo’s Insurgents',
+  granada:'Bolívar’s Patriots', plata:'Army of the Andes', ireland:'United Irishmen', italy:'The Carbonari',
+  greece:'Filiki Eteria', poland:'Polish Patriots'
+};
+
+// Head start for cradles that are small or isolated, so every start can win
+var CRADLE_EDGE = {thirteen:-1, france:-1.5, italy:.5, haiti:4, newspain:3, granada:3.75, plata:3.25, ireland:4.25, greece:7, poland:4.75};
+
+var UP = [
+  // Ideals — make the movement appealing to certain places, but draw attention
+  {id:'natural', effect:'', hist:'Thomas Jefferson borrowed Locke’s ideas for the Declaration of Independence in 1776.', track:'ideal', name:'Natural Rights', cost:5, appeal:{all:.03, colony:.04, urban:.04}, noto:1,
+   desc:'John Locke: people are born with rights to life, liberty, and property.'},
+  {id:'sovereign', effect:'', hist:'Rousseau’s The Social Contract (1762) said legitimate power comes from the general will of the people.', track:'ideal', name:'Popular Sovereignty', cost:7, req:'natural', appeal:{crown:.05, urban:.04, nation:.02}, noto:2,
+   desc:'Rousseau: power belongs to the people, not to kings.'},
+  {id:'liberte', effect:'', hist:'The motto of the French Revolution. It inspired movements far beyond France.', track:'ideal', name:'Liberty, Equality, Fraternity', cost:9, req:'sovereign', appeal:{crown:.07, urban:.05, peasant:.04}, noto:3,
+   desc:'The radical cry of 1789. Inspires millions and terrifies every monarch.'},
+  {id:'notax', effect:'', hist:'Colonists protested the Stamp Act in 1765 and dumped British tea into Boston Harbor in 1773.', track:'ideal', name:'No Taxation Without Representation', cost:5, appeal:{colony:.09}, noto:1,
+   desc:'Colonists should not be taxed by a government they have no voice in.'},
+  {id:'abolition', effect:'', hist:'Haiti’s revolution ended slavery there. Britain abolished it in most of its empire in 1833.', track:'ideal', name:'Abolition of Slavery', cost:7, appeal:{slavery:.15, urban:.03, colony:-.02}, noto:2,
+   desc:'Freedom for the enslaved. Powerful in slave societies; planter elites resist it.'},
+  {id:'nation', effect:'', hist:'Greeks, Italians, Poles, and Germans each dreamed of uniting their people in one nation.', track:'ideal', name:'Nationalism', cost:7, appeal:{nation:.11}, noto:2,
+   desc:'People who share a language and culture deserve their own country.'},
+  {id:'land', effect:'', hist:'French peasants burned records of feudal dues in the Great Fear of 1789. Hidalgo’s army drew on poor farmers.', track:'ideal', name:'Land to the Peasants', cost:7, appeal:{peasant:.09}, noto:2,
+   desc:'End feudal dues and give farmland to those who work it.'},
+  {id:'consti', effect:'', hist:'Many uprisings of the 1820s and 1830s demanded a written constitution rather than an end to kings.', track:'ideal', name:'Constitutional Monarchy', cost:6, appeal:{crown:.04, all:.01}, noto:-2,
+   desc:'Keep the king, but limit his power with a written constitution. Moderate, so monarchs worry less.'},
+  // Spread — how ideas travel
+  {id:'pamphlet', effect:'Support grows faster in every region where you already have followers.', hist:'Common Sense sold over 100,000 copies in its first months.', track:'spread', name:'Pamphlets', cost:5, desc:'Cheap printed arguments, like Paine’s Common Sense (1776). Ideas grow faster where you already have support.'},
+  {id:'press', effect:'Support grows much faster everywhere you have followers.', hist:'Revolutionary Paris had hundreds of newspapers by 1790.', track:'spread', name:'Newspapers & Printing Presses', cost:9, req:'pamphlet', desc:'Regular papers keep readers arguing every week. Much faster growth.'},
+  {id:'corr', effect:'Ideas cross land borders twice as fast.', hist:'Samuel Adams helped start committees in 1772 that linked the colonies by letter.', track:'spread', name:'Committees of Correspondence', cost:6, desc:'Letter networks link towns. Ideas cross land borders faster.'},
+  {id:'ships', effect:'Ideas cross sea routes nearly three times as fast.', hist:'News of the American Revolution reached France, Ireland, and the Caribbean by ship.', track:'spread', name:'Sailors & Merchant Ships', cost:6, desc:'Sailors carry news across the Atlantic. Ideas cross sea routes faster.'},
+  {id:'secret', effect:'Strict governments slow your growth only half as much.', hist:'The Carbonari plotted in Italy, and the Filiki Eteria planned the Greek revolt in secret.', track:'spread', name:'Secret Societies', cost:8, desc:'Hidden clubs like the Carbonari and Masonic lodges. Halves the effect of strict governments on your growth.'},
+  {id:'exiles', effect:'Each era, gain 5% support in two random regions anywhere on the map.', hist:'Bolívar wrote his famous Jamaica Letter in exile in 1815; Polish refugees kept their cause alive in Paris.', track:'spread', name:'Exiles & Émigrés', cost:8, desc:'Refugees spread your ideas far away. Each era, plant support in two distant regions.'},
+  // Defense — surviving the Old Order
+  {id:'underground', effect:'Crackdowns remove about a third less of your support.', hist:'Banned writings were printed abroad and smuggled across borders.', track:'resil', name:'Underground Press', cost:6, desc:'Print in secret. Censorship and arrests remove about a third less of your support.'},
+  {id:'militia', effect:'Revolutions need 50% support instead of 55%. Your free regions are 30% less likely to be crushed.', hist:'Minutemen in Massachusetts and the National Guard in Paris armed ordinary citizens.', track:'resil', name:'Citizen Militias', cost:7, desc:'Armed citizens. Revolutions need 50% support instead of 55%, and are harder to crush.'},
+  {id:'alliance', effect:'Your free regions are 40% less likely to be crushed.', hist:'France joined the American war in 1778. Britain, France, and Russia helped Greece win at Navarino in 1827.', track:'resil', name:'Foreign Alliance', cost:9, desc:'A foreign power backs you, as France backed the Americans in 1778. Your revolutions are much harder to crush.'},
+  {id:'martyrs', effect:'Earn 1 Momentum for every 6% of support the Old Order removes from you.', hist:'Executions of leaders like Hidalgo (1811) turned them into symbols that drew new followers.', track:'resil', name:'Martyrs & Memory', cost:5, desc:'Every crackdown creates martyrs. Gain Momentum when the Old Order removes your support.'},
+  {id:'leader', effect:'+2 Momentum every era. Your campaigns give +15% instead of +10%.', hist:'Washington, Louverture, Bolívar, and Lafayette became famous far beyond their homelands.', track:'resil', name:'Charismatic Leader', cost:8, desc:'A famous voice for the cause. +2 Momentum each era, and campaigns win more support.'}
+];
+var UPI = {}; UP.forEach(function(u){ UPI[u.id] = u; });
+
+var EUROPE_CROWN = ['britain','france','spain','portugal','austria','russia','scandinavia'];
+var LATAM = ['newspain','granada','peru','plata','brazil'];
+
+var ERAS = [
+  {id:'e1', year:'1775', title:'The Shot Heard Round the World',
+   body:'Colonists fought British soldiers at Lexington and Concord in 1775. In 1776 the Declaration of Independence argued that governments get their power from the consent of the governed.',
+   effect:'Resistance in the Thirteen Colonies drops. Every movement starts with 4 extra Momentum.',
+   ask:'Why would an idea first catch fire in a colony far from the king?',
+   fx:function(S){ S.reg.thirteen.resist = Math.max(.1, S.reg.thirteen.resist - .15); S.groups.forEach(function(g){ g.mom += 4; }); }},
+  {id:'e2', year:'1789', title:'The Fall of the Bastille',
+   body:'France was bankrupt, partly from paying for the American war. When the Estates-General met, the Third Estate declared itself the National Assembly. On July 14, 1789, Parisians stormed the Bastille.',
+   effect:'Resistance in France drops sharply. Every movement with support in France gains 8% there. Old Order Reaction rises as monarchs grow alarmed.',
+   ask:'How did the American Revolution help cause the French Revolution?',
+   fx:function(S){ S.reg.france.resist = Math.max(.15, S.reg.france.resist - .3); boostWhere(S, ['france'], 8, null); S.reaction += 8; }},
+  {id:'e3', year:'1791', title:'Revolt in Saint-Domingue',
+   body:'Enslaved people on France’s richest sugar colony rose up in 1791. Led by Toussaint Louverture and later Jean-Jacques Dessalines, they defeated French, Spanish, and British armies.',
+   effect:'Resistance in Saint-Domingue collapses. Movements that adopted Abolition gain 10% there and 5% in the Caribbean and Brazil.',
+   ask:'Why did the Haitian Revolution frighten slaveholders across the Americas?',
+   fx:function(S){ S.reg.haiti.resist = Math.max(.1, S.reg.haiti.resist - .35); S.groups.forEach(function(g, i){ if (has(g,'abolition')) { addShare(S,'haiti',i,10); addShare(S,'caribbean',i,5); addShare(S,'brazil',i,5); } }); }},
+  {id:'e4', year:'1804', title:'Napoleon’s Empire',
+   body:'Napoleon crowned himself Emperor in 1804. His armies toppled old rulers across Europe and spread the Napoleonic Code, but foreign rule also stirred national pride against France.',
+   effect:'Resistance drops in the German states, Italian states, Low Countries, Spain, and Austria. Nationalist movements gain 5% in divided nations. Reaction falls while monarchs fight Napoleon.',
+   ask:'Did Napoleon spread the ideas of the Revolution or betray them?',
+   fx:function(S){ ['german','italy','lowlands','spain','austria'].forEach(function(r){ S.reg[r].resist = Math.max(.1, S.reg[r].resist - .1); });
+     S.groups.forEach(function(g, i){ if (has(g,'nation')) RIDS.forEach(function(r){ if (REG[r].tags.indexOf('nation') >= 0) addShare(S, r, i, 5); }); });
+     S.reaction = Math.max(0, S.reaction - 10); }},
+  {id:'e5', year:'1808', title:'Crisis of the Spanish Empire',
+   body:'Napoleon invaded Spain in 1808 and put his brother on the throne. With no legitimate king, creole elites in the Americas formed their own juntas. In 1810 Father Miguel Hidalgo called Mexicans to revolt with the Grito de Dolores.',
+   effect:'Resistance drops in Spain and across Spanish America. Portugal’s royal court flees to Brazil, weakening control there.',
+   ask:'Why did a war in Europe open the door to independence in Latin America?',
+   fx:function(S){ ['spain','newspain','granada','peru','plata'].forEach(function(r){ S.reg[r].resist = Math.max(.1, S.reg[r].resist - .2); }); S.reg.brazil.resist = Math.max(.1, S.reg.brazil.resist - .1); }},
+  {id:'e6', year:'1815', title:'The Congress of Vienna',
+   body:'After Napoleon’s defeat, Europe’s monarchs met in Vienna to restore the old order. Austria’s Metternich led a Concert of Europe that sent armies to crush liberal and nationalist uprisings.',
+   effect:'Old Order Reaction surges. Europe’s monarchies grow stricter. This era, every free region in Europe faces a much higher risk of being crushed.',
+   ask:'Why would kings in different countries cooperate to stop revolutions?',
+   fx:function(S){ S.reaction += 25; EUROPE_CROWN.forEach(function(r){ S.reg[r].resist = Math.min(.95, S.reg[r].resist + .1); }); S.vienna = true; }},
+  {id:'e7', year:'1821', title:'Liberators and Patriots',
+   body:'Simón Bolívar and José de San Martín freed much of South America. Mexico won independence in 1821 and Brazil in 1822, and Greeks rose against the Ottoman Empire. In 1823 the Monroe Doctrine warned Europe to stay out of the Americas.',
+   effect:'Resistance drops across Latin America and in Greece. For the rest of the game, free regions in the Americas are half as likely to be crushed.',
+   ask:'Why did the United States issue the Monroe Doctrine?',
+   fx:function(S){ LATAM.forEach(function(r){ S.reg[r].resist = Math.max(.1, S.reg[r].resist - .1); }); S.reg.greece.resist = Math.max(.1, S.reg.greece.resist - .25); S.monroe = true; }},
+  {id:'e8', year:'1830', title:'The July Revolution',
+   body:'Parisians overthrew King Charles X in three days of fighting. The spark spread: Belgium broke from the Netherlands, and Poles rose against Russia. In 1833 Britain passed the Slavery Abolition Act.',
+   effect:'Resistance drops in France, the Low Countries, Poland, and the Caribbean. Movements that adopted Abolition gain 6% in the Caribbean and West Africa.',
+   ask:'Why did revolution in Paris inspire uprisings in other countries?',
+   fx:function(S){ ['france','lowlands','poland','caribbean'].forEach(function(r){ S.reg[r].resist = Math.max(.1, S.reg[r].resist - .15); });
+     S.groups.forEach(function(g, i){ if (has(g,'abolition')) { addShare(S,'caribbean',i,6); addShare(S,'westafrica',i,6); } }); }},
+  {id:'e9', year:'1848', title:'Springtime of Peoples',
+   body:'Revolutions broke out in France, the German states, the Austrian Empire, and the Italian states, demanding constitutions, voting rights, and national unity. Most were crushed within a year.',
+   effect:'Resistance falls across Europe and every movement gains 6% wherever it already has a foothold in Europe. But Reaction rises too. This is the final era.',
+   ask:'Why did so many revolutions in 1848 fail?',
+   fx:function(S){ RIDS.forEach(function(r){ if (REG[r].area === 'eu') S.reg[r].resist = Math.max(.1, S.reg[r].resist - .2); });
+     S.groups.forEach(function(g, i){ RIDS.forEach(function(r){ if (REG[r].area === 'eu' && S.reg[r].owner == null && S.reg[r].s[i] > 0) addShare(S, r, i, 6); }); });
+     S.reaction += 15; }}
+];
+var ERAI = {}; ERAS.forEach(function(e){ ERAI[e.id] = e; });
+var LENGTHS = {
+  short: {label:'Short', eras:['e1','e2','e3','e5','e6','e9'], note:'6 eras · about 30 min with 4 groups'},
+  full:  {label:'Full',  eras:['e1','e2','e3','e4','e5','e6','e7','e8','e9'], note:'9 eras · about 45 min with 4 groups'}
+};
+
+var QUIZ = [
+  {q:'Who wrote the pamphlet Common Sense (1776)?', a:['Thomas Paine','Thomas Jefferson','John Adams','Benjamin Franklin'], c:0, why:'Paine’s plain-language pamphlet convinced many colonists to support independence.'},
+  {q:'Which philosopher argued that people have natural rights to life, liberty, and property?', a:['John Locke','Thomas Hobbes','Voltaire','Niccolò Machiavelli'], c:0, why:'Locke’s ideas shaped the Declaration of Independence.'},
+  {q:'Which event on July 14, 1789 became the symbol of the French Revolution?', a:['The storming of the Bastille','The Tennis Court Oath','The execution of Louis XVI','Napoleon’s coronation'], c:0, why:'Parisians seized the Bastille fortress, a symbol of royal power.'},
+  {q:'In 1789, the Third Estate in France was made up of…', a:['Commoners: everyone not clergy or nobility','The clergy','The nobility','The king’s family'], c:0, why:'The Third Estate was about 97% of the population but had little power.'},
+  {q:'Who was the most famous leader of the Haitian Revolution?', a:['Toussaint Louverture','Simón Bolívar','Miguel Hidalgo','José de San Martín'], c:0, why:'A formerly enslaved man, Louverture became a brilliant general and leader.'},
+  {q:'Why is the Haitian Revolution unique?', a:['It created the first nation founded after a successful revolt by enslaved people','It was the first revolution in the Americas','It was led by Spanish nobles','It ended without any fighting'], c:0, why:'Haiti declared independence in 1804 after enslaved people defeated French forces.'},
+  {q:'Which country helped the Americans win at Yorktown in 1781?', a:['France','Spain','Russia','The Netherlands'], c:0, why:'French troops and the French navy trapped the British army at Yorktown.'},
+  {q:'Simón Bolívar is remembered as…', a:['“The Liberator” of northern South America','The first emperor of Brazil','The leader of the Greek revolt','The author of the Napoleonic Code'], c:0, why:'Bolívar led independence wars in present-day Venezuela, Colombia, Ecuador, Peru, and Bolivia.'},
+  {q:'Who led independence armies in Argentina, Chile, and Peru?', a:['José de San Martín','Toussaint Louverture','Agustín de Iturbide','Pedro I'], c:0, why:'San Martín crossed the Andes to free Chile, then moved on Peru.'},
+  {q:'Father Miguel Hidalgo’s “Grito de Dolores” (1810) began the independence movement in…', a:['Mexico','Argentina','Brazil','Haiti'], c:0, why:'Hidalgo’s call to arms is celebrated as Mexico’s independence day, September 16.'},
+  {q:'How did Brazil gain independence in 1822?', a:['Pedro, the son of Portugal’s king, declared it and became emperor','Enslaved people overthrew the government','Bolívar’s army conquered it','The United States bought it'], c:0, why:'Brazil’s break with Portugal was led by a member of the royal family, so it was fairly peaceful.'},
+  {q:'What was a creole in Spanish America?', a:['A person of European descent born in the Americas','A person born in Spain','An Indigenous noble','A formerly enslaved person'], c:0, why:'Creoles were wealthy but shut out of top jobs, which went to Spanish-born peninsulares.'},
+  {q:'What was the main goal of the Congress of Vienna (1814–1815)?', a:['Restore monarchies and a balance of power after Napoleon','Spread democracy across Europe','Unify Germany','End slavery worldwide'], c:0, why:'Metternich and the great powers wanted to stop revolutions from happening again.'},
+  {q:'Which Austrian minister led Europe’s conservative order after 1815?', a:['Klemens von Metternich','Otto von Bismarck','Giuseppe Mazzini','Talleyrand'], c:0, why:'Metternich used censorship, spies, and armies to suppress liberal movements.'},
+  {q:'The Monroe Doctrine (1823) warned European powers to…', a:['Stop colonizing or interfering in the Americas','Leave the Ottoman Empire alone','End the slave trade','Stay out of Asia'], c:0, why:'It declared the Western Hemisphere closed to new European colonization.'},
+  {q:'Greece won its independence from which empire?', a:['The Ottoman Empire','The Austrian Empire','The Russian Empire','The British Empire'], c:0, why:'Greeks revolted in 1821; Britain, France, and Russia helped them win.'},
+  {q:'The revolutions of 1848 are often called…', a:['The Springtime of Peoples','The Glorious Revolution','The Reign of Terror','The Hundred Days'], c:0, why:'Uprisings spread across Europe in a few months, though most failed.'},
+  {q:'“No taxation without representation” was a slogan of…', a:['American colonists','French nobles','Haitian revolutionaries','Russian serfs'], c:0, why:'Colonists objected to taxes passed by a Parliament where they had no members.'},
+  {q:'Who led the Committee of Public Safety during the Reign of Terror?', a:['Maximilien Robespierre','Napoleon Bonaparte','Louis XVI','Marquis de Lafayette'], c:0, why:'Robespierre was himself executed in 1794 when the Terror ended.'},
+  {q:'Montesquieu is best known for the idea of…', a:['Separation of powers','The divine right of kings','The social contract with an absolute ruler','Mercantilism'], c:0, why:'Dividing power among branches keeps any one from becoming a tyrant.'},
+  {q:'Rousseau’s The Social Contract argued that legitimate power comes from…', a:['The general will of the people','God’s choice of a king','The strongest army','The Church'], c:0, why:'This idea of popular sovereignty inspired French revolutionaries.'},
+  {q:'In what year did Britain pass the Slavery Abolition Act for most of its empire?', a:['1833','1776','1807','1865'], c:0, why:'1807 banned the slave trade; the 1833 act freed enslaved people in most British colonies.'},
+  {q:'Which 1830 revolution overthrew King Charles X of France?', a:['The July Revolution','The February Revolution','The Glorious Revolution','The Velvet Revolution'], c:0, why:'Three days of street fighting in Paris brought in a constitutional king, Louis-Philippe.'},
+  {q:'In 1830, Belgium won independence from…', a:['The Netherlands','France','Spain','Austria'], c:0, why:'Belgians, mostly Catholic and French-speaking, rejected Dutch rule.'},
+  {q:'Nationalism is the belief that…', a:['People who share a language and culture should have their own nation','Kings rule by divine right','All property should be shared','Colonies should obey the mother country'], c:0, why:'Nationalism drove revolts in Greece, Italy, Poland, and the German states.'},
+  {q:'Which treaty ended the American Revolutionary War in 1783?', a:['The Treaty of Paris','The Treaty of Versailles','The Treaty of Ghent','The Treaty of Tordesillas'], c:0, why:'Britain recognized American independence in the 1783 Treaty of Paris.'},
+  {q:'The Declaration of the Rights of Man and of the Citizen (1789) was adopted by…', a:['France’s National Assembly','The Continental Congress','The Congress of Vienna','The British Parliament'], c:0, why:'It declared that men are born and remain free and equal in rights.'},
+  {q:'Which group revolted in Ireland in 1798?', a:['The United Irishmen','The Carbonari','The Decembrists','The Jacobins'], c:0, why:'Inspired by France, they sought an independent Irish republic; the rising was crushed.'}
+];
+
+/* ---------- helpers ---------- */
+function has(g, id){ return g.ups.indexOf(id) >= 0; }
+function sum(a){ var t = 0; for (var i = 0; i < a.length; i++) t += a[i]; return t; }
+function crownOf(S, r){ return Math.max(0, 100 - sum(S.reg[r].s)); }
+function rng(S){ // mulberry32, stored in state so saves replay the same way
+  var t = (S.seed = (S.seed + 0x6D2B79F5) | 0);
+  t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function addShare(S, r, gi, amt){ // take from the Old Order only
+  var R = S.reg[r]; if (R.owner != null) return 0;
+  var t = Math.min(amt, crownOf(S, r)); R.s[gi] += t; return t;
+}
+function boostWhere(S, rs, amt){ S.groups.forEach(function(g, i){ rs.forEach(function(r){ if (S.reg[r].s[i] > 0) addShare(S, r, i, amt); }); }); }
+function appeal(g, r){
+  var a = 0, tags = REG[r].tags;
+  g.ups.forEach(function(id){ var u = UPI[id]; if (!u.appeal) return; a += u.appeal.all || 0; tags.forEach(function(t){ a += u.appeal[t] || 0; }); });
+  return a;
+}
+function ownedBy(S, gi){ return RIDS.filter(function(r){ return S.reg[r].owner === gi; }); }
+function notoriety(S, gi){
+  var g = S.groups[gi], n = 0;
+  g.ups.forEach(function(id){ n += UPI[id].noto || 0; });
+  return Math.max(0, n) + ownedBy(S, gi).length;
+}
+function threshold(g){ return has(g, 'militia') ? 50 : 55; }
+function scoreOf(S, gi){
+  var t = 0; RIDS.forEach(function(r){ var R = S.reg[r]; t += R.owner === gi ? 15 + REG[r].pop * 3 : (R.owner == null ? REG[r].pop * R.s[gi] / 20 : 0); });
+  return Math.round(t);
+}
+function scores(S){ return S.groups.map(function(_, i){ return scoreOf(S, i); }); }
+
+/* ---------- game setup ---------- */
+function newGame(cfg){
+  var n = cfg.groups.length;
+  var S = {
+    v:1, seed:(cfg.seed != null ? cfg.seed : (Date.now() & 0x7fffffff)),
+    settings:{length:cfg.length, timer:cfg.timer, quiz:cfg.quiz},
+    eras:LENGTHS[cfg.length].eras.slice(), eraPos:0, phase:'event', eraApplied:false,
+    reaction:15, vienna:false, monroe:false,
+    groups:cfg.groups.map(function(g){ return {name:g.name, color:g.color, cradle:g.cradle, mom:10, ups:[], revs:0, camp:0, quizDone:false}; }),
+    reg:{}, turnPos:0, order:[], report:null, history:[], quizUsed:[]
+  };
+  RIDS.forEach(function(r){ S.reg[r] = {resist:REG[r].resist, owner:null, s:new Array(n).fill(0), won:-1}; });
+  S.groups.forEach(function(g, i){ var b = CRADLE_EDGE[g.cradle] || 0; S.reg[g.cradle].s[i] = Math.round(20 + b * 3); g.mom += Math.round(b * 2); });
+  S.history.push(scores(S));
+  return S;
+}
+function curEra(S){ return ERAI[S.eras[S.eraPos]]; }
+function beginEra(S){
+  if (!S.eraApplied){ curEra(S).fx(S); S.reaction = Math.min(100, S.reaction); S.eraApplied = true; }
+  var n = S.groups.length, start = S.eraPos % n;
+  S.order = []; for (var i = 0; i < n; i++) S.order.push((start + i) % n);
+  S.turnPos = 0; S.phase = 'turn'; startTurn(S);
+}
+function curGi(S){ return S.order[S.turnPos]; }
+function startTurn(S){ var g = S.groups[curGi(S)]; g.camp = 0; g.quizDone = false; }
+function endTurn(S){
+  if (S.turnPos < S.order.length - 1){ S.turnPos++; startTurn(S); return 'next'; }
+  resolveEra(S); S.phase = 'resolve'; return 'resolve';
+}
+function nextEra(S){
+  if (S.eraPos >= S.eras.length - 1){ S.phase = 'end'; return; }
+  S.eraPos++; S.eraApplied = false; S.phase = 'event';
+}
+
+/* ---------- actions ---------- */
+function upgradeStatus(S, gi, id){
+  var g = S.groups[gi], u = UPI[id];
+  if (has(g, id)) return 'owned';
+  if (u.req && !has(g, u.req)) return 'locked';
+  if (g.mom < u.cost) return 'poor';
+  return 'ok';
+}
+function buy(S, gi, id){
+  if (upgradeStatus(S, gi, id) !== 'ok') return false;
+  var g = S.groups[gi]; g.mom -= UPI[id].cost; g.ups.push(id); return true;
+}
+var CAMPAIGN_COST = 3, CAMPAIGN_MAX = 2;
+function campaignAmt(g){ return has(g, 'leader') ? 15 : 10; }
+function campaignStatus(S, gi, r){
+  var g = S.groups[gi], R = S.reg[r];
+  if (R.owner === gi) return 'yours';
+  if (R.owner != null) return 'taken';
+  var reach = R.s[gi] > 0 || NB[r].some(function(nb){ var N = S.reg[nb[0]]; return N.owner === gi || (N.owner == null && N.s[gi] >= 10); });
+  if (!reach) return 'far';
+  if (g.camp >= CAMPAIGN_MAX) return 'limit';
+  if (g.mom < CAMPAIGN_COST) return 'poor';
+  return 'ok';
+}
+function campaign(S, gi, r){
+  if (campaignStatus(S, gi, r) !== 'ok') return false;
+  var g = S.groups[gi], R = S.reg[r], amt = campaignAmt(g);
+  g.mom -= CAMPAIGN_COST; g.camp++;
+  var got = addShare(S, r, gi, amt), rest = amt - got;
+  if (rest > 0){ // win over supporters of a rival movement
+    var best = -1; R.s.forEach(function(v, i){ if (i !== gi && (best < 0 || v > R.s[best])) best = i; });
+    if (best >= 0){ var t = Math.min(rest, R.s[best]) * .6; R.s[best] -= t; R.s[gi] += t; }
+  }
+  return true;
+}
+
+/* ---------- end of era ---------- */
+function resolveEra(S){
+  var n = S.groups.length, rep = {revs:[], crushed:[], income:[], before:S.history[S.history.length - 1].slice(), reactionBefore:S.reaction};
+  var old = {}; RIDS.forEach(function(r){ old[r] = S.reg[r].s.slice(); });
+  var lost = new Array(n).fill(0);
+
+  // 1. Ideas spread
+  RIDS.forEach(function(r){
+    var R = S.reg[r]; if (R.owner != null) return;
+    var crown = Math.max(0, 100 - sum(old[r])), d = new Array(n).fill(0);
+    S.groups.forEach(function(g, gi){
+      var rate = .30 + (has(g,'pamphlet') ? .08 : 0) + (has(g,'press') ? .10 : 0) + appeal(g, r) - R.resist * .28 * (has(g,'secret') ? .5 : 1);
+      rate = Math.max(.03, rate);
+      d[gi] += old[r][gi] * rate * crown / 100;
+      NB[r].forEach(function(nb){
+        var N = S.reg[nb[0]], src = N.owner === gi ? 50 : (N.owner == null ? old[nb[0]][gi] : 0);
+        if (src < 8) return;
+        var f = nb[1] === 'L' ? .05 + (has(g,'corr') ? .05 : 0) : .03 + (has(g,'ships') ? .05 : 0);
+        d[gi] += src * f * crown / 100;
+      });
+    });
+    var D = sum(d), k = D > crown ? crown / D : 1;
+    for (var gi = 0; gi < n; gi++) R.s[gi] += d[gi] * k;
+  });
+  // Exiles plant ideas far away
+  S.groups.forEach(function(g, gi){
+    if (!has(g, 'exiles')) return;
+    var pool = RIDS.filter(function(r){ return S.reg[r].owner == null && S.reg[r].s[gi] < 5; });
+    for (var i = 0; i < 2 && pool.length; i++){ var j = Math.floor(rng(S) * pool.length); addShare(S, pool[j], gi, 5); pool.splice(j, 1); }
+  });
+
+  // 2. The Old Order represses
+  RIDS.forEach(function(r){
+    var R = S.reg[r]; if (R.owner != null) return;
+    S.groups.forEach(function(g, gi){
+      if (R.s[gi] <= 0) return;
+      var loss = R.s[gi] * (.04 + S.reaction / 100 * .22) * R.resist * (1 + notoriety(S, gi) * .06) * (has(g,'underground') ? .65 : 1);
+      loss = Math.min(loss, R.s[gi]); R.s[gi] -= loss; lost[gi] += loss;
+      if (R.s[gi] < .5) R.s[gi] = 0;
+    });
+  });
+
+  // 3. Revolutions
+  RIDS.forEach(function(r){
+    var R = S.reg[r]; if (R.owner != null) return;
+    var best = -1; R.s.forEach(function(v, i){ if (best < 0 || v > R.s[best]) best = i; });
+    var tie = R.s.some(function(v, i){ return i !== best && Math.abs(v - R.s[best]) < .5; });
+    if (best >= 0 && !tie && R.s[best] >= threshold(S.groups[best])){
+      R.owner = best; R.won = S.eraPos; S.groups[best].revs++;
+      rep.revs.push({r:r, g:best});
+      S.reaction += 2 + Math.ceil(REG[r].pop / 2);
+    }
+  });
+
+  // 4. Counter-revolutions
+  RIDS.forEach(function(r){
+    var R = S.reg[r]; if (R.owner == null || R.won === S.eraPos) return;
+    var g = S.groups[R.owner], p = 0;
+    if (S.reaction > 25) p = S.reaction / 100 * R.resist * .45 * (REG[r].area === 'eu' ? 1.3 : 1);
+    if (S.vienna && REG[r].area === 'eu') p += .25;
+    p *= (has(g,'militia') ? .7 : 1) * (has(g,'alliance') ? .6 : 1) * (S.monroe && REG[r].area === 'am' ? .5 : 1);
+    if (p > 0 && rng(S) < p){
+      var gi = R.owner; R.owner = null; R.won = -1;
+      R.s = R.s.map(function(v, i){ return i === gi ? 25 : Math.min(v, 20); });
+      R.resist = Math.min(.95, R.resist + .05);
+      rep.crushed.push({r:r, g:gi});
+      S.reaction = Math.max(0, S.reaction - 4);
+    }
+  });
+
+  // 5. Momentum
+  S.groups.forEach(function(g, gi){
+    var base = 0; RIDS.forEach(function(r){ var R = S.reg[r]; base += (R.owner === gi ? 100 : (R.owner == null ? R.s[gi] : 0)) * REG[r].pop / 100; });
+    var inc = 4 + Math.round(base * .8) + ownedBy(S, gi).length + (has(g,'leader') ? 2 : 0) + (has(g,'martyrs') ? Math.floor(lost[gi] / 6) : 0);
+    g.mom += inc; rep.income.push(inc);
+  });
+  S.reaction = Math.min(100, S.reaction + 3);
+  S.vienna = false;
+  rep.after = scores(S); rep.reactionAfter = S.reaction;
+  S.history.push(rep.after.slice());
+  S.report = rep;
+}
+
+if (typeof module !== 'undefined') module.exports = {REG:REG, RIDS:RIDS, NB:NB, UP:UP, UPI:UPI, ERAS:ERAS, LENGTHS:LENGTHS, QUIZ:QUIZ, CRADLES:CRADLES, COLORS:COLORS,
+  newGame:newGame, beginEra:beginEra, endTurn:endTurn, nextEra:nextEra, buy:buy, campaign:campaign, campaignStatus:campaignStatus, upgradeStatus:upgradeStatus,
+  curGi:curGi, scores:scores, crownOf:crownOf, appeal:appeal, notoriety:notoriety};
+
+/* ===== Question banks: built-in + teacher-made, saved in this browser ===== */
+var QKEY = 'spark_qbanks_v1';
+var QB = (function(){
+  try{ var o = JSON.parse(localStorage.getItem(QKEY)); if (o && Array.isArray(o.banks) && Array.isArray(o.active)) return o; }catch(e){}
+  return {banks:[], active:['builtin']};
+})();
+function saveBanks(){ try{ localStorage.setItem(QKEY, JSON.stringify(QB)); }catch(e){} }
+var BUILTIN = {id:'builtin', name:'Age of Revolutions', builtin:true, qs:QUIZ};
+function allBanks(){ return [BUILTIN].concat(QB.banks); }
+function bankById(id){ var b = allBanks().filter(function(x){ return x.id === id; }); return b[0] || null; }
+function activeBanks(){ return allBanks().filter(function(b){ return QB.active.indexOf(b.id) >= 0 && b.qs.length; }); }
+function quizPool(){ // [{key, q}] from every active bank; fall back to the built-in bank
+  var bs = activeBanks(); if (!bs.length) bs = [BUILTIN];
+  var out = []; bs.forEach(function(b){ b.qs.forEach(function(q, i){ out.push({key:b.id + ':' + i, q:q}); }); });
+  return out;
+}
+function bankLine(q){
+  var clean = function(t){ return String(t || '').replace(/\|/g, '/').replace(/[\r\n\t]+/g, ' ').trim(); };
+  var wrong = q.a.filter(function(_, i){ return i !== q.c; });
+  if (q.why) while (wrong.length < 3) wrong.push(''); // keep the explanation in the sixth spot
+  return [q.q, q.a[q.c]].concat(wrong).map(clean).join(' | ') + (q.why ? ' | ' + clean(q.why) : '');
+}
+// One question per line: Question | Correct | Wrong | Wrong | Wrong | Explanation (optional)
+// Tab-separated rows pasted from a spreadsheet work too.
+function parseBank(text){
+  var ok = [], bad = [];
+  String(text).split(/\r?\n/).forEach(function(line, n){
+    if (!line.trim()) return;
+    var f = (line.indexOf('\t') >= 0 ? line.split('\t') : line.split('|')).map(function(x){ return x.trim(); });
+    while (f.length && !f[f.length - 1]) f.pop();
+    if (f.length < 3 || !f[0] || !f[1]){ bad.push(n + 1); return; }
+    var why = f.length >= 6 ? f[5] : '', wrong = f.slice(2, 5).filter(Boolean);
+    if (!wrong.length){ bad.push(n + 1); return; }
+    ok.push({q:f[0], a:[f[1]].concat(wrong), c:0, why:why});
+  });
+  return {ok:ok, bad:bad};
+}
+
+</script>
+<script>
+/* ===== Spark of Revolution — screen ===== */
+(function(){
+var KEY = 'spark_aor_v1';
+var S = null;
+var ui = {
+  modal:null, mode:'map', pick:null,
+  bank:{sel:'builtin', edit:null, form:null, paste:'', msg:'', err:'', confirm:null, back:null, newName:'', exportOpen:false}, sel:null, view:'world', undo:[], flash:[], turnAt:0, quiz:null, confirm:null,
+  setup:{length:'short', timer:45, quiz:true, groups:[{name:'',cradle:'thirteen'},{name:'',cradle:'france'},{name:'',cradle:'haiti'},{name:'',cradle:'granada'}]}
+};
+var VIEWS = {world:[140,0,880,700], americas:[150,40,460,640], europe:[665,0,340,265]};
+var $ = function(id){ return document.getElementById(id); };
+function esc(t){ return String(t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function pct(v){ return Math.round(v); }
+
+/* ---------- persistence ---------- */
+function save(){ try{ if (S) localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function loadSaved(){ try{ var t = localStorage.getItem(KEY); if (!t) return null; var o = JSON.parse(t); return o && o.v === 1 && o.reg ? o : null; }catch(e){ return null; } }
+function clearSaved(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+/* ---------- small drawings ---------- */
+function cockade(color, size){
+  size = size || 22; var r = size / 2;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true"><circle cx="'+r+'" cy="'+r+'" r="'+(r-1)+'" fill="'+color+'"/><circle cx="'+r+'" cy="'+r+'" r="'+(r*.62)+'" fill="#eceadf"/><circle cx="'+r+'" cy="'+r+'" r="'+(r*.36)+'" fill="'+color+'"/></svg>';
+}
+function arc(cx, cy, r, a0, a1){
+  if (a1 - a0 >= Math.PI * 2 - 1e-6) return 'M'+(cx-r)+','+cy+'a'+r+','+r+' 0 1,0 '+(2*r)+',0a'+r+','+r+' 0 1,0 '+(-2*r)+',0';
+  var x0 = cx + r * Math.sin(a0), y0 = cy - r * Math.cos(a0), x1 = cx + r * Math.sin(a1), y1 = cy - r * Math.cos(a1);
+  return 'M'+cx+','+cy+'L'+x0.toFixed(2)+','+y0.toFixed(2)+'A'+r+','+r+' 0 '+(a1-a0 > Math.PI ? 1 : 0)+',1 '+x1.toFixed(2)+','+y1.toFixed(2)+'Z';
+}
+function gripWord(v){ return v < .4 ? 'Loose' : v < .6 ? 'Firm' : v < .78 ? 'Strong' : 'Iron'; }
+
+/* ---------- map ---------- */
+function buildBase(){
+  $('mBase').innerHTML = '<path class="grat" d="'+GEO.grat+'"/><path class="land" d="'+GEO.land+'"/>' +
+    RIDS.map(function(r){ var p = GEO.pos[r]; var moved = Math.hypot(p[0]-p[2], p[1]-p[3]) > 4;
+      return moved ? '<line class="leader" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+p[2]+'" y2="'+p[3]+'"/><circle class="anchor" cx="'+p[2]+'" cy="'+p[3]+'" r="1.6"/>' : ''; }).join('');
+}
+function zs(){ var w = VIEWS[ui.view][2]; return Math.pow(w / 880, .6); }
+function drawLinks(){
+  var sel = ui.sel;
+  $('mLinks').innerHTML = LINKS.map(function(l){
+    var a = GEO.pos[l[0]], b = GEO.pos[l[1]], hot = sel && (l[0] === sel || l[1] === sel) ? ' hot' : '';
+    if (l[2] === 'S'){
+      var mx = (a[0]+b[0])/2, my = (a[1]+b[1])/2, dx = b[0]-a[0], dy = b[1]-a[1], k = .12;
+      return '<path class="lk S'+hot+'" d="M'+a[0]+','+a[1]+'Q'+(mx - dy*k).toFixed(1)+','+(my + dx*k).toFixed(1)+' '+b[0]+','+b[1]+'"/>';
+    }
+    return '<path class="lk L'+hot+'" d="M'+a[0]+','+a[1]+'L'+b[0]+','+b[1]+'"/>';
+  }).join('');
+}
+function nodeRad(r, k){ return (8 + REG[r].pop * 2.1) * k; }
+// Put each region's name where it collides least with other markers and names (matters in crowded Europe)
+function placeLabels(k){
+  var fs = 11 * k, vb = VIEWS[ui.view], placed = [], res = {};
+  var circ = RIDS.map(function(r){ var p = GEO.pos[r], rr = nodeRad(r, k) + 3 * k; return [p[0]-rr, p[1]-rr, p[0]+rr, p[1]+rr]; });
+  var crowd = function(r){ var p = GEO.pos[r]; return RIDS.filter(function(o){ var q = GEO.pos[o]; return Math.hypot(p[0]-q[0], p[1]-q[1]) < 75 * k; }).length; };
+  var order = RIDS.slice().sort(function(a, b){ return crowd(b) - crowd(a); });
+  var ov = function(A, B){ var w = Math.min(A[2], B[2]) - Math.max(A[0], B[0]), h = Math.min(A[3], B[3]) - Math.max(A[1], B[1]); return w > 0 && h > 0 ? w * h : 0; };
+  order.forEach(function(r){
+    var p = GEO.pos[r], x = p[0], y = p[1], rad = nodeRad(r, k), w = .82 * fs * REG[r].short.length, g = 4 * k;
+    var cands = [
+      {x:x, y:y + rad + fs * 1.05, a:'middle', pen:0},
+      {x:x + rad + g, y:y + fs * .38, a:'start', pen:.5},
+      {x:x - rad - g, y:y + fs * .38, a:'end', pen:.5},
+      {x:x, y:y - rad - fs * .4, a:'middle', pen:.8},
+      {x:x + rad * .7, y:y + rad + fs * .9, a:'start', pen:1},
+      {x:x - rad * .7, y:y + rad + fs * .9, a:'end', pen:1}
+    ];
+    var best = null;
+    cands.forEach(function(c){
+      var x0 = c.a === 'middle' ? c.x - w / 2 : c.a === 'start' ? c.x : c.x - w, box = [x0, c.y - fs * .82, x0 + w, c.y + fs * .22], cost = c.pen * fs * fs * .05;
+      placed.forEach(function(b){ cost += ov(box, b) * 3; });
+      circ.forEach(function(b){ cost += ov(box, b) * 2; });
+      if (box[0] < vb[0] || box[2] > vb[0] + vb[2] || box[1] < vb[1] || box[3] > vb[1] + vb[3]) cost += fs * fs * 4;
+      if (!best || cost < best.cost){ best = c; best.cost = cost; best.box = box; }
+    });
+    placed.push(best.box); res[r] = best;
+  });
+  return res;
+}
+function drawNodes(){
+  var k = zs(), gi = (S && S.phase === 'turn') ? curGi(S) : null, out = [], labs = placeLabels(k);
+  RIDS.forEach(function(r){
+    var p = GEO.pos[r], x = p[0], y = p[1], rad = nodeRad(r, k), h = '';
+    if (!S){ h += '<circle class="base" cx="'+x+'" cy="'+y+'" r="'+rad+'"/>'; }
+    else {
+      var R = S.reg[r];
+      if (R.owner != null){
+        var c = S.groups[R.owner].color;
+        h += '<circle class="base" cx="'+x+'" cy="'+y+'" r="'+rad+'" style="fill:'+c+'"/>' +
+             '<circle cx="'+x+'" cy="'+y+'" r="'+(rad*.64)+'" fill="#eceadf" pointer-events="none"/>' +
+             '<circle cx="'+x+'" cy="'+y+'" r="'+(rad*.38)+'" fill="'+c+'" pointer-events="none"/>';
+      } else {
+        h += '<circle class="base" cx="'+x+'" cy="'+y+'" r="'+rad+'"/>';
+        var a = 0;
+        R.s.forEach(function(v, i){ if (v < .5) return; var a1 = a + v / 100 * Math.PI * 2; h += '<path d="'+arc(x, y, rad - .8, a, a1)+'" fill="'+S.groups[i].color+'" pointer-events="none"/>'; a = a1; });
+      }
+      if (gi != null && R.owner == null && campaignStatus(S, gi, r) !== 'far')
+        h += '<circle class="reach" cx="'+x+'" cy="'+y+'" r="'+(rad + 4*k)+'" style="stroke:'+S.groups[gi].color+'"/>';
+    }
+    if (ui.sel === r) h += '<circle class="sel" cx="'+x+'" cy="'+y+'" r="'+(rad + 8*k)+'"/>';
+    var L = labs[r];
+    h += '<text class="nlab" x="'+L.x.toFixed(1)+'" y="'+L.y.toFixed(1)+'" text-anchor="'+L.a+'" style="font-size:'+(11*k).toFixed(2)+'px">'+esc(REG[r].short)+'</text>';
+    var tip = REG[r].name + (S ? ' — ' + (S.reg[r].owner != null ? 'free, led by ' + S.groups[S.reg[r].owner].name : 'Old Order holds ' + pct(crownOf(S, r)) + '%') : '');
+    out.push('<g class="node'+(ui.flash.indexOf(r) >= 0 ? ' flash' : '')+'" data-r="'+r+'" tabindex="0" role="button" aria-label="'+esc(tip)+'"><title>'+esc(tip)+'</title>'+h+'</g>');
+  });
+  $('mNodes').innerHTML = out.join('');
+}
+function setView(v){
+  ui.view = v; var b = VIEWS[v];
+  $('map').setAttribute('viewBox', b.join(' '));
+  document.querySelectorAll('[data-zoom]').forEach(function(el){ el.setAttribute('aria-pressed', el.getAttribute('data-zoom') === v ? 'true' : 'false'); });
+  drawNodes();
+}
+function drawLegend(){
+  $('legend').innerHTML =
+    '<span><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="var(--crown)"/></svg>Old Order</span>' +
+    '<span><svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="var(--gold)"/><circle cx="7" cy="7" r="3.8" fill="#eceadf"/><circle cx="7" cy="7" r="2.2" fill="var(--gold)"/></svg>Free region</span>' +
+    '<span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#9fb6c8" stroke-width="1.5"/></svg>Land route</span>' +
+    '<span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#9fb6c8" stroke-width="1.5" stroke-dasharray="4 4"/></svg>Sea route</span>';
+}
+
+/* ---------- header, standings ---------- */
+function drawTop(){
+  if (!S){ $('eraBox').innerHTML = '<span class="lbl">The Age of Revolutions, 1775–1848</span>'; $('reactBox').innerHTML = ''; return; }
+  var e = curEra(S);
+  $('eraBox').innerHTML = '<span class="yr">'+e.year+'</span><span class="lbl">Era '+(S.eraPos+1)+' of '+S.eras.length+'</span><span class="ttl">'+esc(e.title)+'</span>';
+  $('reactBox').innerHTML = '<span class="lbl">Old Order Reaction</span><span class="meter"><i style="width:'+Math.min(100, S.reaction)+'%"></i></span><b>'+Math.round(S.reaction)+'</b>';
+}
+function drawStand(){
+  if (!S){ $('stand').innerHTML = ''; return; }
+  var sc = scores(S), now = S.phase === 'turn' ? curGi(S) : -1;
+  $('stand').innerHTML = S.groups.map(function(g, i){
+    var own = RIDS.filter(function(r){ return S.reg[r].owner === i; }).length;
+    return '<div class="st'+(i === now ? ' now' : '')+'">'+cockade(g.color, 26)+'<span class="nm">'+esc(g.name)+'</span>' +
+      '<span class="pts">'+sc[i]+'<small>points</small></span><span class="sub">'+own+' free · '+g.mom+' Momentum</span></div>';
+  }).join('');
+}
+
+/* ---------- side desk ---------- */
+function drawSide(){
+  var el = $('side');
+  if (!S || S.phase !== 'turn'){
+    el.innerHTML = '<div class="rcard"><p class="hint">'+(S ? 'Waiting for the next era.' : 'Set up the class to begin.')+'</p></div>' + (ui.sel ? regionCard(null) : '');
+    return;
+  }
+  var gi = curGi(S), g = S.groups[gi];
+  var ready = UP.filter(function(u){ return upgradeStatus(S, gi, u.id) === 'ok'; }).length;
+  el.innerHTML =
+    '<div class="desk-head">'+cockade(g.color, 40)+'<div class="who"><div class="kick">Turn '+(S.turnPos+1)+' of '+S.order.length+'</div><h2>'+esc(g.name)+'</h2></div>' +
+      '<div class="timer'+(S.settings.timer ? '' : ' off')+'" id="timer"><span id="timerT">'+(S.settings.timer ? S.settings.timer : '–')+'</span></div></div>' +
+    '<div class="purse"><div class="m">'+g.mom+'<small>Momentum</small></div><div class="info">Campaigns '+g.camp+' of '+CAMPAIGN_MAX+'<br>Alarm level '+notoriety(S, gi)+'</div></div>' +
+    '<div class="modes" role="group" aria-label="What to show">' +
+      '<button data-act="mode" data-mode="map" aria-pressed="'+(ui.mode === 'map')+'">World map<small>Campaign in regions</small></button>' +
+      '<button data-act="mode" data-mode="movement" aria-pressed="'+(ui.mode === 'movement')+'">Your movement<small>'+(ready ? ready+' you can afford' : 'Ideals, spread, defense')+'</small></button>' +
+    '</div>' +
+    '<div class="scroll">' + (ui.mode === 'movement' ? detailCard(gi) : regionCard(gi) + movementSummary(gi)) + '</div>' +
+    '<div class="deskfoot">' +
+      '<button class="btn" data-act="quiz" '+(S.settings.quiz && !g.quizDone ? '' : 'disabled')+'>'+(S.settings.quiz ? (g.quizDone ? 'Question answered' : 'Knowledge check +3') : 'Knowledge checks off')+'</button>' +
+      '<button class="btn" data-act="undo" '+(ui.undo.length ? '' : 'disabled')+'>Undo</button>' +
+      '<button class="btn gold big end" id="endBtn" data-act="endturn">End turn</button>' +
+    '</div>';
+  tick();
+}
+function regionCard(gi){
+  if (!ui.sel) return '<div class="rcard"><p class="hint">Click a region on the map to see who supports what there'+(gi != null ? ' and to campaign. Dotted rings show where your movement can reach.' : '.')+'</p></div>';
+  var r = ui.sel, R = S ? S.reg[r] : null, info = REG[r];
+  var h = '<div class="rcard"><h3>'+esc(info.name)+'</h3><div class="chips">' +
+    info.tags.map(function(t){ return '<span class="chip">'+TAGNAME[t]+'</span>'; }).join('');
+  if (R && R.owner != null) h += '<span class="chip free" style="color:'+S.groups[R.owner].color+'">Free · '+esc(S.groups[R.owner].name)+'</span>';
+  h += '</div>';
+  if (!R) return h + '</div>';
+  if (R.owner == null){
+    var rows = [];
+    R.s.forEach(function(v, i){ if (v >= .5) rows.push([S.groups[i].name, S.groups[i].color, v]); });
+    rows.sort(function(a, b){ return b[2] - a[2]; });
+    rows.push(['Old Order', 'var(--crown)', crownOf(S, r)]);
+    h += '<div class="bars">'+rows.map(function(x){ return '<div class="bar"><span class="n">'+esc(x[0])+'</span><span class="t"><i style="width:'+x[2]+'%;background:'+x[1]+'"></i></span><b>'+pct(x[2])+'</b></div>'; }).join('')+'</div>';
+  }
+  h += '<div class="kv"><span>Grip of the Old Order</span><b>'+gripWord(R.resist)+'</b></div>' +
+       '<div class="kv"><span>Population weight</span><b>'+'●'.repeat(info.pop)+'</b></div>';
+  if (gi != null && R.owner == null){
+    var g = S.groups[gi], ap = appeal(g, r), word = ap >= .12 ? 'Very strong' : ap >= .06 ? 'Strong' : ap > .015 ? 'Some' : ap < -.005 ? 'Unpopular' : 'Little';
+    h += '<div class="kv"><span>Your ideals’ appeal here</span><b>'+word+'</b></div>';
+    h += '<div class="kv"><span>Support needed for revolution</span><b>'+threshold(g)+'% and the most</b></div>';
+    var st = campaignStatus(S, gi, r), why = {far:'Too far away. Build support next door first (10% or more).', limit:'You have used both campaigns this turn.', poor:'Not enough Momentum.'}[st];
+    h += '<button class="btn gold camp" data-act="campaign" data-r="'+r+'" '+(st === 'ok' ? '' : 'disabled')+'>Campaign here · '+CAMPAIGN_COST+' Momentum · +'+campaignAmt(g)+'%</button>' + (why ? '<p class="why">'+why+'</p>' : '');
+  }
+  return h + '</div>';
+}
+var TRACKS = [
+  {id:'ideal', name:'Ideals', blurb:'What your movement believes. Each ideal makes you grow faster in certain kinds of places, but radical ideas alarm monarchs.'},
+  {id:'spread', name:'Spread', blurb:'How your ideas travel: print, letters, ships, secret clubs, and exiles.'},
+  {id:'resil', name:'Defense', blurb:'How your supporters and revolutions survive censorship, arrests, and royal armies.'}
+];
+var TRACKNAME = {ideal:'Ideal', spread:'Spread', resil:'Defense'};
+function strengthWord(v){ return v >= .1 ? 'very strong' : v >= .06 ? 'strong' : v > .025 ? 'some' : 'a little'; }
+function idealLines(u){
+  var out = [];
+  Object.keys(u.appeal).filter(function(t){ return t !== 'all' && u.appeal[t] > 0; }).sort(function(a, b){ return u.appeal[b] - u.appeal[a]; })
+    .forEach(function(t){ out.push('<li><b>'+TAGNAME[t]+'</b>: '+strengthWord(u.appeal[t])+' appeal</li>'); });
+  if (u.appeal.all) out.push('<li><b>Everywhere</b>: '+strengthWord(u.appeal.all)+' appeal</li>');
+  Object.keys(u.appeal).filter(function(t){ return u.appeal[t] < 0; }).forEach(function(t){ out.push('<li class="warn"><b>'+TAGNAME[t]+'</b>: some people turn away</li>'); });
+  out.push(u.noto > 0 ? '<li class="'+(u.noto >= 2 ? 'warn' : '')+'">Alarm level +'+u.noto+(u.noto >= 2 ? ': monarchs crack down harder on you' : '')+'</li>' : '<li class="calm">Alarm level '+u.noto+': monarchs worry less about you</li>');
+  return '<ul class="fxl">'+out.join('')+'</ul>';
+}
+function tileTag(u){
+  if (u.appeal){
+    var t = Object.keys(u.appeal).filter(function(k){ return k !== 'all' && u.appeal[k] > 0; }).sort(function(a, b){ return u.appeal[b] - u.appeal[a]; }).map(function(k){ return TAGNAME[k]; });
+    if (!t.length) t = ['Everywhere a little'];
+    return t.slice(0, 2).join(' · ');
+  }
+  return SHORT[u.id];
+}
+var SHORT = {pamphlet:'Faster growth', press:'Much faster growth', corr:'Faster over land', ships:'Faster by sea', secret:'Strict rulers slow you less', exiles:'Plant ideas far away',
+  underground:'Lose less to crackdowns', militia:'Easier, safer revolutions', alliance:'Revolutions hard to crush', martyrs:'Momentum from losses', leader:'Momentum + bigger campaigns'};
+function movementSummary(gi){
+  var g = S.groups[gi];
+  var chips = g.ups.length ? g.ups.map(function(id){ return '<span class="chip t-'+UPI[id].track+'">'+esc(UPI[id].name)+'</span>'; }).join('') : '<span class="note" style="margin:0">Nothing adopted yet.</span>';
+  return '<div class="rcard"><p class="lab">Your movement</p><div class="chips">'+chips+'</div><button class="btn camp" data-act="mode" data-mode="movement">Open the movement board</button></div>';
+}
+function detailCard(gi){
+  var g = S.groups[gi];
+  var chips = g.ups.length ? g.ups.map(function(id){ return '<span class="chip t-'+UPI[id].track+'">'+esc(UPI[id].name)+'</span>'; }).join('') : '<span class="note" style="margin:0">Nothing adopted yet.</span>';
+  return '<div class="rcard"><h3>Build your movement</h3><p class="hint" style="margin:.4rem 0 .9rem">Tap any tile on the board. A card pops up that explains it, with a button to adopt it.</p>' +
+    '<p class="lab">Adopted so far</p><div class="chips">'+chips+'</div></div>';
+}
+function upgradeView(){
+  var gi = curGi(S), g = S.groups[gi], u = UPI[ui.pick], st = upgradeStatus(S, gi, u.id);
+  var btn = st === 'owned' ? '<button class="btn big" disabled>Already adopted</button>'
+    : st === 'locked' ? '<button class="btn big" disabled>Adopt '+esc(UPI[u.req].name)+' first</button>'
+    : st === 'poor' ? '<button class="btn big" disabled>Need '+(u.cost - g.mom)+' more Momentum</button>'
+    : '<button class="btn gold big" data-act="adopt" data-up="'+u.id+'" data-focus>Adopt for '+u.cost+' Momentum</button>';
+  var after = st === 'ok' ? '<span class="left">You have '+g.mom+' Momentum. You will have '+(g.mom - u.cost)+' left.</span>' : '<span class="left">You have '+g.mom+' Momentum.</span>';
+  var seal = st === 'owned' ? '<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : u.cost;
+  var does = u.appeal ? idealLines(u) : '<p class="eff">'+esc(u.effect)+'</p>';
+  var right = u.appeal
+    ? '<div class="box"><div class="k">Where this ideal draws followers</div>'+miniMap(u)+'<p class="mm-key"><span><i style="background:var(--gold)"></i>Draws followers</span><span><i style="background:var(--danger)"></i>Turns people away</span><span><i style="background:var(--crown)"></i>No effect</span></p></div>'
+    : '<div class="box ask"><div class="k">In history</div><p>'+esc(u.hist)+'</p></div>';
+  return '<div class="upop t-'+u.track+'">' +
+    '<div class="uhead"><span class="seal '+st+'">'+seal+'</span><div><p class="kicker trk">'+TRACKNAME[u.track]+(u.req ? ' · builds on '+esc(UPI[u.req].name) : '')+'</p><h2>'+esc(u.name)+'</h2></div></div>' +
+    '<p class="dl">'+esc(u.desc)+'</p>' +
+    '<div class="ugrid"><div><div class="box"><div class="k">What it does</div>'+does+'</div>' + (u.appeal ? '<div class="box ask"><div class="k">In history</div><p>'+esc(u.hist)+'</p></div>' : '') + '</div><div>'+right+'</div></div>' +
+    '<div class="ufoot">'+btn+'<button class="btn big" data-act="close">'+(st === 'ok' ? 'Not now' : 'Back to the board')+'</button>'+after+'</div></div>';
+}
+function toast(msg){
+  var t = $('toast'); t.innerHTML = msg; t.hidden = false; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toast.h); toast.h = setTimeout(function(){ t.hidden = true; }, 2600);
+}
+function miniMap(u){
+  var nodes = RIDS.map(function(r){
+    var v = u.appeal.all || 0; REG[r].tags.forEach(function(t){ v += u.appeal[t] || 0; });
+    var p = GEO.pos[r], rad = 7 + REG[r].pop * 2.4, fill = v > .001 ? 'var(--gold)' : v < -.001 ? 'var(--danger)' : 'var(--crown)', op = v > .001 ? Math.min(1, .35 + v / .14) : v < -.001 ? .85 : .5;
+    return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+rad+'" fill="'+fill+'" fill-opacity="'+op.toFixed(2)+'" stroke="#08131f" stroke-width="1.5"><title>'+esc(REG[r].name)+'</title></circle>';
+  }).join('');
+  return '<svg class="mm" viewBox="140 0 880 700" role="img" aria-label="Map of where '+esc(u.name)+' appeals"><path class="land" d="'+GEO.land+'"/>'+nodes+'</svg>';
+}
+function drawBoard(){
+  var on = !!(S && S.phase === 'turn' && ui.mode === 'movement'), bd = $('board');
+  bd.hidden = !on; $('map').style.visibility = on ? 'hidden' : ''; $('legend').hidden = on;
+  document.querySelector('.zoom').hidden = on;
+  if (!on){ bd.innerHTML = ''; return; }
+  var gi = curGi(S), g = S.groups[gi], al = notoriety(S, gi);
+  bd.innerHTML = '<div class="bhead"><div class="who">'+cockade(g.color, 34)+'<div><p class="kicker">Shape your movement</p><h2>'+esc(g.name)+'</h2></div></div>' +
+    '<div class="bstat"><span class="v">'+g.mom+'</span><span class="l">Momentum to spend</span></div>' +
+    '<div class="bstat alarm"><span class="l">Alarm level '+al+'</span><span class="meter"><i style="width:'+Math.min(100, al / 12 * 100)+'%"></i></span><span class="s">Higher alarm, harsher crackdowns.</span></div>' +
+    '<button class="btn" data-act="mode" data-mode="map">Back to the map</button></div>' +
+    '<div class="cols">'+TRACKS.map(function(t){
+      return '<section class="col t-'+t.id+'"><header><h3>'+t.name+'</h3><p>'+t.blurb+'</p></header><div class="tiles">' +
+        UP.filter(function(u){ return u.track === t.id; }).map(function(u){
+          var st = upgradeStatus(S, gi, u.id), lab = st === 'owned' ? 'Adopted' : st === 'locked' ? 'Needs '+UPI[u.req].name : st === 'poor' ? 'Need '+(u.cost - g.mom)+' more Momentum' : 'Ready to adopt';
+          var seal = st === 'owned' ? '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : u.cost;
+          return '<button class="tile '+st+(u.req ? ' child' : '')+(ui.pick === u.id ? ' picked' : '')+(ui.flash.indexOf(u.id) >= 0 ? ' flash' : '')+'" data-act="pick" data-up="'+u.id+'" aria-pressed="'+(ui.pick === u.id)+'">' +
+            '<span class="seal">'+seal+'</span><span class="tx"><span class="tn">'+esc(u.name)+'</span><span class="tg">'+esc(tileTag(u))+'</span><span class="ts">'+esc(lab)+'</span></span></button>';
+        }).join('')+'</div></section>';
+    }).join('')+'</div>';
+}
+
+/* ---------- timer ---------- */
+function tick(){
+  var t = $('timer'), tt = $('timerT'), eb = $('endBtn');
+  if (!t || !S || S.phase !== 'turn' || !S.settings.timer) return;
+  var left = Math.max(0, S.settings.timer - (Date.now() - ui.turnAt) / 1000);
+  tt.textContent = Math.ceil(left);
+  t.style.setProperty('--p', (left / S.settings.timer).toFixed(3));
+  var late = left <= 0; t.classList.toggle('late', late); if (eb) eb.classList.toggle('late', late);
+  if (late) tt.textContent = '0';
+}
+setInterval(tick, 250);
+
+/* ---------- overlays ---------- */
+function drawOverlay(){
+  var m = ui.modal || (!S ? 'setup' : ({event:'event', resolve:'resolve', end:'end'})[S.phase]);
+  var ov = $('overlay'), sh = $('sheet');
+  if (m === 'peek'){ ov.hidden = true; return; }
+  if (!m){ ov.hidden = true; sh.innerHTML = ''; return; }
+  ov.hidden = false;
+  sh.innerHTML = ({setup:setupView, event:eventView, resolve:resolveView, end:endView, help:helpView, quiz:quizView, teacher:teacherView, upgrade:upgradeView, banks:banksView})[m]();
+  sh.className = 'sheet' + (m === 'banks' ? ' wide' : '');
+  var f = sh.querySelector('[data-focus]') || sh.querySelector('button.gold'); if (f) try{ f.focus({preventScroll:true}); }catch(e){}
+}
+function setupView(){
+  var st = ui.setup, used = st.groups.map(function(g){ return g.cradle; });
+  var saved = loadSaved();
+  var rows = st.groups.map(function(g, i){
+    var opts = Object.keys(CRADLES).map(function(c){ var taken = used.indexOf(c) >= 0 && g.cradle !== c;
+      return '<option value="'+c+'"'+(g.cradle === c ? ' selected' : '')+(taken ? ' disabled' : '')+'>'+esc(REG[c].name)+(taken ? ' (taken)' : '')+'</option>'; }).join('');
+    return '<div class="gr">'+cockade(COLORS[i], 28)+'<input id="gname'+i+'" data-name="'+i+'" maxlength="28" placeholder="'+esc(CRADLES[g.cradle])+'" value="'+esc(g.name)+'" aria-label="Group '+(i+1)+' name">' +
+      '<select id="gcr'+i+'" data-cradle="'+i+'" aria-label="Group '+(i+1)+' starting region">'+opts+'</select>' +
+      '<button class="btn ghost" data-act="rmgroup" data-i="'+i+'" '+(st.groups.length <= 2 ? 'disabled' : '')+' aria-label="Remove group '+(i+1)+'">Remove</button></div>';
+  }).join('');
+  var seg = function(key, vals){ return '<div class="seg">'+vals.map(function(v){ return '<button data-act="set" data-k="'+key+'" data-v="'+v[0]+'" aria-pressed="'+(String(st[key]) === String(v[0]))+'">'+v[1]+'</button>'; }).join('')+'</div>'; };
+  return '<p class="kicker">A classroom game · 1775–1848</p><h1>Spark of Revolution</h1>' +
+    '<p class="lede">Each group leads a revolutionary movement. Spread your ideas across the Atlantic world, win revolutions, and survive the kings and emperors who want to crush you.</p>' +
+    '<div class="setup-grid"><div><p class="lab">Movements</p>'+rows +
+      '<button class="btn" data-act="addgroup" '+(st.groups.length >= 6 ? 'disabled' : '')+'>Add a group</button>' +
+      '<p class="note" style="margin-top:.6rem">Leave a name blank to use the historical one. Smaller or isolated starting regions begin with extra support and Momentum, so every start can win.</p></div>' +
+    '<div><p class="lab">Game length</p>'+seg('length', [['short','Short'],['full','Full']])+'<p class="note">'+LENGTHS[st.length].note+'</p>' +
+      '<p class="lab">Turn timer</p>'+seg('timer', [[30,'30s'],[45,'45s'],[60,'60s'],[90,'90s'],[0,'Off']])+'<p class="note">The timer warns; it never ends a turn by itself.</p>' +
+      '<p class="lab">Knowledge checks</p>'+seg('quiz', [[true,'On'],[false,'Off']])+'<p class="note">Once per turn, a group may answer a question for +3 Momentum.</p>' +
+      '<div class="bankpick"><span>Questions from: <b>'+bankSummary()+'</b></span><button class="btn" data-act="banks" data-back="setup">Choose or add questions</button></div></div></div>' +
+    '<div class="row" style="margin-top:.6rem"><button class="btn gold big" data-act="start">Start the game</button><button class="btn" data-act="help">How to play</button></div>' +
+    (saved && saved.phase !== 'end' ? '<div class="resume"><span>A game is in progress: '+saved.groups.length+' groups, era '+(saved.eraPos+1)+' of '+saved.eras.length+' ('+ERAI[saved.eras[saved.eraPos]].year+').</span><button class="btn gold" data-act="resume">Resume that game</button></div>' : '');
+}
+function eventView(){
+  var e = curEra(S);
+  return '<div class="event"><div class="yr">'+e.year+'</div><div class="body">' +
+    '<p class="kicker">Era '+(S.eraPos+1)+' of '+S.eras.length+(S.eraPos === S.eras.length - 1 ? ' · Final era' : '')+'</p>' +
+    '<h2>'+esc(e.title)+'</h2><p class="story">'+esc(e.body)+'</p>' +
+    '<div class="box"><div class="k">What changes in the game</div>'+esc(e.effect)+'</div>' +
+    '<div class="box ask"><div class="k">Discuss before you play</div><p>'+esc(e.ask)+'</p></div>' +
+    '<div class="row"><button class="btn gold big" data-act="begin">Begin '+e.year+'</button><span class="note" style="margin:0">'+esc(S.groups[S.eraPos % S.groups.length].name)+' goes first this era.</span></div>' +
+    '</div></div>';
+}
+function deltaCell(d){ return '<td class="num '+(d > 0 ? 'up-d' : d < 0 ? 'dn-d' : '')+'">'+(d > 0 ? '+' : '')+d+'</td>'; }
+function standingsTable(rep){
+  var sc = scores(S), idx = S.groups.map(function(_, i){ return i; }).sort(function(a, b){ return sc[b] - sc[a]; });
+  return '<div class="tbl-wrap"><table><thead><tr><th>Rank</th><th>Movement</th><th class="num">Points</th>'+(rep ? '<th class="num">Change</th><th class="num">Momentum earned</th>' : '<th class="num">Revolutions won</th><th class="num">Regions free at the end</th>')+'</tr></thead><tbody>' +
+    idx.map(function(i, k){ var g = S.groups[i];
+      return '<tr><td>'+(k+1)+'</td><td><span class="row" style="gap:.5rem;flex-wrap:nowrap">'+cockade(g.color, 18)+esc(g.name)+'</span></td><td class="num"><b>'+sc[i]+'</b></td>' +
+        (rep ? deltaCell(rep.after[i] - rep.before[i]) + '<td class="num">+'+rep.income[i]+'</td>' : '<td class="num">'+g.revs+'</td><td class="num">'+RIDS.filter(function(r){ return S.reg[r].owner === i; }).length+'</td>') + '</tr>';
+    }).join('')+'</tbody></table></div>';
+}
+function resolveView(){
+  var rep = S.report, e = curEra(S), last = S.eraPos >= S.eras.length - 1;
+  var revs = rep.revs.length ? '<ul class="list">'+rep.revs.map(function(x){ var g = S.groups[x.g]; return '<li>'+cockade(g.color, 24)+'<span><b>'+esc(REG[x.r].name)+'</b> rises up and is now free, led by '+esc(g.name)+'.</span></li>'; }).join('')+'</ul>' : '<p class="note">No region reached the support needed for a revolution this era.</p>';
+  var crushed = rep.crushed.length ? '<p class="lab">Counter-revolutions</p><ul class="list">'+rep.crushed.map(function(x){ var g = S.groups[x.g]; return '<li class="bad">'+cockade('var(--crown)', 24)+'<span>Royal armies crush the revolution in <b>'+esc(REG[x.r].name)+'</b>. '+esc(g.name)+' keeps 25% support there.</span></li>'; }).join('')+'</ul>' : '';
+  return '<p class="kicker">End of era '+(S.eraPos+1)+' · '+e.year+'</p><h2>How the world changed</h2>' +
+    '<p class="lede">Ideas spread, governments cracked down, and Old Order Reaction went from '+Math.round(rep.reactionBefore)+' to '+Math.round(rep.reactionAfter)+'.</p>' +
+    '<p class="lab">Revolutions</p>'+revs+crushed+'<p class="lab">Standings</p>'+standingsTable(rep) +
+    '<div class="row" style="margin-top:1.2rem"><button class="btn gold big" data-act="next">'+(last ? 'See the final results' : 'On to '+ERAI[S.eras[S.eraPos+1]].year)+'</button><button class="btn" data-act="closeview">Look at the map</button></div>';
+}
+function endView(){
+  var sc = scores(S), m = Math.max.apply(null, sc), win = S.groups.filter(function(_, i){ return sc[i] === m; });
+  var hist = RIDS.map(function(r){ var R = S.reg[r], g = R.owner != null ? S.groups[R.owner] : null;
+    return '<div><b>'+esc(REG[r].name)+'</b><span class="res" style="color:'+(g ? g.color : 'var(--ink-3)')+'">In your game: '+(g ? 'free, led by '+esc(g.name) : 'the Old Order held on')+'</span>In history: '+esc(REG[r].hist)+'</div>'; }).join('');
+  return '<p class="kicker">1848 · The age of revolutions ends</p><div class="winner">'+win.map(function(g){ return esc(g.name); }).join(' & ')+'</div>' +
+    '<p class="lede">'+(win.length > 1 ? 'share the victory' : 'shaped the Atlantic world most')+' with '+m+' points.</p>' +
+    standingsTable(null) +
+    '<h2 style="margin-top:1.6rem">Your world and the real one</h2><p class="note">Compare what your class built with what actually happened. Which differences surprise you, and why?</p>' +
+    '<div class="hist">'+hist+'</div>' +
+    '<div class="box ask"><div class="k">Wrap-up questions</div><p>Why did more revolutions succeed in the Americas than in Europe? Which ideals spread best in which places, and why? Which choices made by your movement would real revolutionaries have recognized?</p></div>' +
+    '<div class="row" style="margin-top:1rem"><button class="btn gold big" data-act="again">Play again</button><button class="btn" data-act="closeview">Look at the final map</button></div>';
+}
+function helpView(){
+  return '<button class="btn ghost close" data-act="close">Close</button><div class="help"><p class="kicker">How to play</p><h2>Spark of Revolution</h2>' +
+    '<p class="lede">Groups lead rival revolutionary movements from 1775 to 1848. The movement with the most points at the end wins.</p>' +
+    '<h3>Each era</h3><ol><li>Read the history card together and discuss the question.</li><li>Each group takes one timed turn at the board.</li><li>The world updates: ideas spread, governments crack down, and revolutions succeed or are crushed.</li></ol>' +
+    '<h3>On your turn</h3><ol><li><b>Campaign</b> (3 Momentum, up to 2 per turn): click a region where you have support or that borders your support, then press Campaign. You gain 10% support there.</li>' +
+    '<li><b>Adopt an Ideal</b>: makes your movement grow faster in certain kinds of places, like colonies, cities, or peasant lands. Radical ideals alarm monarchs, which brings more repression.</li>' +
+    '<li><b>Improve Spread</b>: printing, letters, ships, secret societies, and exiles help ideas travel.</li>' +
+    '<li><b>Improve Defense</b>: protects your supporters and your revolutions from the Old Order.</li>' +
+    '<li><b>Knowledge check</b>: answer one question about the era for +3 Momentum.</li></ol>' +
+    '<h3>Revolutions</h3><ol><li>A region rises up when one movement has at least 55% support and more than anyone else. The region becomes free and turns into a cockade in your color.</li>' +
+    '<li>Free regions earn Momentum and points, but the Old Order may send armies to crush them. Strict monarchies and high Reaction make that more likely.</li>' +
+    '<li>Old Order Reaction rises every era and with every revolution, and big events like the Congress of Vienna push it higher.</li></ol>' +
+    '<h3>Points</h3><ol><li>Each free region is worth 15 points plus 3 for each dot of population weight.</li><li>Support in regions that are not free yet also counts a little.</li></ol></div>';
+}
+function quizView(){
+  var q = ui.quiz, Q = q.q;
+  var opts = q.order.map(function(ai){ var cls = q.picked == null ? '' : (ai === Q.c ? ' right' : (ai === q.picked ? ' wrong' : ''));
+    return '<button class="opt'+cls+'" data-act="answer" data-a="'+ai+'" '+(q.picked != null ? 'disabled' : '')+'>'+esc(Q.a[ai])+'</button>'; }).join('');
+  var res = q.picked == null ? '' : '<div class="box"><div class="k">'+(q.picked === Q.c ? 'Correct · +3 Momentum' : 'Not this time')+'</div>'+(q.picked === Q.c ? '' : 'The answer is <b>'+esc(Q.a[Q.c])+'</b>. ')+esc(Q.why || '')+'</div><button class="btn gold big" data-act="close" data-focus>Back to the turn</button>';
+  return '<p class="kicker">Knowledge check · '+esc(S.groups[curGi(S)].name)+'</p><h2>'+esc(Q.q)+'</h2><div class="opts">'+opts+'</div>'+res;
+}
+function teacherView(){
+  var c = ui.confirm;
+  var rows = S ? S.groups.map(function(g, i){ return '<div class="grow">'+cockade(g.color, 24)+'<span><b>'+esc(g.name)+'</b> · '+g.mom+' Momentum</span><span class="row">' +
+    [-3,-1,1,3].map(function(d){ return '<button class="btn" data-act="adj" data-g="'+i+'" data-d="'+d+'" aria-label="'+(d > 0 ? 'Add ' : 'Remove ')+Math.abs(d)+' Momentum for '+esc(g.name)+'">'+(d > 0 ? '+' : '−')+Math.abs(d)+'</button>'; }).join('')+'</span></div>'; }).join('') : '<p class="note">No game is running.</p>';
+  var conf = function(act, label){ return '<button class="btn" data-act="'+act+'">'+(c === act ? 'Click again to confirm' : label)+'</button>'; };
+  return '<button class="btn ghost close" data-act="close">Close</button><div class="teach"><p class="kicker">Teacher controls</p><h2>Adjust the game</h2>' +
+    '<p class="lede">Reward participation or fix a misclick with Momentum. These changes take effect right away.</p>'+rows +
+    (S ? '<p class="lab" style="margin-top:1.2rem">Turn timer</p><div class="seg">'+[[30,'30s'],[45,'45s'],[60,'60s'],[90,'90s'],[0,'Off']].map(function(v){ return '<button data-act="ttimer" data-v="'+v[0]+'" aria-pressed="'+(S.settings.timer === v[0])+'">'+v[1]+'</button>'; }).join('')+'</div>' +
+    '<p class="lab" style="margin-top:1.2rem">Game</p><div class="row">'+(S.phase === 'turn' ? conf('skipera', 'Skip remaining turns this era') : '')+conf('endgame', 'End the game now')+conf('newgame', 'New game')+'</div>' : '') +
+    '<p class="lab" style="margin-top:1.2rem">Knowledge check questions</p><div class="bankpick"><span>Using: <b>'+bankSummary()+'</b></span><button class="btn" data-act="banks" data-back="teacher">Manage question banks</button></div>' +
+    '<p class="note" style="margin-top:1rem">The game saves in this browser after every move, so you can reload the page or come back to it next class.</p></div>';
+}
+function bankSummary(){
+  var bs = activeBanks(); if (!bs.length) bs = [BUILTIN];
+  var n = bs.reduce(function(t, b){ return t + b.qs.length; }, 0);
+  return esc(bs.map(function(b){ return b.name; }).join(', ')) + ' · ' + n + ' question' + (n === 1 ? '' : 's');
+}
+function blankForm(){ return {q:'', a:['','','',''], why:''}; }
+function banksView(){
+  var B = ui.bank, sel = bankById(B.sel) || BUILTIN, mine = !sel.builtin;
+  if (!B.form) B.form = blankForm();
+  var list = allBanks().map(function(b){
+    var on = QB.active.indexOf(b.id) >= 0;
+    return '<div class="bk'+(b.id === sel.id ? ' cur' : '')+'"><label class="use"><input type="checkbox" id="bact-'+b.id+'" data-bactive="'+b.id+'"'+(on ? ' checked' : '')+(b.qs.length ? '' : ' disabled')+'><span class="sr">Use in game</span></label>' +
+      '<button class="bkname" data-act="bsel" data-id="'+b.id+'"><b>'+esc(b.name)+'</b><small>'+b.qs.length+' question'+(b.qs.length === 1 ? '' : 's')+(b.builtin ? ' · built in' : '')+'</small></button></div>';
+  }).join('');
+  var conf = function(key, label, act, extra){ return '<button class="btn'+(B.confirm === key ? ' danger' : '')+'" data-act="'+act+'"'+(extra || '')+'>'+(B.confirm === key ? 'Click again to delete' : label)+'</button>'; };
+  var qs = sel.qs.length ? '<ol class="qlist">'+sel.qs.map(function(q, i){
+      var wrong = q.a.filter(function(_, k){ return k !== q.c; });
+      return '<li'+(B.edit === i ? ' class="editing"' : '')+'><div class="qt">'+esc(q.q)+'</div><div class="qa"><span class="right">'+esc(q.a[q.c])+'</span>'+wrong.map(function(w){ return '<span>'+esc(w)+'</span>'; }).join('')+'</div>' +
+        (mine ? '<div class="row qbtn"><button class="btn" data-act="qedit" data-i="'+i+'">Edit</button>'+conf('q'+i, 'Delete', 'qdel', ' data-i="'+i+'"')+'</div>' : '')+'</li>';
+    }).join('')+'</ol>' : '<p class="note">This bank has no questions yet. Add one below.</p>';
+  var f = B.form;
+  var form = mine ? '<div class="qform" id="qform"><p class="lab">'+(B.edit != null ? 'Edit question '+(B.edit + 1) : 'Add a question')+'</p>' +
+      '<label class="fl" for="bf-q">Question</label><textarea id="bf-q" data-bf="q" rows="2">'+esc(f.q)+'</textarea>' +
+      '<div class="ans"><div><label class="fl ok" for="bf-a0">Correct answer</label><input id="bf-a0" data-bf="a0" value="'+esc(f.a[0])+'"></div>' +
+      [1,2,3].map(function(k){ return '<div><label class="fl" for="bf-a'+k+'">Wrong answer'+(k > 1 ? ' (optional)' : '')+'</label><input id="bf-a'+k+'" data-bf="a'+k+'" value="'+esc(f.a[k])+'"></div>'; }).join('')+'</div>' +
+      '<label class="fl" for="bf-why">Explanation shown after answering (optional)</label><input id="bf-why" data-bf="why" value="'+esc(f.why)+'">' +
+      (B.err ? '<p class="err">'+esc(B.err)+'</p>' : '') +
+      '<div class="row"><button class="btn gold" data-act="qadd">'+(B.edit != null ? 'Save changes' : 'Add question')+'</button>'+(B.edit != null ? '<button class="btn" data-act="qcancel">Cancel</button>' : '')+'</div></div>' +
+    '<details class="paste"'+(B.paste ? ' open' : '')+'><summary>Add many at once</summary><p class="note">Put one question per line in this order, separated by <b>|</b>:<br><code>Question | Correct answer | Wrong answer | Wrong answer | Wrong answer | Explanation</code><br>The explanation and extra wrong answers are optional. If you use fewer than three wrong answers with an explanation, leave the empty spots between bars, like <code>| |</code>. You can also copy rows straight from a spreadsheet with the columns in that order.</p>' +
+      '<textarea id="bf-paste" data-bf="paste" rows="5" placeholder="Who wrote Common Sense? | Thomas Paine | John Adams | Thomas Jefferson | Ben Franklin | Published in 1776">'+esc(B.paste)+'</textarea><button class="btn gold" data-act="bimport">Add these questions</button></details>'
+    : '<p class="note">The built-in bank cannot be changed. Make your own copy to edit it.</p>';
+  var exportBox = B.exportOpen ? '<textarea id="bf-export" class="export" rows="5" readonly>'+esc(sel.qs.map(bankLine).join('\n'))+'</textarea><p class="note">Copy this text to save the bank or share it. To load it on another computer, create a bank there and paste it into “Add many at once.”</p>' : '';
+  return '<button class="btn ghost close" data-act="bankback">Done</button><p class="kicker">Knowledge checks</p><h2>Question banks</h2>' +
+    '<p class="lede">Check the banks you want to use this game. Groups get a random question from every checked bank. Your banks are saved in this browser.</p>' +
+    (B.msg ? '<p class="okmsg" role="status">'+esc(B.msg)+'</p>' : '') +
+    '<div class="bgrid"><div class="blist"><p class="lab">Banks</p>'+list +
+      '<div class="newbank"><label class="fl" for="bf-new">New bank name</label><input id="bf-new" data-bf="newName" placeholder="Unit 3: The Constitution" value="'+esc(B.newName)+'"><button class="btn" data-act="bnew">Create bank</button></div></div>' +
+    '<div class="bdetail"><div class="bhd">'+(mine ? '<label class="fl" for="bf-rename">Bank name</label><input id="bf-rename" class="rename" data-brename="'+sel.id+'" value="'+esc(sel.name)+'">' : '<h3>'+esc(sel.name)+'</h3>') +
+      '<div class="row"><button class="btn" data-act="bcopy">Copy as text</button><button class="btn" data-act="bdup">Make a copy</button>'+(mine ? conf('bank', 'Delete bank', 'bdel') : '')+'</div></div>' +
+      exportBox + form + '<p class="lab" style="margin-top:1.2rem">'+sel.qs.length+' question'+(sel.qs.length === 1 ? '' : 's')+'</p>' + qs + '</div></div>';
+}
+
+/* ---------- render all ---------- */
+function render(){ drawTop(); drawStand(); drawSide(); drawBoard(); drawLinks(); drawNodes(); drawOverlay(); if (ui.modal === 'peek') showReturn(); }
+
+/* ---------- actions ---------- */
+function snapshot(){ ui.undo.push(JSON.stringify(S)); if (ui.undo.length > 20) ui.undo.shift(); }
+function freshTurn(){ ui.undo = []; ui.turnAt = Date.now(); ui.sel = null; ui.mode = 'map'; ui.pick = null; }
+function startGame(){
+  var st = ui.setup;
+  S = newGame({length:st.length, timer:st.timer, quiz:st.quiz, groups:st.groups.map(function(g, i){ return {name:(g.name.trim() || CRADLES[g.cradle]), color:COLORS[i], cradle:g.cradle}; })});
+  ui.modal = null; ui.sel = null; ui.flash = []; save(); render();
+}
+var ACT = {
+  help:function(){ ui.modal = 'help'; drawOverlay(); },
+  teacher:function(){ ui.confirm = null; ui.modal = 'teacher'; drawOverlay(); },
+  close:function(){ ui.modal = null; ui.quiz = null; ui.confirm = null; render(); },
+  closeview:function(){ ui.modal = 'peek'; $('overlay').hidden = true; showReturn(); },
+  set:function(el){ var k = el.getAttribute('data-k'), v = el.getAttribute('data-v'); ui.setup[k] = k === 'timer' ? +v : k === 'quiz' ? v === 'true' : v; drawOverlay(); },
+  addgroup:function(){ var used = ui.setup.groups.map(function(g){ return g.cradle; }); var free = Object.keys(CRADLES).filter(function(c){ return used.indexOf(c) < 0; })[0]; ui.setup.groups.push({name:'', cradle:free}); drawOverlay(); },
+  rmgroup:function(el){ ui.setup.groups.splice(+el.getAttribute('data-i'), 1); drawOverlay(); },
+  start:startGame,
+  fs:function(){
+    var d = document, el = d.documentElement;
+    if (d.fullscreenElement || d.webkitFullscreenElement){ (d.exitFullscreen || d.webkitExitFullscreen).call(d); return; }
+    var req = el.requestFullscreen || el.webkitRequestFullscreen;
+    var fail = function(){ toast('Full screen is blocked here. Open the game in its own browser tab, or press F11.'); };
+    if (!req){ fail(); return; }
+    try{ var p = req.call(el); if (p && p.catch) p.catch(fail); }catch(e){ fail(); }
+  },
+  banks:function(el){ var B = ui.bank; B.back = el.getAttribute('data-back') || (S ? 'teacher' : null); B.msg = ''; B.err = ''; B.confirm = null; B.exportOpen = false; ui.modal = 'banks'; drawOverlay(); },
+  bankback:function(){ var B = ui.bank; B.edit = null; B.form = null; B.err = ''; ui.modal = B.back === 'teacher' ? 'teacher' : null; render(); },
+  bsel:function(el){ var B = ui.bank; B.sel = el.getAttribute('data-id'); B.edit = null; B.form = null; B.err = ''; B.msg = ''; B.confirm = null; B.exportOpen = false; drawOverlay(); },
+  bnew:function(){
+    var B = ui.bank, name = B.newName.trim() || 'My questions', id = 'b' + Date.now().toString(36);
+    QB.banks.push({id:id, name:name, qs:[]}); QB.active.push(id); saveBanks();
+    B.sel = id; B.newName = ''; B.msg = 'Created “' + name + '”. Add questions on the right.'; B.form = null; B.edit = null; drawOverlay();
+    var q = $('bf-q'); if (q) q.focus();
+  },
+  bdel:function(){
+    var B = ui.bank; if (B.confirm !== 'bank'){ B.confirm = 'bank'; drawOverlay(); return; }
+    var name = bankById(B.sel).name;
+    QB.banks = QB.banks.filter(function(b){ return b.id !== B.sel; }); QB.active = QB.active.filter(function(a){ return a !== B.sel; });
+    if (!activeBanks().length && QB.active.indexOf('builtin') < 0) QB.active.push('builtin');
+    saveBanks(); B.sel = 'builtin'; B.confirm = null; B.msg = 'Deleted “' + name + '”.'; drawOverlay();
+  },
+  bdup:function(){
+    var B = ui.bank, src = bankById(B.sel), id = 'b' + Date.now().toString(36);
+    QB.banks.push({id:id, name:src.name + ' (my copy)', qs:JSON.parse(JSON.stringify(src.qs))});
+    QB.active = QB.active.filter(function(a){ return a !== src.id; }); QB.active.push(id); saveBanks();
+    B.sel = id; B.msg = 'Made an editable copy. The copy is now in use instead of the original.'; B.form = null; B.edit = null; drawOverlay();
+  },
+  qadd:function(){
+    var B = ui.bank, f = B.form, b = bankById(B.sel); if (!b || b.builtin) return;
+    var q = f.q.trim(), right = f.a[0].trim(), wrong = f.a.slice(1).map(function(x){ return x.trim(); }).filter(Boolean);
+    if (!q){ B.err = 'Type the question first.'; drawOverlay(); return; }
+    if (!right){ B.err = 'Add the correct answer.'; drawOverlay(); return; }
+    if (!wrong.length){ B.err = 'Add at least one wrong answer.'; drawOverlay(); return; }
+    var item = {q:q, a:[right].concat(wrong), c:0, why:f.why.trim()};
+    if (B.edit != null){ b.qs[B.edit] = item; B.msg = 'Saved question ' + (B.edit + 1) + '.'; } else { b.qs.push(item); B.msg = 'Added question ' + b.qs.length + '.'; }
+    if (QB.active.indexOf(b.id) < 0) QB.active.push(b.id);
+    saveBanks(); B.edit = null; B.form = blankForm(); B.err = ''; drawOverlay(); toast(B.msg);
+    var e = $('bf-q'); if (e) try{ e.focus({preventScroll:true}); }catch(x){}
+  },
+  qedit:function(el){
+    var B = ui.bank, i = +el.getAttribute('data-i'), q = bankById(B.sel).qs[i], wrong = q.a.filter(function(_, k){ return k !== q.c; });
+    B.edit = i; B.form = {q:q.q, a:[q.a[q.c]].concat(wrong, ['','','']).slice(0, 4), why:q.why || ''}; B.err = ''; B.msg = ''; drawOverlay();
+    var e = $('qform'); if (e) try{ e.scrollIntoView({block:'center'}); }catch(x){}
+  },
+  qcancel:function(){ var B = ui.bank; B.edit = null; B.form = blankForm(); B.err = ''; drawOverlay(); },
+  qdel:function(el){
+    var B = ui.bank, i = +el.getAttribute('data-i'); if (B.confirm !== 'q' + i){ B.confirm = 'q' + i; drawOverlay(); return; }
+    bankById(B.sel).qs.splice(i, 1); B.confirm = null; B.edit = null; B.form = null; B.msg = 'Deleted question ' + (i + 1) + '.'; saveBanks(); drawOverlay();
+  },
+  bimport:function(){
+    var B = ui.bank, b = bankById(B.sel), r = parseBank(B.paste); if (!b || b.builtin) return;
+    if (!r.ok.length){ B.err = ''; B.msg = ''; B.paste = B.paste; drawOverlay(); toast('No questions found. Each line needs a question, a correct answer, and at least one wrong answer, separated by |'); return; }
+    b.qs = b.qs.concat(r.ok); if (QB.active.indexOf(b.id) < 0) QB.active.push(b.id); saveBanks();
+    B.paste = ''; B.msg = 'Added ' + r.ok.length + ' question' + (r.ok.length === 1 ? '' : 's') + '.' + (r.bad.length ? ' Skipped line ' + r.bad.join(', ') + ': each line needs a question, a correct answer, and a wrong answer.' : '');
+    drawOverlay(); toast(B.msg);
+  },
+  bcopy:function(){
+    var B = ui.bank, text = (bankById(B.sel) || BUILTIN).qs.map(bankLine).join('\n');
+    B.exportOpen = true; drawOverlay();
+    var box = $('bf-export');
+    var fallback = function(){ if (box){ box.focus(); box.select(); } toast('Select all of the text in the box and copy it.'); };
+    try{ navigator.clipboard.writeText(text).then(function(){ toast('Copied ' + (bankById(B.sel) || BUILTIN).qs.length + ' questions to the clipboard.'); }, fallback); }catch(e){ fallback(); }
+  },
+  resume:function(){ S = loadSaved(); ui.modal = null; if (S && S.phase === 'turn') freshTurn(); render(); },
+  begin:function(){ beginEra(S); freshTurn(); save(); render(); },
+  mode:function(el){ ui.mode = el.getAttribute('data-mode'); drawSide(); drawBoard(); },
+  pick:function(el){ ui.pick = el.getAttribute('data-up'); ui.modal = 'upgrade'; drawBoard(); drawOverlay(); },
+  adopt:function(el){ var id = el.getAttribute('data-up'), g = S.groups[curGi(S)]; snapshot();
+    if (buy(S, curGi(S), id)){ ui.modal = null; ui.flash = [id]; save(); render(); ui.flash = [];
+      toast('<b>'+esc(UPI[id].name)+'</b> adopted · '+g.mom+' Momentum left'); }
+    else ui.undo.pop(); },
+  campaign:function(el){ var r = el.getAttribute('data-r'); snapshot(); if (campaign(S, curGi(S), r)){ ui.flash = [r]; save(); render(); ui.flash = []; } else ui.undo.pop(); },
+  undo:function(){ if (!ui.undo.length) return; S = JSON.parse(ui.undo.pop()); save(); render(); },
+  endturn:function(){
+    var res = endTurn(S); freshTurn();
+    if (res === 'resolve'){ ui.flash = S.report.revs.map(function(x){ return x.r; }).concat(S.report.crushed.map(function(x){ return x.r; })); }
+    save(); render(); ui.flash = [];
+  },
+  next:function(){ nextEra(S); ui.modal = null; ui.sel = null; save(); render(); },
+  again:function(){ clearSaved(); S = null; ui.modal = null; ui.sel = null; render(); },
+  quiz:function(){
+    var g = S.groups[curGi(S)]; if (g.quizDone) return;
+    var all = quizPool(), pool = all.filter(function(x){ return S.quizUsed.indexOf(x.key) < 0; });
+    if (!pool.length){ S.quizUsed = []; pool = all; }
+    var pick = pool[Math.floor(Math.random() * pool.length)], order = pick.q.a.map(function(_, i){ return i; });
+    for (var k = order.length - 1; k > 0; k--){ var j = Math.floor(Math.random() * (k + 1)), t = order[k]; order[k] = order[j]; order[j] = t; }
+    ui.quiz = {key:pick.key, q:pick.q, order:order, picked:null}; ui.modal = 'quiz'; drawOverlay();
+  },
+  answer:function(el){
+    var q = ui.quiz, a = +el.getAttribute('data-a'), g = S.groups[curGi(S)];
+    q.picked = a; g.quizDone = true; S.quizUsed.push(q.key);
+    if (a === q.q.c) g.mom += 3;
+    save(); drawOverlay(); drawSide(); drawStand();
+  },
+  adj:function(el){ var g = S.groups[+el.getAttribute('data-g')]; g.mom = Math.max(0, g.mom + (+el.getAttribute('data-d'))); save(); drawOverlay(); drawSide(); drawBoard(); drawStand(); },
+  ttimer:function(el){ S.settings.timer = +el.getAttribute('data-v'); ui.turnAt = Date.now(); save(); drawOverlay(); drawSide(); },
+  skipera:function(){ if (ui.confirm !== 'skipera'){ ui.confirm = 'skipera'; drawOverlay(); return; }
+    ui.confirm = null; ui.modal = null; S.turnPos = S.order.length - 1; ACT.endturn(); },
+  endgame:function(){ if (ui.confirm !== 'endgame'){ ui.confirm = 'endgame'; drawOverlay(); return; }
+    ui.confirm = null; ui.modal = null; S.phase = 'end'; save(); render(); },
+  newgame:function(){ if (ui.confirm !== 'newgame'){ ui.confirm = 'newgame'; drawOverlay(); return; }
+    ui.confirm = null; clearSaved(); S = null; ui.modal = null; render(); }
+};
+function showReturn(){
+  var side = $('side');
+  side.innerHTML = '<div class="rcard"><p class="hint">Take a look at the map. Click a region for details.</p><button class="btn gold big camp" data-act="close">'+(S.phase === 'end' ? 'Back to the final results' : 'Back to the results')+'</button></div>' + (ui.sel ? regionCard(null) : '');
+}
+
+document.addEventListener('click', function(ev){
+  if (ev.target.id === 'overlay' && ui.modal === 'upgrade'){ ACT.close(); return; }
+  var z = ev.target.closest('[data-zoom]'); if (z){ setView(z.getAttribute('data-zoom')); return; }
+  var n = ev.target.closest('.node'); if (n && S){ selectRegion(n.getAttribute('data-r')); return; }
+  var b = ev.target.closest('[data-act]'); if (!b || b.disabled) return;
+  var f = ACT[b.getAttribute('data-act')]; if (f) f(b);
+});
+document.addEventListener('keydown', function(ev){
+  var n = ev.target.closest && ev.target.closest('.node');
+  if (n && (ev.key === 'Enter' || ev.key === ' ')){ ev.preventDefault(); if (S) selectRegion(n.getAttribute('data-r')); }
+  if (ev.key === 'Escape' && ui.modal === 'banks'){ ACT.bankback(); return; }
+  if (ev.key === 'Escape' && (ui.modal === 'help' || ui.modal === 'teacher' || ui.modal === 'upgrade' || (ui.modal === 'quiz' && ui.quiz && ui.quiz.picked != null))) ACT.close();
+});
+function selectRegion(r){
+  ui.sel = ui.sel === r ? null : r;
+  drawLinks(); drawNodes();
+  if (ui.modal === 'peek') showReturn(); else drawSide();
+}
+document.addEventListener('input', function(ev){
+  var i = ev.target.getAttribute('data-name'); if (i != null) ui.setup.groups[+i].name = ev.target.value;
+  var bf = ev.target.getAttribute('data-bf'), B = ui.bank;
+  if (bf){ if (bf.charAt(0) === 'a' && bf.length === 2) B.form.a[+bf.charAt(1)] = ev.target.value; else if (bf === 'q' || bf === 'why') B.form[bf] = ev.target.value; else B[bf] = ev.target.value; }
+});
+document.addEventListener('change', function(ev){
+  var i = ev.target.getAttribute('data-cradle'); if (i != null){ ui.setup.groups[+i].cradle = ev.target.value; drawOverlay(); }
+  var ba = ev.target.getAttribute('data-bactive');
+  if (ba != null){ QB.active = QB.active.filter(function(a){ return a !== ba; }); if (ev.target.checked) QB.active.push(ba); saveBanks(); ui.bank.msg = ''; drawOverlay(); }
+  var br = ev.target.getAttribute('data-brename');
+  if (br != null){ var b = bankById(br); if (b && !b.builtin){ b.name = ev.target.value.trim() || b.name; saveBanks(); } }
+});
+
+function fsLabel(){ var b = $('fsBtn'); if (b) b.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit full screen' : 'Full screen'; }
+document.addEventListener('fullscreenchange', fsLabel); document.addEventListener('webkitfullscreenchange', fsLabel);
+/* ---------- boot ---------- */
+function start(data){
+  if (data && data.S && data.S.reg) S = data.S;
+  buildBase(); drawLegend(); setView('world');
+  if (S && S.phase === 'turn') freshTurn();
+  render();
+}
+if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(function(){ return {S:S}; });
+if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+
+</script>
+
+</body></html>

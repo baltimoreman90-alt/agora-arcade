@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bishop's Game Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: a game shelf. Header with filter tabs, a Starred row, the main shelf of game "boxes", then a Side Projects folder. */
+:root{
+  --bg:#eef0ea; --surface:#ffffff; --surface-2:#f5f6f2; --line:#d6d9cf;
+  --fg:#1c231f; --muted:#5b6560; --accent:#1f6b52; --accent-ink:#ffffff; --star:#c9861a;
+  --gov:#2b4c8c; --hist:#9a3b24; --gov-soft:#e3e9f6; --hist-soft:#f6e6e0;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --shadow:0 1px 2px rgba(28,35,31,.06), 0 6px 18px rgba(28,35,31,.06);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141a17; --surface:#1d2521; --surface-2:#232d28; --line:#33403a;
+  --fg:#e8ede9; --muted:#9aa8a1; --accent:#5cc49c; --accent-ink:#0f1a15; --star:#f0b445;
+  --gov:#8fb0ee; --hist:#ee9a82; --gov-soft:#22304a; --hist-soft:#3a2721;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#141a17; --surface:#1d2521; --surface-2:#232d28; --line:#33403a;
+  --fg:#e8ede9; --muted:#9aa8a1; --accent:#5cc49c; --accent-ink:#0f1a15; --star:#f0b445;
+  --gov:#8fb0ee; --hist:#ee9a82; --gov-soft:#22304a; --hist-soft:#3a2721;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.page{max-width:1180px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px 24px}
+.title h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-.02em;line-height:1}
+.title p{margin:8px 0 0;color:var(--muted);max-width:56ch}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tab{border:0;background:transparent;border-radius:9px;padding:8px 14px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tab .n{font-variant-numeric:tabular-nums;font-size:.8rem;background:var(--surface-2);border-radius:999px;padding:1px 8px}
+.tab[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tab[aria-pressed="true"] .n{background:rgba(255,255,255,.22)}
+
+section{display:flex;flex-direction:column;gap:14px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-head h2{font-size:1.35rem;font-weight:800}
+.sec-head span{color:var(--muted);font-size:.95rem}
+
+/* shelf */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:18px}
+.game{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.spine{display:flex;align-items:center;gap:12px;padding:16px 16px 0}
+.glyph{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.15rem;color:#fff}
+.gov .glyph{background:var(--gov)} .hist .glyph{background:var(--hist)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .glyph{color:#10161a} }
+:root[data-theme="dark"] .glyph{color:#10161a}
+.spine h3{font-size:1.25rem;font-weight:800;line-height:1.15;flex:1;min-width:0}
+.star{border:1px solid var(--line);background:var(--surface-2);width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:var(--muted)}
+.star svg{width:20px;height:20px}
+.star[aria-pressed="true"]{color:var(--star);border-color:var(--star)}
+.star[aria-pressed="true"] svg path{fill:currentColor}
+.body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.8rem;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.gov .tag.cls{background:var(--gov-soft);color:var(--gov);border-color:transparent}
+.hist .tag.cls{background:var(--hist-soft);color:var(--hist);border-color:transparent}
+.blurb{margin:0;color:var(--fg)}
+details.how{border-top:1px dashed var(--line);padding-top:10px}
+details.how summary{cursor:pointer;font-weight:700;color:var(--muted);font-size:.95rem}
+details.how ol{margin:8px 0 0;padding-left:1.2rem;display:grid;gap:4px;font-size:.95rem}
+.note{font-size:.88rem;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:0}
+.actions{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
+.play{flex:1;display:inline-flex;justify-content:center;align-items:center;gap:8px;text-decoration:none;background:var(--accent);color:var(--accent-ink);font-weight:700;border-radius:10px;padding:11px 16px;min-width:140px}
+.play:hover{filter:brightness(1.08)}
+.play svg{width:16px;height:16px}
+
+/* starred empty state */
+.empty{border:1px dashed var(--line);border-radius:14px;padding:16px;color:var(--muted);display:flex;gap:10px;align-items:center}
+.empty svg{width:20px;height:20px;flex:none;color:var(--star)}
+
+/* side projects folder */
+details.folder{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:0}
+details.folder>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 18px}
+details.folder>summary::-webkit-details-marker{display:none}
+.folder-icon{width:40px;height:32px;flex:none;color:var(--muted)}
+.folder-title{font-family:var(--display);font-weight:800;font-size:1.3rem}
+.folder-sub{color:var(--muted);font-size:.95rem}
+.chev{margin-left:auto;transition:transform .15s;color:var(--muted)}
+details.folder[open] .chev{transform:rotate(90deg)}
+.folder-inner{padding:0 18px 18px}
+@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+footer{color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="top">
+    <div class="title">
+      <h1>Bishop's Game Room</h1>
+      <p>Pick a game and it opens in a new tab, ready for the projector. Star the ones you use most to keep them at the top.</p>
+    </div>
+    <div class="tabs" role="group" aria-label="Show games">
+      <button class="tab" data-f="all" aria-pressed="true">All <span class="n" id="nAll"></span></button>
+      <button class="tab" data-f="team" aria-pressed="false">Team games <span class="n" id="nTeam"></span></button>
+      <button class="tab" data-f="solo" aria-pressed="false">Daily solo <span class="n" id="nSolo"></span></button>
+    </div>
+  </header>
+
+  <section id="starredSec" aria-labelledby="starH">
+    <div class="sec-head"><h2 id="starH">Starred</h2><span id="starCount"></span></div>
+    <div class="shelf" id="starred"></div>
+  </section>
+
+  <section aria-labelledby="mainH">
+    <div class="sec-head"><h2 id="mainH">All games</h2><span id="mainCount"></span></div>
+    <div class="shelf" id="main"></div>
+  </section>
+
+  <details class="folder" id="sideFolder">
+    <summary>
+      <svg class="folder-icon" viewBox="0 0 40 32" fill="none" aria-hidden="true"><path d="M2 6a3 3 0 0 1 3-3h10l4 4h16a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
+      <div><div class="folder-title">Side Projects</div><div class="folder-sub" id="sideSub"></div></div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="folder-inner"><div class="shelf" id="side"></div></div>
+  </details>
+
+  <footer>This copy runs straight from your computer, no claude.ai needed. Keep the game files next to this one. Saved teams and games live in this browser on this computer.</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const GAMES = [
+  {id:"ntl", name:"Name That Leader", glyph:"NL", cls:"gov", clsName:"Government & Law", mode:"team",
+   href:"name-that-leader.html", time:"10–30 min", format:"2–6 teams · Projector",
+   blurb:"A portrait appears and a new clue unlocks every 15 seconds. Teams call out the leader: 4 points from the picture alone, down to 1 after the last clue.",
+   how:["Name your teams and pick categories: Presidents, Justices, Founders & Lawmakers, Civil Rights & Reformers.","Click a team's Got it button (or press 1–6) when they say the right name.","N moves to the next leader. Space pauses. F goes full screen."],
+   note:"Portraits load from Wikipedia, so the computer needs internet. If any are blocked, use Manage leaders & photos to load your saved photo pack."},
+  {id:"ybtj", name:"You Be the Judge", glyph:"YJ", cls:"gov", clsName:"Government & Law", mode:"team",
+   href:"you-be-the-judge.html", time:"20–45 min", format:"2–8 teams · Projector",
+   blurb:"Bill of Rights mock trial. Teams hear a case, real or fictional, and rule on which amendment is at stake and whether the right was violated.",
+   how:["Choose real cases, fictional cases, or both, and which amendments are in play.","Read the facts, press Space to start the clock. Clues unlock as time runs.","A team buzzes with a number key; mark the amendment and verdict right or wrong, then reveal the ruling."]},
+  {id:"cts", name:"Claim the States", glyph:"CS", cls:"hist", clsName:"U.S. History", mode:"team",
+   href:"claim-the-states.html", time:"Multi-day unit", format:"Up to 8 groups · Projector",
+   blurb:"Each group runs a colony on a real 50-state map: claim land, trade on a shifting market, answer a history question before every attack, and pass laws through all three branches.",
+   how:["Set up your groups; European powers and Native nations are already on the map.","Run five-minute turns with the built-in clock.","Each class period keeps its own saved game in this browser."]},
+  {id:"ccd", name:"Capitol Clues Daily", glyph:"CC", cls:"gov", clsName:"Government & Law", mode:"solo",
+   href:"capitol-clues-daily.html", time:"5 min", format:"Solo · Any device",
+   blurb:"Seven type-in questions a day from all 15 chapters of the government workbook. Letter boxes show the answer's length, and clues unlock every 15 seconds.",
+   how:["Play it on the projector as a class warm-up, or have students play on their own.","Pause freezes the clock with the question still showing, for discussion.","Teacher settings at the bottom change the number of questions, points, and timing."]},
+  {id:"ccq", name:"Capitol Clues Quick Pick", glyph:"QP", cls:"gov", clsName:"Government & Law", mode:"solo",
+   href:"capitol-clues-quick-pick.html", time:"5 min", format:"Solo · Any device",
+   blurb:"The multiple-choice version of Capitol Clues: ten questions a day, four answers each, and a wrong answer crossed out after the second clue.",
+   how:["Press 1–4 or click to pick. One pick per question.","A different daily set from Capitol Clues Daily, so you can run both.","Good for English learners and quick vocabulary review."]}
+];
+const SIDE = [
+  {id:"spark", name:"Spark of Revolution", glyph:"SR", cls:"hist", clsName:"U.S. & World History", mode:"team",
+   href:"spark-of-revolution.html", time:"One class period", format:"Rival groups · Projector",
+   blurb:"Ideas spread instead of disease. Rival groups take turns at the projector spreading revolutions across the world map, 1775 to 1848."},
+  {id:"ratify", name:"Ratification Showdown 1788", glyph:"RS", cls:"gov", clsName:"Government & Law", mode:"solo",
+   href:"ratification-showdown.html", time:"About 25 min", format:"Solo · Any device",
+   blurb:"Federalists vs. Antifederalists in four stages: sort the delegates, decide who would say it, rapid recall, then write a 1788 pamphlet. Students copy their Ratification Record into Schoology."},
+  {id:"grudge", name:"Grudge Review: Unit 3", glyph:"GR", cls:"gov", clsName:"Government & Law", mode:"team",
+   href:"grudge-review-unit-3.html", time:"One class period", format:"Whole class · Printable",
+   blurb:"Grudge-style review for Unit 3, Building Our Government: eight stamped checkpoints, printable, with a hidden teacher answer key."}
+];
+
+const KEY="gameRoom_v1";
+function load(){ try{ const v=JSON.parse(localStorage.getItem(KEY)||"{}"); return v&&typeof v==="object"?v:{}; }catch(e){ return {}; } }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
+const state=Object.assign({stars:[],filter:"all",side:false},load());
+if(!Array.isArray(state.stars)) state.stars=[];
+
+const STAR='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+const ARROW='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+const $=id=>document.getElementById(id);
+
+function card(g){
+  const on=state.stars.indexOf(g.id)>=0;
+  return '<article class="game '+g.cls+'">'+
+    '<div class="spine"><div class="glyph" aria-hidden="true">'+g.glyph+'</div><h3>'+esc(g.name)+'</h3>'+
+    '<button class="star" data-star="'+g.id+'" aria-pressed="'+on+'" aria-label="'+(on?"Unstar ":"Star ")+esc(g.name)+'">'+STAR+'</button></div>'+
+    '<div class="body">'+
+      '<div class="tags"><span class="tag cls">'+esc(g.clsName)+'</span><span class="tag">'+esc(g.time)+'</span><span class="tag">'+esc(g.format)+'</span></div>'+
+      '<p class="blurb">'+esc(g.blurb)+'</p>'+
+      (g.note?'<p class="note">'+esc(g.note)+'</p>':'')+
+      (g.how?'<details class="how"><summary>How to run it</summary><ol>'+g.how.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ol></details>':'')+
+      '<div class="actions"><a class="play" href="'+esc(g.href)+'" target="_blank" rel="noopener">Play '+ARROW+'</a></div>'+
+    '</div></article>';
+}
+function pass(g){ return state.filter==="all" || g.mode===state.filter; }
+
+function render(){
+  const all=GAMES.concat(SIDE);
+  const starred=all.filter(g=>state.stars.indexOf(g.id)>=0 && pass(g));
+  $("starred").innerHTML = starred.length ? starred.map(card).join("") :
+    '<div class="empty">'+STAR+'<span>'+(state.stars.length?"No starred games in this view.":"Tap the star on any game to pin it here.")+'</span></div>';
+  $("starCount").textContent = starred.length ? starred.length+" pinned" : "";
+  const main=GAMES.filter(pass);
+  $("main").innerHTML=main.map(card).join("");
+  $("mainH").textContent = state.filter==="team"?"Team games":state.filter==="solo"?"Daily solo games":"All games";
+  $("mainCount").textContent=main.length+" game"+(main.length===1?"":"s");
+  const side=SIDE.filter(pass);
+  $("side").innerHTML=side.map(card).join("");
+  $("sideSub").textContent=side.length+" in progress: "+side.map(g=>g.name).join(", ");
+  $("sideFolder").hidden=!side.length;
+  $("nAll").textContent=all.length;
+  $("nTeam").textContent=all.filter(g=>g.mode==="team").length;
+  $("nSolo").textContent=all.filter(g=>g.mode==="solo").length;
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-pressed",String(t.dataset.f===state.filter)));
+}
+
+document.addEventListener("click",e=>{
+  const s=e.target.closest("[data-star]");
+  if(s){ const id=s.dataset.star, i=state.stars.indexOf(id); if(i>=0) state.stars.splice(i,1); else state.stars.push(id); save(); render(); return; }
+  const t=e.target.closest(".tab");
+  if(t){ state.filter=t.dataset.f; save(); render(); }
+});
+const folder=$("sideFolder");
+folder.open=!!state.side;
+folder.addEventListener("toggle",()=>{ state.side=folder.open; save(); });
+render();
+})();
+</script>
+</body>
+</html>
