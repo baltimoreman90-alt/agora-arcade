@@ -107,6 +107,14 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
 .ladder span.past{text-decoration:line-through;opacity:.55}
 
 .hints{display:flex;flex-direction:column;gap:10px}
+/* multiple choice (shown on screen; teams call out the letter) */
+.mc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.mc{grid-template-columns:1fr}}
+.opt{display:flex;gap:12px;align-items:center;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;font-size:clamp(1.05rem,1.6vw,1.35rem);min-width:0}
+.opt .let{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:var(--navy);color:#fff;font-family:var(--display);font-size:1.3rem}
+.opt.out{opacity:.4;text-decoration:line-through}
+.opt.right{border-color:var(--good);background:#e5f4ec}
+.opt.right .let{background:var(--good)}
 .hint{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .hint .num{font-family:var(--display);font-size:1.7rem;line-height:1;color:var(--muted);width:1.4em;text-align:center}
 .hint .txt{font-size:clamp(1.05rem,1.6vw,1.35rem);font-weight:600;min-width:0}
@@ -151,7 +159,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
       <h1>Name That Leader</h1>
       <p class="muted">A portrait appears. Every 15 seconds without a correct answer, a new clue unlocks. Name the leader early for more points.</p>
     </div>
-    <div class="keys">Keys in play: <kbd>Space</kbd> pause · <kbd>H</kbd> next hint · <kbd>R</kbd> reveal · <kbd>1</kbd>–<kbd>6</kbd> award team · <kbd>N</kbd> next leader · <kbd>F</kbd> full screen</div>
+    <div class="keys">Keys in play: <kbd>Space</kbd> pause · <kbd>H</kbd> next hint · <kbd>R</kbd> reveal · <kbd>1</kbd>–<kbd>6</kbd> award team · <kbd>N</kbd> next leader · <kbd>M</kbd> choices on/off · <kbd>F</kbd> full screen</div>
   </header>
 
   <div class="setup-grid">
@@ -169,6 +177,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
     <div class="card">
       <h2>Leaders</h2>
       <div id="catChecks" class="checks"></div>
+      <label class="check" style="margin-top:10px"><input type="checkbox" id="mcOn"><span><b>Multiple choice:</b> show 4 names on screen</span></label>
       <div class="field" style="margin-top:14px">
         <label for="roundCount">Leaders this game</label>
         <select id="roundCount"></select>
@@ -259,6 +268,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
       <button id="pauseBtn" class="btn">Pause</button>
       <button id="hintBtn" class="btn">Next hint</button>
       <button id="revealBtn" class="btn">Reveal answer</button>
+      <button id="mcBtn" class="btn ghost" aria-pressed="false">Choices: off</button>
       <button id="nextBtn" class="btn primary" hidden>Next leader</button>
       <button id="fsBtn" class="btn ghost">Full screen</button>
       <button id="endBtn" class="btn ghost">End game</button>
@@ -293,6 +303,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
           <div class="ladder" id="ladder"><span>4</span><span>3</span><span>2</span><span>1</span></div>
         </div>
       </div>
+      <div class="mc" id="mcBox" hidden aria-label="Answer choices"></div>
       <div class="hints" id="hints"></div>
       <div class="status-line" id="statusLine" aria-live="polite"></div>
     </div>
@@ -821,7 +832,7 @@ function nextLeader(){
   $("factBox").hidden=true; $("statusLine").textContent="";
   $("nextBtn").hidden=true; $("revealBtn").hidden=false; $("hintBtn").hidden=false; $("pauseBtn").hidden=false;
   $("pauseBtn").textContent="Pause";
-  renderPortrait(L); preload(G.list[G.idx+1]); renderHints(-1); renderWorth(); renderBench();
+  renderPortrait(L); preload(G.list[G.idx+1]); renderHints(-1); renderWorth(); renderBench(); renderChoices();
   startTick();
 }
 
@@ -843,6 +854,34 @@ function renderHints(fresh){
     d.innerHTML='<div class="num">'+(i+1)+'</div><div class="txt">'+txt+'</div>';
     box.appendChild(d);
   }
+}
+
+/* ---------- multiple choice ---------- */
+/* three wrong names from the same category (topped up from others if a category is small); one is crossed out at hint 2 */
+function makeOptions(L){
+  const all=allLeaders().filter(x=>x.name!==L.name);
+  let wrong=shuffle(all.filter(x=>x.cat===L.cat)).slice(0,3);
+  if(wrong.length<3) wrong=wrong.concat(shuffle(all.filter(x=>x.cat!==L.cat)).slice(0,3-wrong.length));
+  const names=wrong.map(x=>x.name);
+  const opts=shuffle([L.name].concat(names));
+  return {opts, cut:opts.indexOf(names[Math.floor(Math.random()*names.length)])};
+}
+function setMC(on){
+  store.mc=!!on; saveStore();
+  $("mcOn").checked=store.mc;
+  $("mcBtn").textContent="Choices: "+(store.mc?"on":"off"); $("mcBtn").setAttribute("aria-pressed",String(store.mc));
+  if(G&&G.cur) renderChoices();
+}
+function renderChoices(){
+  const c=G.cur, box=$("mcBox");
+  box.hidden=!store.mc; if(!store.mc) return;
+  if(!c.opts){ const o=makeOptions(c.L); c.opts=o.opts; c.cut=o.cut; }
+  box.innerHTML=c.opts.map((n,k)=>{
+    let cls="opt";
+    if(c.done && n===c.L.name) cls+=" right";
+    else if(c.stage>=2 && k===c.cut) cls+=" out";
+    return '<div class="'+cls+'"><span class="let">'+"ABCD"[k]+'</span><span>'+esc(n)+'</span></div>';
+  }).join("");
 }
 
 function worth(){ return Math.max(1,4-G.cur.stage); }
@@ -882,8 +921,8 @@ function stopTick(){ if(tick){ clearInterval(tick); tick=null; } }
 function advanceHint(){
   const c=G.cur; if(c.done || c.stage>=3) return;
   c.stage++; c.left=G.secs*1000;
-  renderHints(c.stage-1); renderWorth();
-  $("statusLine").textContent = "Hint "+c.stage+" unlocked — now worth "+worth()+(worth()===1?" point.":" points.");
+  renderHints(c.stage-1); renderWorth(); renderChoices();
+  $("statusLine").textContent = (store.mc&&c.stage===2?"One wrong choice crossed out. ":"")+"Hint "+c.stage+" unlocked — now worth "+worth()+(worth()===1?" point.":" points.");
 }
 
 function togglePause(){
@@ -902,7 +941,7 @@ function reveal(teamIdx){
   if(c.L.fact){ $("factBox").textContent="Why it matters: "+c.L.fact; $("factBox").hidden=false; }
   $("statusLine").textContent = teamIdx>=0 ? (G.teams[teamIdx].name+" earns "+pts+(pts===1?" point!":" points!")) : "No points this round.";
   $("nextBtn").hidden=false; $("revealBtn").hidden=true; $("hintBtn").hidden=true; $("pauseBtn").hidden=true;
-  renderHints(-1); renderWorth(); renderBench(teamIdx);
+  renderHints(-1); renderWorth(); renderBench(teamIdx); renderChoices();
   $("nextBtn").focus();
 }
 
@@ -953,6 +992,8 @@ $("hintBtn").addEventListener("click",()=>{ if(G&&G.cur&&G.cur.stage<3) advanceH
 $("revealBtn").addEventListener("click",()=>reveal(-1));
 $("nextBtn").addEventListener("click",nextLeader);
 $("endBtn").addEventListener("click",endGame);
+$("mcOn").addEventListener("change",()=>setMC($("mcOn").checked));
+$("mcBtn").addEventListener("click",()=>setMC(!store.mc));
 $("againBtn").addEventListener("click",()=>{ $("final").hidden=true; $("setup").hidden=false; G=null; });
 
 document.addEventListener("keydown",e=>{
@@ -963,6 +1004,7 @@ document.addEventListener("keydown",e=>{
   else if(k==="h"){ $("hintBtn").click(); }
   else if(k==="r"){ reveal(-1); }
   else if(k==="n"){ if(G.cur.done) nextLeader(); }
+  else if(k==="m"){ setMC(!store.mc); }
   else if(/^[1-6]$/.test(k) && +k<=G.teams.length){ reveal(+k-1); }
 });
 
@@ -1051,6 +1093,7 @@ document.addEventListener("fullscreenchange",fsLabel); document.addEventListener
 document.addEventListener("keydown",e=>{ if(e.key.toLowerCase()==="f" && !(e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName))) toggleFs(); });
 
 renderTeamInputs(); renderCatChecks();
+$("mcOn").checked=!!store.mc; $("mcBtn").textContent="Choices: "+(store.mc?"on":"off"); $("mcBtn").setAttribute("aria-pressed",String(!!store.mc));
 loadWiki(BUILT_IN.map(wikiTitle));
 })();
 </script>

@@ -73,6 +73,18 @@ details.custom summary{font-family:var(--serif);font-size:1.3rem;color:var(--nav
 .case-title{font-size:2.3rem;color:var(--navy);margin-bottom:12px;line-height:1.15}
 .facts{font-size:1.45rem;line-height:1.55;border-left:5px solid var(--gold);padding:4px 0 4px 18px;margin-bottom:18px}
 .clues{display:grid;gap:10px}
+/* multiple choice: four amendments on screen, teams call out the letter */
+.mcq{margin:0 0 18px}
+.mcq .lab2{font-weight:800;color:var(--navy);margin-bottom:8px}
+.mc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.mc{grid-template-columns:1fr}}
+.opt{display:flex;gap:12px;align-items:center;border:2px solid var(--navy);border-radius:12px;padding:10px 14px;background:#fff;min-width:0}
+.opt .let{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-weight:800;font-size:1.15rem}
+.opt b{display:block;font-size:1.2rem}
+.opt span.t{color:var(--muted);font-size:.95rem}
+.opt.out{opacity:.4;text-decoration:line-through;border-style:dashed}
+.opt.right{border-color:#1f8f5a;background:#e5f4ec}
+.opt.right .let{background:#1f8f5a}
 .clue{display:flex;gap:14px;align-items:flex-start;border:2px dashed var(--line);border-radius:12px;padding:12px 14px;font-size:1.25rem;color:var(--muted);background:#fbf8f1}
 .clue .n{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--line);color:#fff}
 .clue.open{border-style:solid;border-color:var(--navy);background:#fff;color:var(--ink)}
@@ -213,6 +225,12 @@ details.custom summary{font-family:var(--serif);font-size:1.3rem;color:var(--nav
         <div class="count-note" id="countNote"></div>
       </div>
       <div class="field">
+        <label class="lab">Answer style</label>
+        <div class="seg" id="mcSeg">
+          <button data-v="0" class="on">Open answer</button><button data-v="1">Multiple choice (4 amendments)</button>
+        </div>
+      </div>
+      <div class="field">
         <label class="lab">Seconds per clue</label>
         <div class="seg" id="secsSeg">
           <button data-v="15" class="on">15</button><button data-v="20">20</button><button data-v="30">30</button><button data-v="45">45</button>
@@ -276,6 +294,7 @@ details.custom summary{font-family:var(--serif);font-size:1.3rem;color:var(--nav
     <div class="brand"><div class="seal">⚖</div><div><div class="eyebrow" id="caseCounter">Case 1 of 8</div><h1>You Be the Judge</h1></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn ghost sm" id="refBtn">Amendments <kbd>A</kbd></button>
+      <button class="btn ghost sm" id="mcBtn">Choices: off <kbd>M</kbd></button>
       <button class="btn ghost sm" id="fsBtn">Full screen <kbd>F</kbd></button>
       <button class="btn ghost sm" id="endBtn">End game</button>
     </div>
@@ -285,6 +304,7 @@ details.custom summary{font-family:var(--serif);font-size:1.3rem;color:var(--nav
       <div class="docket"><span class="no" id="docketNo">Docket No. 1</span><span class="tag" id="caseTag">Real case</span></div>
       <h2 class="case-title" id="caseTitle"></h2>
       <div class="facts" id="caseFacts"></div>
+      <div class="mcq" id="mcq" hidden><div class="lab2">Which amendment is at stake?</div><div class="mc" id="mcBox"></div></div>
       <div class="clues" id="clues"></div>
     </div>
     <aside class="side">
@@ -731,7 +751,7 @@ const store = {
 };
 const DEFAULT_NAMES = ["Justices","Advocates","Jurors","Counselors","Clerks","Bailiffs","Barristers","Magistrates"];
 
-const S = Object.assign({teamCount:4,names:DEFAULT_NAMES.slice(),pool:"both",amends:AMEND_KEYS.slice(),count:8,secs:15}, store.get("ybtj_settings",{}));
+const S = Object.assign({teamCount:4,names:DEFAULT_NAMES.slice(),pool:"both",amends:AMEND_KEYS.slice(),count:8,secs:15,mc:"0"}, store.get("ybtj_settings",{}));
 let custom = store.get("ybtj_custom",[]);
 if(!Array.isArray(custom)) custom = [];
 
@@ -830,8 +850,38 @@ function renderCase(){
   const tag=$("caseTag"); tag.textContent=c.real?"Based on a real case":"Fictional case"; tag.className="tag"+(c.real?"":" fic");
   $("caseTitle").textContent=c.title;
   $("caseFacts").textContent=c.facts;
-  renderClues(-1); renderBuzz(); renderControls();
+  renderClues(-1); renderBuzz(); renderControls(); renderChoices();
 }
+/* ---------- multiple choice ---------- */
+/* the right amendment plus three others (from the ones in play first; never one the case also accepts); one is crossed out at clue 2 */
+function makeOptions(k){
+  const ok=[String(k.amend)].concat((k.also||[]).map(String));
+  const pick=list=>shuffle(list.filter(x=>ok.indexOf(x)<0));
+  let wrong=pick(S.amends.slice()).slice(0,3);
+  if(wrong.length<3) wrong=wrong.concat(pick(AMEND_KEYS.filter(x=>wrong.indexOf(x)<0))).slice(0,3);
+  const opts=shuffle([String(k.amend)].concat(wrong));
+  return {opts,cut:opts.indexOf(wrong[Math.floor(Math.random()*wrong.length)])};
+}
+function renderChoices(){
+  const on=S.mc==="1";
+  $("mcBtn").innerHTML="Choices: "+(on?"on":"off")+" <kbd>M</kbd>";
+  if(!G||!G.cur){ return; }
+  $("mcq").hidden=!on; if(!on) return;
+  const c=G.cur;
+  if(!c.opts){ const o=makeOptions(c.c); c.opts=o.opts; c.cut=o.cut; }
+  $("mcBox").innerHTML=c.opts.map((a,i)=>{
+    let cls="opt";
+    if(c.done && a===String(c.c.amend)) cls+=" right";
+    else if(c.stage>=2 && i===c.cut) cls+=" out";
+    return '<div class="'+cls+'"><span class="let">'+"ABCD"[i]+'</span><div><b>'+AMEND[a].n+' Amendment</b><span class="t">'+esc(AMEND[a].t)+'</span></div></div>';
+  }).join("");
+}
+function setMC(on){
+  S.mc=on?"1":"0"; saveSettings();
+  $("mcSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.v===S.mc));
+  renderChoices();
+}
+
 function renderClues(fresh){
   const c=G.cur.c, st=G.cur.stage, done=G.cur.done;
   $("clues").innerHTML=[0,1,2].map(k=>{
@@ -881,7 +931,7 @@ function stop(){ if(tick){ clearInterval(tick); tick=null; } if(G&&G.cur){ G.cur
 function toggle(){ if(!G||!G.cur||G.cur.done) return; if(G.cur.running){ stop(); setStatus("Paused."); } else run(); }
 function advanceClue(){
   const c=G.cur; if(c.done||c.stage>=3) return;
-  c.stage++; c.left=S.secs*1000; renderClues(c.stage-1); renderTimer(); renderControls();
+  c.stage++; c.left=S.secs*1000; renderClues(c.stage-1); renderTimer(); renderControls(); renderChoices();
 }
 function timeUp(){ stop(); setStatus("Time's up! No one solved it."); reveal(); }
 
@@ -935,7 +985,7 @@ function reveal(){
   const c=G.cur; if(!c) return;
   stop();
   if(!c.done){ c.done=true; logCase(c.winner,c.pts); }
-  renderClues(-1); renderBuzz(); renderTimer(); renderControls();
+  renderClues(-1); renderBuzz(); renderTimer(); renderControls(); renderChoices();
   const k=c.c, a=AMEND[k.amend];
   $("revealTitle").textContent=k.title;
   $("rvAmend").textContent=a.n+" Amendment"; $("rvAmendWhat").textContent=a.t;
@@ -970,7 +1020,8 @@ function openRef(){ $("refGrid").innerHTML=AMEND_KEYS.map(k=>'<div class="ref"><
 function fullscreen(){ try{ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }catch(e){} }
 
 /* ---------- wiring ---------- */
-segBind("poolSeg","pool"); segBind("countSeg","count",Number); segBind("secsSeg","secs",Number);
+segBind("poolSeg","pool"); segBind("countSeg","count",Number); segBind("secsSeg","secs",Number); segBind("mcSeg","mc");
+$("mcBtn").addEventListener("click",()=>setMC(S.mc!=="1")); renderChoices();
 renderTeamSetup(); renderAmendChips(); renderCustomList(); updateCountNote();
 
 $("startBtn").addEventListener("click",startGame);
@@ -1025,6 +1076,7 @@ document.addEventListener("keydown",e=>{
   else if(k==="h") advanceClue();
   else if(k==="r") reveal();
   else if(k==="n") nextCase();
+  else if(k==="m") setMC(S.mc!=="1");
   else if(/^[1-8]$/.test(k)) buzz(+k-1);
 });
 window.__ybtj={get G(){return G;},S,buzz,judgeSet,judgeOk,advanceClue,reveal,nextCase,startGame,toggle,BUILT_IN};

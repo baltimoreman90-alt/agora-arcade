@@ -1,0 +1,13 @@
+AGORA ARCADE - uploading the site to GitHub
+
+1. Unzip this file and open the folder.
+2. Select everything inside it (Ctrl + A). That includes the .mp4 videos, .jpg pictures
+   and .png images, not just the .html games. There are no folders, so don't create any.
+3. In your agora-arcade repository, click Add file > Upload files.
+4. Drag all the files onto the page, then click Commit changes.
+   Files with the same name replace the old ones.
+5. Wait a minute or two, then open your site and press Ctrl + Shift + R.
+
+To turn on donations: open index.html in your repository, click the pencil (Edit),
+find the line  const KOFI_URL = "";  and paste your Ko-fi page address between
+the quotes, for example "https://ko-fi.com/yourname". Then click Commit changes.
