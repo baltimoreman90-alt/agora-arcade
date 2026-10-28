@@ -3,170 +3,370 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agora Arcade</title>
+<title>Agora Arcade · Engaging Games Made by Educators for Educators</title>
+<meta name="description" content="Free, projector-ready classroom games for government and history. No accounts, no ads. Run for president, argue Bill of Rights cases, build colonies, and more.">
+<!-- If you move to your own domain, change the address in the two lines below -->
+<meta property="og:image" content="https://baltimoreman90-alt.github.io/agora-arcade/agora-share.jpg">
+<meta property="og:url" content="https://baltimoreman90-alt.github.io/agora-arcade/">
+<meta property="og:title" content="Agora Arcade · Engaging Games Made by Educators for Educators">
+<meta property="og:description" content="Free, projector-ready classroom games for government and history. No accounts, no ads.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#f7f2e8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Layout: a game shelf. Header with filter tabs, a Starred row, the main shelf of game "boxes", then a Side Projects folder. */
+/* Layout: warm parchment-and-gold site; the logo sits on a navy plaque. Sticky header; hero with logo; features; game library; demo videos; how it works; Ko-fi support; footer. */
 :root{
-  --bg:#eef0ea; --surface:#ffffff; --surface-2:#f5f6f2; --line:#d6d9cf;
-  --fg:#1c231f; --muted:#5b6560; --accent:#1f6b52; --accent-ink:#ffffff; --star:#c9861a;
-  --gov:#2b4c8c; --hist:#9a3b24; --gov-soft:#e3e9f6; --hist-soft:#f6e6e0;
-  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --shadow:0 1px 2px rgba(28,35,31,.06), 0 6px 18px rgba(28,35,31,.06);
+  --bg:#f7f2e8; --bg-2:#efe6d4; --card:#fffdf8; --card-2:#faf5ea; --line:#e3d8c2; --line-2:#cbbb98;
+  --ink:#16213b; --muted:#5b6377; --gold:#e3b04b; --gold-2:#c9922a; --gold-ink:#1d1405; --gold-text:#9a6a0e; --navy:#14233f;
+  --blue:#2f63c4; --red:#c4404a; --green:#24895c; --teal:#178a8f; --sky:#2f63c4;
+  --gov:#2f63c4; --hist:#c4404a;
+  --display:"Cinzel", "Trajan Pro", Georgia, "Times New Roman", serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#141a17; --surface:#1d2521; --surface-2:#232d28; --line:#33403a;
-  --fg:#e8ede9; --muted:#9aa8a1; --accent:#5cc49c; --accent-ink:#0f1a15; --star:#f0b445;
-  --gov:#8fb0ee; --hist:#ee9a82; --gov-soft:#22304a; --hist-soft:#3a2721;
-  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark } }
-:root[data-theme="dark"]{
-  --bg:#141a17; --surface:#1d2521; --surface-2:#232d28; --line:#33403a;
-  --fg:#e8ede9; --muted:#9aa8a1; --accent:#5cc49c; --accent-ink:#0f1a15; --star:#f0b445;
-  --gov:#8fb0ee; --hist:#ee9a82; --gov-soft:#22304a; --hist-soft:#3a2721;
-  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark }
-
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
-.page{max-width:1180px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:32px}
-h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+img,video{max-width:100%;height:auto;display:block}
+a{color:var(--gold-text)}
 button{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.12;margin:0;text-wrap:balance;letter-spacing:.01em}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-text)}
+.lede{color:var(--muted);font-size:1.08rem;max-width:62ch}
+section{padding-block:76px}
+.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:30px;max-width:720px}
+.sec-head h2{font-size:clamp(1.8rem,3.6vw,2.6rem)}
+.rule{display:flex;align-items:center;gap:12px;color:var(--gold-text)}
+.rule::before,.rule::after{content:"";height:2px;width:34px;background:var(--gold);border-radius:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;padding:.78em 1.3em;font-weight:700;text-decoration:none;border:1.5px solid var(--line-2);background:transparent;color:var(--ink);min-height:48px;transition:background .15s,border-color .15s,transform .15s}
+.btn:hover{border-color:var(--gold)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.btn.gold:hover{background:#ebbd5e}
+.btn:not(.gold):not(.kofi){background:var(--card)}
+.btn.sm{min-height:38px;padding:.45em .9em;font-size:.92rem;border-radius:10px}
+.btn svg{width:18px;height:18px;flex:none}
+.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
 
 /* header */
-.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px 24px}
-.title h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-.02em;line-height:1}
-.title p{margin:8px 0 0;color:var(--muted);max-width:56ch}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.top{position:sticky;top:0;z-index:30;background:rgba(247,242,232,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(22,33,59,.1)}
+.top .wrap{display:flex;align-items:center;gap:20px;min-height:66px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand img{height:40px;width:auto}
+.brand b{font-family:var(--display);font-size:1.15rem;letter-spacing:.06em}
+.brand b span{color:var(--gold-text)}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav a{color:var(--muted);text-decoration:none;font-weight:700;padding:8px 12px;border-radius:9px}
+.nav a:hover{color:var(--ink);background:rgba(22,33,59,.06)}
+@media (max-width:860px){.nav{display:none}.top .btn{margin-left:auto}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:56px 70px;background:radial-gradient(900px 520px at 80% 40%,rgba(47,99,196,.10),transparent 60%),radial-gradient(700px 420px at 12% 8%,rgba(227,176,75,.20),transparent 60%)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:center}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}.hero .logo{order:-1;max-width:280px;margin:0 auto}}
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.5rem);margin:14px 0 18px}
+.hero h1 em{font-style:normal;color:var(--gold-text)}
+.hero p{margin:0 0 14px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;padding:0;list-style:none}
+.chips li{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.92rem}
+.chips li i{width:9px;height:9px;border-radius:50%}
+.logo{max-width:520px;margin-inline:auto;width:100%}
+.logo img{width:100%;filter:drop-shadow(0 18px 28px rgba(20,35,63,.16))}
+
+/* features */
+.features{background:var(--bg-2);border-block:1px solid rgba(22,33,59,.06)}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;min-width:0}
+.feat .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+.feat .ic svg{width:24px;height:24px}
+.feat h3{font-size:1.2rem;margin-bottom:8px}
+.feat p{margin:0;color:var(--muted)}
+
+/* games */
+.lib-bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;margin-bottom:22px}
+.tabs{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px}
 .tab{border:0;background:transparent;border-radius:9px;padding:8px 14px;font-weight:700;color:var(--muted);display:flex;gap:8px;align-items:center}
-.tab .n{font-variant-numeric:tabular-nums;font-size:.8rem;background:var(--surface-2);border-radius:999px;padding:1px 8px}
-.tab[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-.tab[aria-pressed="true"] .n{background:rgba(255,255,255,.22)}
-
-section{display:flex;flex-direction:column;gap:14px}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.sec-head h2{font-size:1.35rem;font-weight:800}
-.sec-head span{color:var(--muted);font-size:.95rem}
-
-/* shelf */
-.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:18px}
-.game{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0;overflow:hidden}
-.spine{display:flex;align-items:center;gap:12px;padding:16px 16px 0}
-.glyph{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.15rem;color:#fff}
-.gov .glyph{background:var(--gov)} .hist .glyph{background:var(--hist)}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .glyph{color:#10161a} }
-:root[data-theme="dark"] .glyph{color:#10161a}
-.spine h3{font-size:1.25rem;font-weight:800;line-height:1.15;flex:1;min-width:0}
-.star{border:1px solid var(--line);background:var(--surface-2);width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:var(--muted)}
+.tab .n{font-size:.78rem;background:rgba(22,33,59,.08);border-radius:999px;padding:1px 8px}
+.tab[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink)}
+.tab[aria-pressed="true"] .n{background:rgba(0,0,0,.15)}
+.subhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:8px 0 14px}
+.subhead h3{font-size:1.25rem}
+.subhead span{color:var(--muted);font-size:.92rem}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:18px;margin-bottom:34px}
+.game{background:var(--card);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;min-width:0;overflow:hidden;transition:border-color .15s,transform .15s}
+.game{box-shadow:0 1px 2px rgba(22,33,59,.05),0 8px 22px rgba(22,33,59,.06)}
+.game:hover{border-color:var(--line-2);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.game,.game:hover{transition:none;transform:none}}
+.game .head{display:flex;align-items:center;gap:12px;padding:18px 18px 0}
+.glyph{flex:none;width:50px;height:50px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.05rem;color:#fff;background:var(--c)}
+.game h4{font-family:var(--display);font-size:1.2rem;line-height:1.15;margin:0;flex:1;min-width:0}
+.star{border:1px solid var(--line);background:transparent;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:var(--muted)}
 .star svg{width:20px;height:20px}
-.star[aria-pressed="true"]{color:var(--star);border-color:var(--star)}
+.star[aria-pressed="true"]{color:var(--gold-2);border-color:var(--gold-2)}
 .star[aria-pressed="true"] svg path{fill:currentColor}
-.body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.game .body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{font-size:.8rem;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
-.gov .tag.cls{background:var(--gov-soft);color:var(--gov);border-color:transparent}
-.hist .tag.cls{background:var(--hist-soft);color:var(--hist);border-color:transparent}
-.blurb{margin:0;color:var(--fg)}
+.tag{font-size:.78rem;font-weight:700;border-radius:6px;padding:3px 8px;background:var(--card-2);color:var(--muted);border:1px solid var(--line)}
+.tag.cls{color:var(--c);background:color-mix(in srgb,var(--c) 10%,#fff);border-color:color-mix(in srgb,var(--c) 35%,#fff)}
+.blurb{margin:0;color:var(--ink)}
 details.how{border-top:1px dashed var(--line);padding-top:10px}
 details.how summary{cursor:pointer;font-weight:700;color:var(--muted);font-size:.95rem}
-details.how ol{margin:8px 0 0;padding-left:1.2rem;display:grid;gap:4px;font-size:.95rem}
-.note{font-size:.88rem;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:0}
+details.how ol{margin:8px 0 0;padding-left:1.2rem;display:grid;gap:4px;font-size:.95rem;color:var(--ink)}
+.note{font-size:.88rem;color:var(--muted);background:var(--card-2);border-radius:8px;padding:8px 10px;margin:0}
 .actions{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
-.play{flex:1;display:inline-flex;justify-content:center;align-items:center;gap:8px;text-decoration:none;background:var(--accent);color:var(--accent-ink);font-weight:700;border-radius:10px;padding:11px 16px;min-width:140px}
-.play:hover{filter:brightness(1.08)}
-.play svg{width:16px;height:16px}
-
-/* starred empty state */
-.empty{border:1px dashed var(--line);border-radius:14px;padding:16px;color:var(--muted);display:flex;gap:10px;align-items:center}
-.empty svg{width:20px;height:20px;flex:none;color:var(--star)}
-
-/* side projects folder */
-details.folder{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:0}
-details.folder>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 18px}
+.actions .btn{flex:1;min-width:130px}
+.empty{border:1px dashed var(--line-2);border-radius:14px;padding:16px;color:var(--muted);display:flex;gap:10px;align-items:center;margin-bottom:34px}
+.empty svg{width:20px;height:20px;flex:none;color:var(--gold-2)}
+details.folder{background:var(--bg-2);border:1px solid var(--line);border-radius:18px}
+details.folder>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px}
 details.folder>summary::-webkit-details-marker{display:none}
-.folder-icon{width:40px;height:32px;flex:none;color:var(--muted)}
-.folder-title{font-family:var(--display);font-weight:800;font-size:1.3rem}
+.folder-icon{width:40px;height:32px;flex:none;color:var(--gold-2)}
+.folder-title{font-family:var(--display);font-weight:700;font-size:1.25rem}
 .folder-sub{color:var(--muted);font-size:.95rem}
-.chev{margin-left:auto;transition:transform .15s;color:var(--muted)}
+.chev{margin-left:auto;transition:transform .15s;color:var(--muted);flex:none}
 details.folder[open] .chev{transform:rotate(90deg)}
-.folder-inner{padding:0 18px 18px}
-@media (prefers-reduced-motion:reduce){.chev{transition:none}}
-footer{color:var(--muted);font-size:.9rem}
+.folder-inner{padding:0 20px 4px}
+
+/* demos */
+.demos{background:var(--bg-2);border-block:1px solid rgba(22,33,59,.06)}
+.vid-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:22px}
+.vid{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;min-width:0}
+.vid video{width:100%;aspect-ratio:16/9;background:#000;object-fit:contain}
+.vid .cap{padding:14px 18px 18px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.vid h3{font-size:1.15rem;margin-bottom:4px}
+.vid p{margin:0;color:var(--muted);font-size:.95rem}
+.vid .len{flex:none;font-size:.8rem;font-weight:700;color:var(--gold-text);border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:18px;counter-reset:s;padding:0;margin:0;list-style:none}
+.steps li{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 22px 22px 76px;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:20px;top:20px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--gold-ink);font-family:var(--display);font-weight:800;font-size:1.2rem}
+.steps h3{font-size:1.1rem;margin-bottom:6px}
+.steps p{margin:0;color:var(--muted)}
+.tips{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.tips div{border-left:3px solid var(--gold-2);padding:4px 0 4px 14px;color:var(--muted);font-size:.95rem}
+.tips b{color:var(--ink)}
+
+/* support */
+.support .panel{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:30px;align-items:center;background:linear-gradient(135deg,#fff9ea,#f6e8c6);border:2px solid var(--gold);border-radius:24px;padding:clamp(24px,4vw,44px);position:relative;overflow:hidden}
+.support .panel::after{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(closest-side,rgba(227,176,75,.35),transparent)}
+@media (max-width:820px){.support .panel{grid-template-columns:1fr}}
+.support h2{font-size:clamp(1.7rem,3.4vw,2.4rem);margin:10px 0 14px}
+.support p{margin:0 0 12px;color:var(--muted)}
+.give{display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.give .btn{width:100%}
+.give small{color:var(--muted);text-align:center}
+.kofi{background:#ff5e5b;border-color:#ff5e5b;color:#fff}
+.kofi:hover{background:#ff7471;border-color:#ff7471}
+
+footer{border-top:1px solid rgba(22,33,59,.1);padding-block:34px;color:var(--muted);font-size:.92rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 30px;align-items:center;justify-content:space-between}
+footer nav{display:flex;flex-wrap:wrap;gap:6px 18px}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:700;border-radius:10px;padding:.6em 1em;z-index:50}
 </style>
 </head>
 <body>
 
-<div class="page">
-  <header class="top">
-    <div class="title">
-      <h1>Agora Arcade</h1>
-      <p>Pick a game and it opens in a new tab, ready for the projector. Star the ones you use most to keep them at the top.</p>
-    </div>
-    <div class="tabs" role="group" aria-label="Show games">
-      <button class="tab" data-f="all" aria-pressed="true">All <span class="n" id="nAll"></span></button>
-      <button class="tab" data-f="team" aria-pressed="false">Team games <span class="n" id="nTeam"></span></button>
-      <button class="tab" data-f="solo" aria-pressed="false">Daily solo <span class="n" id="nSolo"></span></button>
-    </div>
-  </header>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Agora Arcade home"><img src="agora-mark-light.png" alt="" width="53" height="40"><b>AGORA <span>ARCADE</span></b></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#games">Games</a><a href="#demos">Demos</a><a href="#how">How it works</a><a href="#support">Support</a>
+    </nav>
+    <a class="btn gold sm" href="#games">Play free</a>
+  </div>
+</header>
 
-  <section id="starredSec" aria-labelledby="starH">
-    <div class="sec-head"><h2 id="starH">Starred</h2><span id="starCount"></span></div>
-    <div class="shelf" id="starred"></div>
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow">Free classroom games · No accounts · No ads</div>
+        <h1>Engaging games made by educators, <em>for educators</em></h1>
+        <p class="lede">Projector-ready group games and daily challenges for government and history classes. Open a link, split the class into groups, and play.</p>
+        <p class="lede">In ancient Athens, the <i>agora</i> was the public square where people met to trade, argue, and vote. Agora Arcade brings that square into your classroom.</p>
+        <div class="cta">
+          <a class="btn gold" href="#games">Browse the games</a>
+          <a class="btn" href="#demos"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Watch a demo</a>
+        </div>
+        <ul class="chips" aria-label="At a glance">
+          <li><i style="background:var(--gold)"></i><span id="gameCount">8</span> games</li>
+          <li><i style="background:var(--green)"></i>100% free</li>
+          <li><i style="background:var(--blue)"></i>Works on any projector</li>
+          <li><i style="background:var(--red)"></i>Nothing to install</li>
+        </ul>
+      </div>
+      <div class="logo"><img src="agora-logo-light.png" alt="Agora Arcade logo: a Greek temple with a globe and a game controller" width="720" height="704"></div>
+    </div>
   </section>
 
-  <section aria-labelledby="mainH">
-    <div class="sec-head"><h2 id="mainH">All games</h2><span id="mainCount"></span></div>
-    <div class="shelf" id="main"></div>
+  <section class="features" aria-labelledby="whyH">
+    <div class="wrap">
+      <div class="sec-head"><div class="rule eyebrow">Why teachers use it</div><h2 id="whyH">Built for real class periods</h2></div>
+      <div class="feat-grid">
+        <div class="feat"><div class="ic" style="background:rgba(47,99,196,.12);color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5M14.5 14.6c.8-.4 1.6-.6 2.5-.6 2.3 0 4.1 1.4 4.5 4"/></svg></div><h3>Made for groups</h3><p>Teams play together on one projector, with a timer, points, and built-in scorekeeping.</p></div>
+        <div class="feat"><div class="ic" style="background:rgba(36,137,92,.12);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div><h3>Ready in a minute</h3><p>No sign-ups, logins, or student data. Games save in your browser, and long games can be saved to a file.</p></div>
+        <div class="feat"><div class="ic" style="background:rgba(227,176,75,.22);color:var(--gold-text)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2zM4 17a2 2 0 0 1 2-2h12M9 7h6M9 11h4"/></svg></div><h3>Real content</h3><p>Bill of Rights cases, the Electoral College, colonial economies, and government vocabulary, with real history in every round.</p></div>
+        <div class="feat"><div class="ic" style="background:rgba(196,64,74,.12);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></div><h3>Every learner can play</h3><p>Multiple-choice options, clear fonts, and clues that unlock over time help English learners and struggling readers join in.</p></div>
+      </div>
+    </div>
   </section>
 
-  <details class="folder" id="sideFolder">
-    <summary>
-      <svg class="folder-icon" viewBox="0 0 40 32" fill="none" aria-hidden="true"><path d="M2 6a3 3 0 0 1 3-3h10l4 4h16a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
-      <div><div class="folder-title">Side Projects</div><div class="folder-sub" id="sideSub"></div></div>
-      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </summary>
-    <div class="folder-inner"><div class="shelf" id="side"></div></div>
-  </details>
+  <section id="games" aria-labelledby="gamesH">
+    <div class="wrap">
+      <div class="sec-head"><div class="rule eyebrow">The game library</div><h2 id="gamesH">Pick a game and play</h2><p class="lede" style="margin:0">Every game opens in a new tab, ready for the projector. Star the ones you use most to keep them at the top.</p></div>
+      <div class="lib-bar">
+        <div class="tabs" role="group" aria-label="Show games">
+          <button class="tab" data-f="all" aria-pressed="true">All <span class="n" id="nAll"></span></button>
+          <button class="tab" data-f="team" aria-pressed="false">Team games <span class="n" id="nTeam"></span></button>
+          <button class="tab" data-f="solo" aria-pressed="false">Solo &amp; daily <span class="n" id="nSolo"></span></button>
+        </div>
+      </div>
+      <div id="starredWrap">
+        <div class="subhead"><h3>Starred</h3><span id="starCount"></span></div>
+        <div id="starred"></div>
+      </div>
+      <div class="subhead"><h3 id="mainH">All games</h3><span id="mainCount"></span></div>
+      <div class="shelf" id="main"></div>
+      <details class="folder" id="sideFolder">
+        <summary>
+          <svg class="folder-icon" viewBox="0 0 40 32" fill="none" aria-hidden="true"><path d="M2 6a3 3 0 0 1 3-3h10l4 4h16a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
+          <div><div class="folder-title">Side Projects</div><div class="folder-sub" id="sideSub"></div></div>
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="folder-inner"><div class="shelf" id="side"></div></div>
+      </details>
+    </div>
+  </section>
 
-  <footer>This copy runs straight from your computer, no claude.ai needed. Keep the game files next to this one. Saved teams and games live in this browser on this computer.</footer>
-</div>
+  <section id="demos" class="demos" aria-labelledby="demosH">
+    <div class="wrap">
+      <div class="sec-head"><div class="rule eyebrow">See it in action</div><h2 id="demosH">Demo videos</h2><p class="lede" style="margin:0">Short, silent walkthroughs with captions. Watch one before class to see how a game runs.</p></div>
+      <div class="vid-grid" id="vids"></div>
+    </div>
+  </section>
+
+  <section id="how" aria-labelledby="howH">
+    <div class="wrap">
+      <div class="sec-head"><div class="rule eyebrow">How it works</div><h2 id="howH">From link to game in three steps</h2></div>
+      <ol class="steps">
+        <li><h3>Pick a game</h3><p>Choose a game from the library. It opens in a new browser tab. Nothing to download or install.</p></li>
+        <li><h3>Put it on the projector</h3><p>Split the class into groups, type in their names, and press Full screen.</p></li>
+        <li><h3>Play and talk</h3><p>Groups take turns while you run the clock and keep score. Every game ends with results to discuss.</p></li>
+      </ol>
+      <div class="tips">
+        <div><b>Saving.</b> Games save in the browser you play them in. Use the same computer and browser next class, or use "Save to a file" where a game offers it.</div>
+        <div><b>School filters.</b> If a game is blocked at school, ask your IT team to allow this site's address. It collects no student data.</div>
+        <div><b>Keyboard shortcuts.</b> Most games use number keys for teams, Space to pause, and F for full screen.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="support" class="support" aria-labelledby="supportH">
+    <div class="wrap">
+      <div class="panel">
+        <div>
+          <div class="rule eyebrow">Support Agora Arcade</div>
+          <h2 id="supportH">Free for every classroom, always</h2>
+          <p>Every game here is free to use, with no accounts, ads, or paid upgrades. Donations are completely optional. They help cover the costs of keeping the site running and building new games.</p>
+          <p>Can't donate? Sharing the site with another teacher helps just as much.</p>
+        </div>
+        <div class="give">
+          <a class="btn kofi" id="kofiBtn" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h13v5a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6V8zM17 9h1.5a2.5 2.5 0 0 1 0 5H17M8 2v3M12 2v3"/></svg><span id="kofiLbl">Support us on Ko-fi</span></a>
+          <button class="btn" id="shareBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Copy the site link</button>
+          <small id="giveNote">Donations go through Ko-fi. Agora Arcade never sees your card details.</small>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="agora-mark-light.png" alt="" width="45" height="34" style="height:34px;width:auto"><b>AGORA <span>ARCADE</span></b></a>
+    <nav aria-label="Footer"><a href="#games">Games</a><a href="#demos">Demos</a><a href="#how">How it works</a><a href="#support">Support</a></nav>
+    <div>Engaging games made by educators for educators · Free forever · © <span id="yr">2026</span></div>
+  </div>
+</footer>
+<div class="toast" id="toast" hidden></div>
 
 <script>
 (function(){
 "use strict";
+
+/* ===== SETTINGS ===== */
+/* Paste your Ko-fi page address between the quotes, for example "https://ko-fi.com/agoraarcade" */
+const KOFI_URL = "";
+
+const C = {gov:"#2f63c4", hist:"#c4404a", world:"#178a8f"};
 const GAMES = [
-  {id:"ntl", name:"Name That Leader", glyph:"NL", cls:"gov", clsName:"Government & Law", mode:"team",
-   href:"name-that-leader.html", time:"10–30 min", format:"2–6 teams · Projector",
-   blurb:"A portrait appears and a new clue unlocks every 15 seconds. Teams call out the leader: 4 points from the picture alone, down to 1 after the last clue.",
-   how:["Name your teams and pick categories: Presidents, Justices, Founders & Lawmakers, Civil Rights & Reformers.","Click a team's Got it button (or press 1–6) when they say the right name.","N moves to the next leader. Space pauses. F goes full screen."],
-   note:"Portraits load from Wikipedia, so the computer needs internet. If any are blocked, use Manage leaders & photos to load your saved photo pack."},
-  {id:"ybtj", name:"You Be the Judge", glyph:"YJ", cls:"gov", clsName:"Government & Law", mode:"team",
+  {id:"r270", name:"Road to 270", glyph:"270", cls:"gov", clsName:"Government", mode:"team", demo:"r270",
+   href:"road-to-270.html", time:"2–3 days", format:"2–6 groups · Projector",
+   blurb:"Groups run for president on the real electoral map. Spend a campaign budget, handle event cards, win debate nights, and find out on election night whether you take the popular vote, the Electoral College, or both.",
+   how:["Each group picks a candidate, a real or made-up party, and a home state. A built-in tutorial explains the rest.","Each turn: an event card, then 3 moves (rally, TV ads, field office, fundraiser).","Debates on turns 3, 6, and 9: run them in class and pick the winner.","After the last turn, run Election Night."]},
+  {id:"ybtj", name:"You Be the Judge", glyph:"YJ", cls:"gov", clsName:"Government", mode:"team", demo:"ybtj",
    href:"you-be-the-judge.html", time:"20–45 min", format:"2–8 teams · Projector",
-   blurb:"Bill of Rights mock trial. Teams hear a case, real or fictional, and rule on which amendment is at stake and whether the right was violated.",
-   how:["Choose real cases, fictional cases, or both, and which amendments are in play.","Read the facts, press Space to start the clock. Clues unlock as time runs.","A team buzzes with a number key; mark the amendment and verdict right or wrong, then reveal the ruling."]},
-  {id:"cts", name:"Claim the States", glyph:"CS", cls:"hist", clsName:"U.S. History", mode:"team",
+   blurb:"A Bill of Rights mock trial. Teams hear a case, real or made-up, and rule on which amendment is at stake and whether the right was violated.",
+   how:["Choose real cases, made-up cases, or both, and which amendments are in play. Turn on multiple choice if you like.","Read the facts aloud and press Space to start the clock. Clues unlock as time runs.","A team buzzes in with its number key. Mark the amendment and verdict, then reveal the real ruling."]},
+  {id:"cts", name:"Claim the States", glyph:"CS", cls:"hist", clsName:"U.S. History", mode:"team", demo:"cts",
    href:"claim-the-states.html", time:"Multi-day unit", format:"Up to 8 groups · Projector",
    blurb:"Each group runs a colony on a real 50-state map: claim land, trade on a shifting market, answer a history question before every attack, and pass laws through all three branches.",
-   how:["Set up your groups; European powers and Native nations are already on the map.","Run five-minute turns with the built-in clock.","Each class period keeps its own saved game in this browser."]},
-  {id:"ccd", name:"Capitol Clues Daily", glyph:"CC", cls:"gov", clsName:"Government & Law", mode:"solo",
-   href:"capitol-clues-daily.html", time:"5 min", format:"Solo · Any device",
-   blurb:"Seven type-in questions a day from all 15 chapters of the government workbook. Letter boxes show the answer's length, and clues unlock every 15 seconds.",
-   how:["Play it on the projector as a class warm-up, or have students play on their own.","Pause freezes the clock with the question still showing, for discussion.","Teacher settings at the bottom change the number of questions, points, and timing."]},
-  {id:"ccq", name:"Capitol Clues Quick Pick", glyph:"QP", cls:"gov", clsName:"Government & Law", mode:"solo",
+   how:["Set up your groups. European powers and Native nations are already on the map.","Run five-minute turns with the built-in clock.","Each class period keeps its own saved game in this browser."]},
+  {id:"ensi", name:"Ensi of Sumer", glyph:"ES", cls:"world", clsName:"World History", mode:"team",
+   href:"ensi-of-sumer.html", time:"1 period to a full unit", format:"2–6 teams · Projector or Chromebooks",
+   blurb:"Grand strategy in ancient Sumer, about 2500 BCE. Each team rules a real city-state: feed the people, raise a ziggurat, and send merchants, envoys, armies, and assassins against rivals until Sargon of Akkad marches south.",
+   how:["Pick Rival Councils (teams share the projector and take secret turns) or Parallel Worlds (each team on its own Chromebook with the same World Code).","Choose a length: 8 years fits one period, 15 fits 2–3, and 25 fits a full unit. Progress saves after every turn.","Use the Teacher panel to add or cut years, turn off assassination or war, and copy a save code. End with the built-in debrief questions."]},
+  {id:"ntl", name:"Name That Leader", glyph:"NL", cls:"gov", clsName:"Government", mode:"team",
+   href:"name-that-leader.html", time:"10–30 min", format:"2–6 teams · Projector",
+   blurb:"A portrait appears and a new clue unlocks every 15 seconds. Teams call out the leader: 4 points from the picture alone, down to 1 after the last clue.",
+   how:["Name your teams and pick categories: Presidents, Justices, Founders & Lawmakers, Civil Rights & Reformers.","Turn on multiple choice to show four names on screen.","Click a team's Got it button (or press 1–6) when they say the right name."],
+   note:"Portraits load from Wikipedia. If your school blocks it, load a saved photo pack from Manage leaders & photos."},
+  {id:"ccq", name:"Capitol Clues Quick Pick", glyph:"QP", cls:"gov", clsName:"Government", mode:"solo", demo:"ccq",
    href:"capitol-clues-quick-pick.html", time:"5 min", format:"Solo · Any device",
-   blurb:"The multiple-choice version of Capitol Clues: ten questions a day, four answers each, and a wrong answer crossed out after the second clue.",
-   how:["Press 1–4 or click to pick. One pick per question.","A different daily set from Capitol Clues Daily, so you can run both.","Good for English learners and quick vocabulary review."]}
+   blurb:"Ten multiple-choice government questions a day, the same set for everyone. A clue unlocks every few seconds, and one wrong answer gets crossed out.",
+   how:["Press 1–4 or click to pick. One pick per question.","Use it as a warm-up on the projector, or let students play on their own devices.","Teacher settings change the number of questions, points, and timing, and make a class link."]},
+  {id:"ccd", name:"Capitol Clues Daily", glyph:"CC", cls:"gov", clsName:"Government", mode:"solo",
+   href:"capitol-clues-daily.html", time:"5 min", format:"Solo · Any device",
+   blurb:"Seven government questions a day from 15 chapters of U.S. Government. Students type the answer or switch to multiple choice, with clues that unlock over time.",
+   how:["Play it on the projector as a class warm-up, or have students play on their own.","Pause freezes the clock with the question still showing, for discussion.","Teacher settings change the questions, points, timing, and starting answer style."]},
+  {id:"mm", name:"Masterpiece Mystery", glyph:"MM", cls:"world", clsName:"Art History", mode:"team",
+   href:"masterpiece-mystery.html", time:"10–30 min", format:"Teams · Projector",
+   blurb:"A famous work appears in a gold frame and a new clue unlocks every 15 seconds. Teams name the creator: painters, sculptors, architects, photographers and inventors, from the ancient world to the 20th century. 279 works.",
+   how:["Name your teams and filter by type (painting, drawing, sculpture, architecture, inventions, photography) and time period.","Turn on multiple choice and click the letter a team calls out. Wrong picks are crossed off.","Click a team's Got it button to award 4 points from the work alone, down to 1 after the last clue."],
+   note:"Images load from Wikipedia. Open Manage works & images once before class and fix anything marked red."},
+  {id:"flag", name:"Flag Finder Daily", glyph:"FF", cls:"world", clsName:"Geography", mode:"solo",
+   href:"flag-finder.html", time:"3–5 min", format:"Solo · Any device",
+   blurb:"A country's name appears, modern or historical, with three look-alike flags. Pick the right one within 20 seconds; faster answers earn more points. Over 280 flags: every country, 30+ territories, and 51 historical countries like the Soviet Union and the Republic of Texas.",
+   how:["Students choose 5 to 10 questions and a region: World mix, a single continent, or Historical only.","The daily challenge gives everyone the same flags, so the class can compare scores. Practice mode is unlimited.","Use Copy class link to share a link with your question count and region already set."]}
 ];
 const SIDE = [
-  {id:"spark", name:"Spark of Revolution", glyph:"SR", cls:"hist", clsName:"U.S. & World History", mode:"team",
+  {id:"spark", name:"Spark of Revolution", glyph:"SR", cls:"world", clsName:"World History", mode:"team",
    href:"spark-of-revolution.html", time:"One class period", format:"Rival groups · Projector",
    blurb:"Ideas spread instead of disease. Rival groups take turns at the projector spreading revolutions across the world map, 1775 to 1848."},
-  {id:"ratify", name:"Ratification Showdown 1788", glyph:"RS", cls:"gov", clsName:"Government & Law", mode:"solo",
+  {id:"ratify", name:"Ratification Showdown 1788", glyph:"RS", cls:"gov", clsName:"Government", mode:"solo",
    href:"ratification-showdown.html", time:"About 25 min", format:"Solo · Any device",
-   blurb:"Federalists vs. Antifederalists in four stages: sort the delegates, decide who would say it, rapid recall, then write a 1788 pamphlet. Students copy their Ratification Record into Schoology."}
+   blurb:"Federalists vs. Antifederalists in four stages: sort the delegates, decide who would say it, rapid recall, then write a 1788 pamphlet."}
 ];
+const VIDEOS = [
+  {id:"r270", file:"demo-road-to-270", title:"Road to 270", len:"1:32", text:"Set up candidates, follow the tutorial, campaign in swing states, and count the votes on election night."},
+  {id:"cts", file:"demo-claim-the-states", title:"Claim the States", len:"1:00", text:"Claim states, check the economy and market, answer a history question before battle, and pass laws."},
+  {id:"ybtj", file:"demo-you-be-the-judge", title:"You Be the Judge", len:"0:38", text:"Read a case, unlock clues, let a team buzz in, and reveal the Supreme Court's real ruling."},
+  {id:"ccq", file:"demo-capitol-clues-quick-pick", title:"Capitol Clues Quick Pick", len:"0:42", text:"Answer daily government questions, use clues when stuck, and share a result card."}
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let toastT=null;
+function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
 
 const KEY="gameRoom_v1";
 function load(){ try{ const v=JSON.parse(localStorage.getItem(KEY)||"{}"); return v&&typeof v==="object"?v:{}; }catch(e){ return {}; } }
@@ -175,55 +375,71 @@ const state=Object.assign({stars:[],filter:"all",side:false},load());
 if(!Array.isArray(state.stars)) state.stars=[];
 
 const STAR='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
-const ARROW='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-const $=id=>document.getElementById(id);
+const PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
 
 function card(g){
-  const on=state.stars.indexOf(g.id)>=0;
-  return '<article class="game '+g.cls+'">'+
-    '<div class="spine"><div class="glyph" aria-hidden="true">'+g.glyph+'</div><h3>'+esc(g.name)+'</h3>'+
+  const on=state.stars.indexOf(g.id)>=0, c=C[g.cls];
+  return '<article class="game" style="--c:'+c+'">'+
+    '<div class="head"><div class="glyph" aria-hidden="true">'+g.glyph+'</div><h4>'+esc(g.name)+'</h4>'+
     '<button class="star" data-star="'+g.id+'" aria-pressed="'+on+'" aria-label="'+(on?"Unstar ":"Star ")+esc(g.name)+'">'+STAR+'</button></div>'+
     '<div class="body">'+
       '<div class="tags"><span class="tag cls">'+esc(g.clsName)+'</span><span class="tag">'+esc(g.time)+'</span><span class="tag">'+esc(g.format)+'</span></div>'+
       '<p class="blurb">'+esc(g.blurb)+'</p>'+
       (g.note?'<p class="note">'+esc(g.note)+'</p>':'')+
       (g.how?'<details class="how"><summary>How to run it</summary><ol>'+g.how.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ol></details>':'')+
-      '<div class="actions"><a class="play" href="'+esc(g.href)+'" target="_blank" rel="noopener">Play '+ARROW+'</a></div>'+
+      '<div class="actions"><a class="btn gold sm" href="'+esc(g.href)+'" target="_blank" rel="noopener">'+PLAY+'Play</a>'+
+      (g.demo?'<a class="btn sm" href="#vid-'+g.demo+'" data-demo="'+g.demo+'">Watch demo</a>':'')+'</div>'+
     '</div></article>';
 }
-function pass(g){ return state.filter==="all" || g.mode===state.filter; }
-
+const pass=g=>state.filter==="all"||g.mode===state.filter;
 function render(){
   const all=GAMES.concat(SIDE);
-  const starred=all.filter(g=>state.stars.indexOf(g.id)>=0 && pass(g));
-  $("starred").innerHTML = starred.length ? starred.map(card).join("") :
-    '<div class="empty">'+STAR+'<span>'+(state.stars.length?"No starred games in this view.":"Tap the star on any game to pin it here.")+'</span></div>';
-  $("starCount").textContent = starred.length ? starred.length+" pinned" : "";
+  const starred=all.filter(g=>state.stars.indexOf(g.id)>=0&&pass(g));
+  $("starred").className=starred.length?"shelf":"";
+  $("starred").innerHTML=starred.length?starred.map(card).join(""):'<div class="empty">'+STAR+'<span>'+(state.stars.length?"No starred games in this view.":"Tap the star on any game to pin it here.")+'</span></div>';
+  $("starCount").textContent=starred.length?starred.length+" pinned":"";
   const main=GAMES.filter(pass);
   $("main").innerHTML=main.map(card).join("");
-  $("mainH").textContent = state.filter==="team"?"Team games":state.filter==="solo"?"Daily solo games":"All games";
+  $("mainH").textContent=state.filter==="team"?"Team games":state.filter==="solo"?"Solo & daily games":"All games";
   $("mainCount").textContent=main.length+" game"+(main.length===1?"":"s");
   const side=SIDE.filter(pass);
   $("side").innerHTML=side.map(card).join("");
   $("sideSub").textContent=side.length+" in progress: "+side.map(g=>g.name).join(", ");
   $("sideFolder").hidden=!side.length;
-  $("nAll").textContent=all.length;
+  $("nAll").textContent=all.length; $("gameCount").textContent=all.length;
   $("nTeam").textContent=all.filter(g=>g.mode==="team").length;
   $("nSolo").textContent=all.filter(g=>g.mode==="solo").length;
   document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-pressed",String(t.dataset.f===state.filter)));
+}
+function renderVideos(){
+  $("vids").innerHTML=VIDEOS.map(v=>'<article class="vid" id="vid-'+v.id+'">'+
+    '<video controls muted playsinline preload="none" poster="'+v.file+'.jpg" aria-label="'+esc(v.title)+' demo video"><source src="'+v.file+'.mp4" type="video/mp4"></video>'+
+    '<div class="cap"><div><h3>'+esc(v.title)+'</h3><p>'+esc(v.text)+'</p></div><span class="len">'+v.len+'</span></div></article>').join("");
 }
 
 document.addEventListener("click",e=>{
   const s=e.target.closest("[data-star]");
   if(s){ const id=s.dataset.star, i=state.stars.indexOf(id); if(i>=0) state.stars.splice(i,1); else state.stars.push(id); save(); render(); return; }
   const t=e.target.closest(".tab");
-  if(t){ state.filter=t.dataset.f; save(); render(); }
+  if(t){ state.filter=t.dataset.f; save(); render(); return; }
+  const d=e.target.closest("[data-demo]");
+  if(d){ e.preventDefault(); const box=$("vid-"+d.dataset.demo); if(!box) return; box.scrollIntoView({block:"center"}); const v=box.querySelector("video"); try{ const r=v.play(); if(r&&r.catch) r.catch(()=>{}); }catch(err){} }
 });
-const folder=$("sideFolder");
-folder.open=!!state.side;
+const folder=$("sideFolder"); folder.open=!!state.side;
 folder.addEventListener("toggle",()=>{ state.side=folder.open; save(); });
-render();
+
+/* Ko-fi */
+const kb=$("kofiBtn");
+if(KOFI_URL){ kb.href=KOFI_URL; }
+else { kb.setAttribute("aria-disabled","true"); kb.removeAttribute("href"); $("kofiLbl").textContent="Donations open soon"; $("giveNote").textContent="Online donations are being set up. Thanks for your patience!"; }
+$("shareBtn").addEventListener("click",()=>{
+  const url=location.href.split("#")[0];
+  const fb=()=>toast("Copy this address: "+url);
+  try{ navigator.clipboard.writeText(url).then(()=>toast("Link copied. Share it with a colleague!"),fb); }catch(err){ fb(); }
+});
+$("yr").textContent=new Date().getFullYear();
+
+render(); renderVideos();
 })();
 </script>
 </body>
