@@ -115,6 +115,18 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
 .opt.out{opacity:.4;text-decoration:line-through}
 .opt.right{border-color:var(--good);background:#e5f4ec}
 .opt.right .let{background:var(--good)}
+/* typed answers */
+.typebox{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px}
+.typebox select{flex:0 1 auto;min-width:0;max-width:40%;border:1px solid var(--line);border-radius:9px;padding:.5em .6em;background:var(--panel-2);font-weight:700}
+.typebox input{flex:1 1 200px;min-width:0;border:1px solid var(--line);border-radius:9px;padding:.55em .8em;font-size:clamp(1.05rem,1.6vw,1.3rem);background:#fff}
+.typebox input:focus{outline:3px solid var(--brass);outline-offset:1px}
+.typebox.bad{border-color:var(--alert);animation:shake .35s}
+.typebox.good{border-color:var(--good);background:#e5f4ec}
+.typebox[aria-disabled="true"]{opacity:.55}
+.type-msg{min-height:1.3em;font-weight:700;margin-top:-4px}
+.type-msg.bad{color:var(--alert)} .type-msg.good{color:var(--good)} .type-msg.info{color:var(--brass-text)}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.typebox.bad{animation:none}}
 .hint{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .hint .num{font-family:var(--display);font-size:1.7rem;line-height:1;color:var(--muted);width:1.4em;text-align:center}
 .hint .txt{font-size:clamp(1.05rem,1.6vw,1.35rem);font-weight:600;min-width:0}
@@ -177,7 +189,8 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
     <div class="card">
       <h2>Leaders</h2>
       <div id="catChecks" class="checks"></div>
-      <label class="check" style="margin-top:10px"><input type="checkbox" id="mcOn"><span><b>Multiple choice:</b> show 4 names on screen</span></label>
+      <label class="check" style="margin-top:10px"><input type="checkbox" id="typeOn"><span><b>Typed answers:</b> show an answer box to type the name</span></label>
+      <label class="check" style="margin-top:6px"><input type="checkbox" id="mcOn"><span><b>Multiple choice:</b> show 4 names on screen</span></label>
       <div class="field" style="margin-top:14px">
         <label for="roundCount">Leaders this game</label>
         <select id="roundCount"></select>
@@ -194,7 +207,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
       <h2>Scoring</h2>
       <div class="ladder" aria-hidden="true"><span class="on">4</span><span>3</span><span>2</span><span>1</span></div>
       <p>Portrait only: <b>4 points</b>. After hint 1: <b>3</b>. After hint 2: <b>2</b>. After hint 3: <b>1</b>.</p>
-      <p class="muted">When a team calls out the right name, click that team's award button (or press its number). The answer is revealed and points are added. Use the small +/− buttons to correct a score.</p>
+      <p class="muted">With typed answers on, pick the team, type their guess and press Enter: a correct name scores automatically, and close spellings count. Otherwise, when a team calls out the right name, click that team's award button (or press its number). The answer is revealed and points are added. Use the small +/− buttons to correct a score.</p>
     </div>
   </div>
 
@@ -268,6 +281,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
       <button id="pauseBtn" class="btn">Pause</button>
       <button id="hintBtn" class="btn">Next hint</button>
       <button id="revealBtn" class="btn">Reveal answer</button>
+      <button id="typeBtn" class="btn ghost" aria-pressed="true">Typing: on</button>
       <button id="mcBtn" class="btn ghost" aria-pressed="false">Choices: off</button>
       <button id="nextBtn" class="btn primary" hidden>Next leader</button>
       <button id="fsBtn" class="btn ghost">Full screen</button>
@@ -303,6 +317,12 @@ kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(
           <div class="ladder" id="ladder"><span>4</span><span>3</span><span>2</span><span>1</span></div>
         </div>
       </div>
+      <form class="typebox" id="typeBox" autocomplete="off" hidden>
+        <select id="typeTeam" aria-label="Team that is guessing"></select>
+        <input id="typeIn" type="text" placeholder="Type the leader's name" aria-label="Your answer" spellcheck="false" autocapitalize="words">
+        <button class="btn primary" type="submit" id="typeGo">Check</button>
+      </form>
+      <div class="type-msg" id="typeMsg" aria-live="polite" hidden></div>
       <div class="mc" id="mcBox" hidden aria-label="Answer choices"></div>
       <div class="hints" id="hints"></div>
       <div class="status-line" id="statusLine" aria-live="polite"></div>
@@ -810,6 +830,7 @@ let tick=null;       // interval
 const C=2*Math.PI*50;
 
 function startGame(){
+  FORMS=null;
   const n=+$("teamCount").value;
   const list=shuffle(pool().slice()).slice(0,+$("roundCount").value);
   if(!list.length) return;
@@ -833,6 +854,7 @@ function nextLeader(){
   $("nextBtn").hidden=true; $("revealBtn").hidden=false; $("hintBtn").hidden=false; $("pauseBtn").hidden=false;
   $("pauseBtn").textContent="Pause";
   renderPortrait(L); preload(G.list[G.idx+1]); renderHints(-1); renderWorth(); renderBench(); renderChoices();
+  $("typeIn").value=""; $("typeBox").classList.remove("bad","good"); setTypeMsg("",""); renderTypeBox();
   startTick();
 }
 
@@ -882,6 +904,92 @@ function renderChoices(){
     else if(c.stage>=2 && k===c.cut) cls+=" out";
     return '<div class="'+cls+'"><span class="let">'+"ABCD"[k]+'</span><span>'+esc(n)+'</span></div>';
   }).join("");
+}
+
+/* ---------- typed answers ---------- */
+const NAME_SUFFIX=/^(jr|sr|ii|iii|iv)\.?$/i;
+const PARTICLES=["du","de","van","von","la","le","di","da"];
+const ALIASES={lincoln:["abe lincoln","honest abe"],eisenhower:["ike"],fdr:["fdr","franklin roosevelt"],
+  troosevelt:["teddy roosevelt","teddy","tr"],jfk:["jfk"],lbj:["lbj"],mlk:["mlk","martin luther king","dr king"],
+  rbg:["rbg"],gwbush:["dubya","bush jr","george bush jr","w bush"],ghwbush:["bush sr","george bush sr"],
+  jqadams:["jqa"],eleanor:["eleanor"],grant:["ulysses grant"],malcolmx:["malcolm little"],chavez:["cesar chavez"]};
+function nameForms(L){
+  const toks=String(L.name).replace(/,/g," ").split(/\s+/).filter(t=>t && !NAME_SUFFIX.test(t));
+  const forms=new Set([normName(L.name), normName(toks.join(" "))]);
+  if(toks.length>1){
+    let li=toks.length-1;
+    if(li>0 && PARTICLES.includes(toks[li-1].toLowerCase())) li--;
+    const last=normName(toks.slice(li).join(""));
+    const first=toks.find(t=>!/^[A-Za-z]\.?$/.test(t) && !/\.$/.test(t)) || toks[0];
+    if(last.length>=2) forms.add(last);
+    if(normName(first)!==last) forms.add(normName(first)+last);
+  }
+  (ALIASES[L.id]||[]).concat(L.alts||[]).forEach(a=>forms.add(normName(a)));
+  forms.delete(""); return [...forms];
+}
+let FORMS=null;
+function buildForms(){
+  FORMS=new Map();
+  allLeaders().forEach(L=>nameForms(L).forEach(f=>{ if(!FORMS.has(f)) FORMS.set(f,new Set()); FORMS.get(f).add(L.id); }));
+}
+function lev(a,b){
+  if(Math.abs(a.length-b.length)>2) return 9;
+  let prev=Array.from({length:b.length+1},(_,j)=>j);
+  for(let i=1;i<=a.length;i++){ const cur=[i];
+    for(let j=1;j<=b.length;j++) cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    prev=cur; }
+  return prev[b.length];
+}
+/* returns {id} for a single leader, {ambiguous:true} when the guess fits several, or null */
+function judgeGuess(text){
+  if(!FORMS) buildForms();
+  const g=normName(text); if(!g) return null;
+  if(FORMS.has(g)){ const ids=[...FORMS.get(g)]; return ids.length===1?{id:ids[0]}:{ambiguous:true,ids}; }
+  let best=9, hits=new Set();
+  FORMS.forEach((ids,f)=>{
+    const allow=f.length>=9?2:f.length>=5?1:0; if(!allow) return;
+    const d=lev(g,f); if(d>allow) return;
+    if(d<best){ best=d; hits=new Set(ids); } else if(d===best) ids.forEach(i=>hits.add(i));
+  });
+  if(!hits.size) return null;
+  return hits.size===1?{id:[...hits][0]}:{ambiguous:true,ids:[...hits]};
+}
+function setTypeMsg(text,kind){ const m=$("typeMsg"); m.textContent=text; m.className="type-msg "+(kind||""); m.hidden=!text; }
+function setTyping(on){
+  store.typeOn=!!on; saveStore();
+  $("typeOn").checked=store.typeOn;
+  $("typeBtn").textContent="Typing: "+(store.typeOn?"on":"off"); $("typeBtn").setAttribute("aria-pressed",String(store.typeOn));
+  if(G&&G.cur) renderTypeBox();
+}
+function renderTypeBox(){
+  const box=$("typeBox"), c=G&&G.cur, on=store.typeOn!==false;
+  box.hidden=!on; if(!on){ $("typeMsg").hidden=true; return; }
+  const sel=$("typeTeam"), keep=sel.value;
+  sel.innerHTML=G.teams.map((t,i)=>'<option value="'+i+'">'+esc(t.name)+'</option>').join("");
+  if(keep!=="" && +keep<G.teams.length) sel.value=keep;
+  sel.hidden=G.teams.length<2;
+  const done=!!(c&&c.done);
+  box.setAttribute("aria-disabled",String(done));
+  $("typeIn").disabled=done; $("typeGo").disabled=done; sel.disabled=done;
+}
+function submitGuess(){
+  const c=G&&G.cur; if(!c||c.done) return;
+  const inp=$("typeIn"), text=inp.value.trim(); if(!text){ inp.focus(); return; }
+  const team=G.teams.length<2?0:+$("typeTeam").value;
+  const box=$("typeBox"); box.classList.remove("bad","good"); void box.offsetWidth;
+  const res=judgeGuess(text);
+  if(res && res.ambiguous && res.ids.includes(c.L.id)){
+    setTypeMsg("Close! More than one leader has that name. Add a first name or middle initial.","info"); inp.select(); return;
+  }
+  if(res && res.id===c.L.id){
+    box.classList.add("good"); inp.value="";
+    reveal(team);
+    setTypeMsg("Correct! "+G.teams[team].name+" typed "+c.L.name+".","good");
+    return;
+  }
+  box.classList.add("bad");
+  setTypeMsg("\u201c"+text+"\u201d is not it"+(G.teams.length>1?" for "+G.teams[team].name:"")+". Keep guessing!","bad");
+  inp.select();
 }
 
 function worth(){ return Math.max(1,4-G.cur.stage); }
@@ -941,7 +1049,8 @@ function reveal(teamIdx){
   if(c.L.fact){ $("factBox").textContent="Why it matters: "+c.L.fact; $("factBox").hidden=false; }
   $("statusLine").textContent = teamIdx>=0 ? (G.teams[teamIdx].name+" earns "+pts+(pts===1?" point!":" points!")) : "No points this round.";
   $("nextBtn").hidden=false; $("revealBtn").hidden=true; $("hintBtn").hidden=true; $("pauseBtn").hidden=true;
-  renderHints(-1); renderWorth(); renderBench(teamIdx); renderChoices();
+  renderHints(-1); renderWorth(); renderBench(teamIdx); renderChoices(); renderTypeBox();
+  if(teamIdx<0) setTypeMsg("","");
   $("nextBtn").focus();
 }
 
@@ -994,6 +1103,10 @@ $("nextBtn").addEventListener("click",nextLeader);
 $("endBtn").addEventListener("click",endGame);
 $("mcOn").addEventListener("change",()=>setMC($("mcOn").checked));
 $("mcBtn").addEventListener("click",()=>setMC(!store.mc));
+$("typeOn").addEventListener("change",()=>setTyping($("typeOn").checked));
+$("typeBtn").addEventListener("click",()=>setTyping(!(store.typeOn!==false)));
+$("typeBox").addEventListener("submit",e=>{ e.preventDefault(); submitGuess(); });
+$("typeIn").addEventListener("keydown",e=>{ if(e.key==="Escape"){ e.target.blur(); } });
 $("againBtn").addEventListener("click",()=>{ $("final").hidden=true; $("setup").hidden=false; G=null; });
 
 document.addEventListener("keydown",e=>{
@@ -1093,6 +1206,8 @@ document.addEventListener("fullscreenchange",fsLabel); document.addEventListener
 document.addEventListener("keydown",e=>{ if(e.key.toLowerCase()==="f" && !(e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName))) toggleFs(); });
 
 renderTeamInputs(); renderCatChecks();
+if(store.typeOn===undefined) store.typeOn=true;
+$("typeOn").checked=store.typeOn!==false; $("typeBtn").textContent="Typing: "+(store.typeOn!==false?"on":"off"); $("typeBtn").setAttribute("aria-pressed",String(store.typeOn!==false));
 $("mcOn").checked=!!store.mc; $("mcBtn").textContent="Choices: "+(store.mc?"on":"off"); $("mcBtn").setAttribute("aria-pressed",String(!!store.mc));
 loadWiki(BUILT_IN.map(wikiTitle));
 })();
