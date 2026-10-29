@@ -1,0 +1,1654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Masterpiece Mystery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Public+Sans:wght@400;600;800&display=swap">
+<style>
+/* Layout: gallery stage — framed work left, timer + clue cards right, team bench along the bottom */
+:root{
+  --wall:#f3eee4; --panel:#fffdf8; --panel-2:#f6f1e7; --line:#ddd3c1;
+  --text:#1d1a16; --muted:#6a6157; --gold:#c9963a; --gold-ink:#2b1d05; --gold-text:#8a5a0b;
+  --plum:#5b2a4a; --good:#1f8f5a; --alert:#c0402c;
+  --display:"Playfair Display", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--wall);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1400px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:14px 24px}
+h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;font-weight:800;color:var(--gold-text)}
+.muted{color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:.6em 1.05em;font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--gold-ink);font-weight:800}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent}
+.btn.small{padding:.35em .7em;font-size:.875rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+a.home{font-size:.9rem;color:var(--plum);text-decoration:none;border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:999px;white-space:nowrap}
+a.home:hover{border-color:var(--plum)}
+
+/* ---------- Setup ---------- */
+.masthead{border-top:6px solid var(--plum);padding-top:14px;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:24px}
+.masthead h1{font-size:clamp(2.2rem,5vw,3.6rem);line-height:1}
+.masthead p{margin:.4rem 0 0;max-width:62ch}
+.mast-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0;box-shadow:0 1px 2px rgba(29,26,22,.06)}
+.card h2{font-size:1.4rem;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:.9rem}
+.field input,.field select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.55em .7em;width:100%}
+.team-inputs{display:grid;gap:8px}
+.checks{display:grid;gap:8px}
+.check{display:flex;gap:10px;align-items:center;background:var(--wall);border:1px solid var(--line);border-radius:8px;padding:.5em .7em}
+.check input{width:18px;height:18px;accent-color:var(--plum)}
+.check .count{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:.85rem}
+.sub-h{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:14px 0 8px}
+.start-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:22px}
+.keys{font-size:.85rem;color:var(--muted);text-align:right}
+kbd{font-family:var(--body);font-weight:800;font-size:.8em;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:.05em .4em;color:var(--text);background:var(--panel-2)}
+
+/* Roster */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:12px;margin-top:14px}
+.r-item{display:flex;gap:12px;align-items:center;background:var(--wall);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.r-thumb{width:64px;height:64px;border-radius:6px;object-fit:cover;background:var(--panel-2);flex:none}
+.r-mono{width:64px;height:64px;border-radius:6px;background:var(--panel-2);display:grid;place-items:center;font-family:var(--display);font-size:1.4rem;color:var(--muted);flex:none}
+.r-body{min-width:0;flex:1}
+.r-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-meta{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-status{font-size:.75rem;font-weight:800;letter-spacing:.04em}
+.r-status.ok{color:var(--good)} .r-status.bad{color:var(--alert)}
+.r-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.photo-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:14px}
+.drop,.pack{display:flex;flex-direction:column;gap:6px;border:2px dashed var(--line);border-radius:12px;padding:14px 16px;background:var(--wall);min-width:0}
+.drop{cursor:pointer}
+.drop.over{border-color:var(--gold);background:#fff8ea}
+.pack{border-style:solid}
+.r-item.armed{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.editor{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+
+/* ---------- Stage ---------- */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar .round{font-family:var(--display);font-size:1.5rem}
+.stage{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(16px,2.5vw,32px);align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:1fr}}
+.frame{position:relative;background:linear-gradient(150deg,#6b4a17,#c9963a 30%,#8a6420 55%,#d8ad55 80%,#6b4a17);padding:12px;border-radius:4px;box-shadow:0 16px 36px rgba(29,26,22,.28)}
+.frame-inner{background:#1f1b17;aspect-ratio:4/3;max-height:min(52vh,560px);width:100%;display:grid;place-items:center;overflow:hidden;border:3px solid #3b2a0c;box-shadow:inset 0 0 0 6px #efe6d2}
+.frame-inner img{width:100%;height:100%;object-fit:contain;display:block;background:#efe6d2}
+.no-photo{text-align:center;padding:24px;color:#d9cfbd}
+.no-photo .q{font-family:var(--display);font-size:clamp(5rem,12vw,9rem);color:var(--gold);line-height:1}
+.plate{margin:10px auto 0;max-width:94%;background:var(--panel);border:1px solid var(--line);border-radius:4px;text-align:center;padding:10px 16px;box-shadow:0 2px 6px rgba(29,26,22,.12)}
+.plate .who{font-family:var(--display);font-size:clamp(1.6rem,3.2vw,2.6rem);line-height:1.1}
+.plate .what{font-weight:600;font-size:1rem;color:var(--muted)}
+.plate .what i{color:var(--text)}
+.plate.hidden-name .who{letter-spacing:.3em}
+.reveal-fact{margin-top:0;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--plum);border-radius:10px;padding:14px 16px;font-size:1.05rem}
+
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.clock{display:flex;align-items:center;gap:20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
+.ring{position:relative;width:96px;height:96px;flex:none}
+.ring svg{width:96px;height:96px}
+.ring svg{transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--line);stroke-width:10}
+.ring .bar{fill:none;stroke:var(--gold);stroke-width:10;stroke-linecap:round;transition:stroke .3s}
+.ring.low .bar{stroke:var(--alert)}
+.ring .secs{position:absolute;inset:0;display:grid;place-items:center;font-size:2.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+.worth .eyebrow{display:block}
+.worth .pts{color:var(--plum);font-family:var(--display);font-size:clamp(2.6rem,5vw,3.6rem);line-height:1}
+.worth .sub{color:var(--muted);font-size:.95rem}
+.ladder{display:flex;gap:6px;margin-top:8px}
+.ladder span{flex:1;min-width:34px;text-align:center;border-radius:6px;padding:.15em 0;font-weight:800;font-size:.85rem;background:var(--panel-2);color:var(--muted);font-variant-numeric:tabular-nums}
+.ladder span.on{background:var(--gold);color:var(--gold-ink)}
+.ladder span.past{text-decoration:line-through;opacity:.55}
+
+.hints{display:flex;flex-direction:column;gap:10px}
+.mc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.mc{grid-template-columns:1fr}}
+.opt{display:flex;gap:12px;align-items:center;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;font-size:clamp(1rem,1.5vw,1.25rem);min-width:0}
+.opt .let{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:var(--plum);color:#fff;font-family:var(--display);font-size:1.3rem}
+.opt.out{opacity:.4;text-decoration:line-through}
+.opt.right{border-color:var(--good);background:#e5f4ec}
+.opt.right .let{background:var(--good)}
+button.opt{text-align:left;width:100%;cursor:pointer;transition:transform .1s,border-color .1s}
+button.opt:hover:not(:disabled){border-color:var(--plum);transform:translateY(-2px)}
+button.opt:disabled{cursor:default}
+.opt.wrong{border-color:var(--alert);background:#fbe7e4;text-decoration:line-through}
+.opt.wrong .let{background:var(--alert)}
+.opt .mark{margin-left:auto;font-weight:800}
+.hint{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+.hint .num{font-family:var(--display);font-size:1.7rem;line-height:1;color:var(--muted);width:1.4em;text-align:center}
+.hint .txt{font-size:clamp(1.05rem,1.6vw,1.35rem);font-weight:600;min-width:0}
+.hint.locked .txt{color:var(--muted);font-weight:400;font-style:italic}
+.hint.open{border-color:var(--gold);background:#fff8ea}
+.hint.open .num{color:var(--gold-text)}
+.hint.fresh{animation:pop .45s ease-out}
+@keyframes pop{from{transform:translateY(6px);opacity:.2}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hint.fresh{animation:none}.ring .bar{transition:none}}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+
+.bench{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px}
+.team{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"tn tn" "ts award" "ts adj";gap:6px 12px;align-items:center}
+.team .tn{grid-area:tn}.team .ts{grid-area:ts}.team .award{grid-area:award}.team .adj{grid-area:adj}
+.team .tn{font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.team .tn .key{font-size:.75rem}
+.team .ts{color:var(--plum);font-family:var(--display);font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.team .award{width:100%}
+.team.flash{border-color:var(--good);box-shadow:0 0 0 2px var(--good) inset}
+.team .adj{display:flex;gap:6px}
+.status-line{min-height:1.5em;font-weight:600;color:var(--gold-text)}
+
+/* ---------- Final ---------- */
+.final{text-align:center;padding-block:40px}
+.final h1{font-size:clamp(2.6rem,6vw,4.4rem)}
+.podium{display:grid;gap:10px;max-width:560px;margin:28px auto}
+.podium .row{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;font-size:1.2rem}
+.podium .row.first{border-color:var(--gold);background:#fff8ea}
+.podium .row b{font-family:var(--display);font-size:1.8rem;font-variant-numeric:tabular-nums}
+.recap{max-width:900px;margin:0 auto;text-align:left}
+.recap li{margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold);border-radius:10px;padding:.6em 1em;font-weight:600;z-index:10;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+footer.credit{margin-top:26px;font-size:.8rem;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ================= SETUP ================= -->
+<section id="setup" class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Art, Architecture &amp; Invention · Classroom Game</div>
+      <h1>Masterpiece Mystery</h1>
+      <p class="muted">A famous work appears: a painting, sculpture, building, invention, or photograph. Every 15 seconds a new clue unlocks. Name the person who made it early for more points.</p>
+    </div>
+    <div class="mast-right">
+      <a class="home" href="index.html">← Agora Arcade</a>
+      <div class="keys">Keys in play: <kbd>Space</kbd> pause · <kbd>H</kbd> next clue · <kbd>R</kbd> reveal · <kbd>1</kbd>–<kbd>6</kbd> award team · <kbd>N</kbd> next work · <kbd>M</kbd> choices on/off · <kbd>A</kbd>–<kbd>D</kbd> pick a choice · <kbd>F</kbd> full screen</div>
+    </div>
+  </header>
+
+  <div class="setup-grid">
+    <div class="card">
+      <h2>Teams</h2>
+      <div class="field">
+        <label for="teamCount">Number of teams</label>
+        <select id="teamCount"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
+      </div>
+      <div id="teamInputs" class="team-inputs"></div>
+    </div>
+
+    <div class="card">
+      <h2>Works</h2>
+      <div class="sub-h">Type of work</div>
+      <div id="catChecks" class="checks"></div>
+      <div class="sub-h">Time period</div>
+      <div id="eraChecks" class="checks"></div>
+    </div>
+
+    <div class="card">
+      <h2>Game options</h2>
+      <div class="field">
+        <label for="roundCount">Works this game</label>
+        <select id="roundCount"></select>
+      </div>
+      <div class="field">
+        <label for="hintSecs">Seconds before each clue</label>
+        <select id="hintSecs"><option value="10">10</option><option value="15" selected>15</option><option value="20">20</option><option value="30">30</option></select>
+      </div>
+      <label class="check"><input type="checkbox" id="mcOn"><span><b>Multiple choice:</b> show 4 names on screen</span></label>
+      <div class="ladder" aria-hidden="true" style="margin-top:16px"><span class="on">4</span><span>3</span><span>2</span><span>1</span></div>
+      <p style="margin-bottom:0">Work only: <b>4 points</b>. After clue 1: <b>3</b>. After clue 2: <b>2</b>. After clue 3: <b>1</b>. When a team names the creator, click that team's <b>Got it</b> button (or press its number).</p>
+    </div>
+  </div>
+
+  <div class="start-row">
+    <button id="startBtn" class="btn primary">Start game</button>
+    <button id="fsBtn2" class="btn">Full screen</button>
+    <button id="toggleRoster" class="btn">Manage works &amp; images</button>
+    <span id="setupMsg" class="muted"></span>
+  </div>
+
+  <div id="rosterPanel" class="card" style="margin-top:20px" hidden>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center">
+      <div>
+        <h2 style="margin:0">Works &amp; images</h2>
+        <p class="muted" style="margin:.3rem 0 0;max-width:80ch">Images load from Wikipedia and Wikimedia Commons. A red status means the image didn't load on this computer (often a school web filter); upload or paste your own to fix it. Uploads and works you add are saved in this browser.</p>
+      </div>
+      <button id="addBtn" class="btn">Add a work</button>
+    </div>
+    <div class="photo-tools">
+      <label class="drop" id="dropZone" for="bulkFiles">
+        <b>Add many images at once</b>
+        <span class="muted">Drop image files here or click to choose. Name each file after the work or creator (starry night.jpg, Eiffel Tower.png, hokusai.jpg) and it matches automatically.</span>
+        <input id="bulkFiles" type="file" accept="image/*" multiple hidden>
+      </label>
+      <div class="pack">
+        <b>Move images between computers</b>
+        <span class="muted">Uploads are saved in this browser only. Save an image pack at home, then load it at school.</span>
+        <div class="controls">
+          <button id="savePack" class="btn small">Save image pack</button>
+          <label class="btn small" style="display:inline-block">Load image pack<input id="loadPack" type="file" accept=".json,application/json" hidden></label>
+        </div>
+      </div>
+    </div>
+    <p class="muted" style="margin:10px 0 0">Tip: on Google Images, right-click a picture, choose <b>Copy image</b>, then click <b>Paste</b> on that work below.</p>
+    <div id="roster" class="roster"></div>
+
+    <div id="editor" class="editor" hidden>
+      <h3 id="edTitle" style="font-size:1.3rem;margin-bottom:10px">Add a work</h3>
+      <div class="setup-grid">
+        <div>
+          <div class="field"><label for="edName">Creator (the answer)</label><input id="edName" placeholder="e.g. Frida Kahlo"></div>
+          <div class="field"><label for="edWork">Title of the work</label><input id="edWork"></div>
+          <div class="field"><label for="edDate">Date shown on reveal</label><input id="edDate" placeholder="e.g. c. 1503 or 1850s"></div>
+          <div class="field"><label for="edYear">Year (for the time-period filter; use minus for BCE)</label><input id="edYear" type="number" placeholder="1503"></div>
+          <div class="field"><label for="edCat">Type of work</label><select id="edCat"></select></div>
+        </div>
+        <div>
+          <div class="field"><label for="edUrl">Image web address (optional)</label><input id="edUrl" placeholder="https://…"></div>
+          <div class="field"><label for="edFile">Or upload an image</label><input id="edFile" type="file" accept="image/*"></div>
+          <div class="field"><label for="edH1">Clue 1 (hardest)</label><input id="edH1"></div>
+          <div class="field"><label for="edH2">Clue 2</label><input id="edH2"></div>
+          <div class="field"><label for="edH3">Clue 3 (easiest)</label><input id="edH3"></div>
+          <div class="field"><label for="edFact">Why it matters (shown on reveal)</label><input id="edFact"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="edSave" class="btn primary">Save work</button>
+        <button id="edCancel" class="btn ghost">Cancel</button>
+        <span id="edMsg" class="muted"></span>
+      </div>
+    </div>
+  </div>
+  <footer class="credit">Images: Wikipedia and Wikimedia Commons (public domain or freely licensed).</footer>
+</section>
+
+<!-- ================= PLAY ================= -->
+<section id="play" class="wrap" hidden>
+  <div class="topbar">
+    <div>
+      <div class="eyebrow" id="catLabel">Category</div>
+      <div class="round" id="roundLabel">Work 1 of 10</div>
+    </div>
+    <div class="controls">
+      <button id="pauseBtn" class="btn">Pause</button>
+      <button id="hintBtn" class="btn">Next clue</button>
+      <button id="revealBtn" class="btn">Reveal answer</button>
+      <button id="mcBtn" class="btn ghost" aria-pressed="false">Choices: off</button>
+      <button id="nextBtn" class="btn primary" hidden>Next work</button>
+      <button id="fsBtn" class="btn ghost">Full screen</button>
+      <button id="endBtn" class="btn ghost">End game</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div>
+      <div class="frame"><div class="frame-inner" id="portrait"></div></div>
+      <div class="plate hidden-name" id="plate">
+        <div class="who" id="plateWho">? ? ?</div>
+        <div class="what" id="plateWhat">Who made this?</div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="clock">
+        <div class="ring" id="ring">
+          <svg width="118" height="118" viewBox="0 0 118 118" aria-hidden="true">
+            <circle class="track" cx="59" cy="59" r="50"></circle>
+            <circle class="bar" id="ringBar" cx="59" cy="59" r="50" stroke-dasharray="314.16" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="secs" id="secs">15</div>
+        </div>
+        <div class="worth">
+          <span class="eyebrow">Worth right now</span>
+          <div class="pts" id="pts">4 pts</div>
+          <div class="sub" id="worthSub">Next clue in 15 seconds</div>
+          <div class="ladder" id="ladder"><span>4</span><span>3</span><span>2</span><span>1</span></div>
+        </div>
+      </div>
+      <div class="mc" id="mcBox" hidden aria-label="Answer choices"></div>
+      <div class="hints" id="hints"></div>
+      <div class="status-line" id="statusLine" aria-live="polite"></div>
+      <div class="reveal-fact" id="factBox" hidden></div>
+    </div>
+  </div>
+  <div class="bench" id="bench"></div>
+</section>
+
+<!-- ================= FINAL ================= -->
+<section id="final" class="wrap final" hidden>
+  <div class="eyebrow">Final standings</div>
+  <h1 id="winnerLine">Winner</h1>
+  <div class="podium" id="podium"></div>
+  <div class="recap card" id="recap"></div>
+  <div class="start-row" style="justify-content:center"><button id="againBtn" class="btn primary">Play again</button></div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+const CATS = {
+  paint:  "Painting",
+  draw:   "Drawing & Prints",
+  sculpt: "Sculpture",
+  arch:   "Architecture",
+  invent: "Inventions",
+  photo:  "Photography"
+};
+
+const BUILT_IN = [
+/* ===================== PAINTING ===================== */
+{id:"monalisa",cat:"paint",name:"Leonardo da Vinci",work:"Mona Lisa",date:"c. 1503–1519",year:1503,wiki:"Mona Lisa",
+ hints:["This Italian dissected human bodies to study anatomy and filled notebooks with ideas for machines.","The sitter is believed to be Lisa Gherardini, wife of a Florence silk merchant. The painting was stolen from the Louvre in 1911.","Also painted The Last Supper. His name means he came from a town called Vinci."],
+ fact:"Its soft, smoky blending of light and shadow (sfumato) became a model for Renaissance portraits."},
+{id:"starrynight",cat:"paint",name:"Vincent van Gogh",work:"The Starry Night",date:"1889",year:1889,wiki:"The Starry Night",
+ hints:["A Dutch painter who sold very few paintings during his lifetime.","He painted this view from his window at an asylum in Saint-Rémy, France.","Famous for sunflowers, swirling brushstrokes, and cutting off part of his own ear."],
+ fact:"Its swirling, emotional sky made it one of the best-known images of Post-Impressionism."},
+{id:"venus",cat:"paint",name:"Sandro Botticelli",work:"The Birth of Venus",date:"c. 1484–1486",year:1485,wiki:"The Birth of Venus",
+ hints:["A Florentine painter supported by the powerful Medici family.","Later in life he fell under the influence of the preacher Savonarola and his “bonfires of the vanities.”","Painted a Roman goddess arriving on shore standing on a giant scallop shell."],
+ fact:"One of the first large Renaissance paintings of a classical myth instead of a religious scene."},
+{id:"athens",cat:"paint",name:"Raphael",work:"The School of Athens",date:"1509–1511",year:1510,wiki:"The School of Athens",
+ hints:["Known by his first name alone, he died on his 37th birthday in 1520.","He painted rooms in the Vatican for Pope Julius II at the same time Michelangelo was painting the Sistine Chapel.","This fresco gathers Plato, Aristotle, and other Greek thinkers under grand stone arches."],
+ fact:"It celebrates the Renaissance revival of ancient Greek philosophy and learning."},
+{id:"adam",cat:"paint",name:"Michelangelo",work:"The Creation of Adam (Sistine Chapel ceiling)",date:"c. 1508–1512",year:1511,wiki:"The Creation of Adam",
+ hints:["He thought of himself as a sculptor first and complained about being made to paint.","He spent about four years painting a ceiling while standing on scaffolding high above the floor.","Two fingers almost touch on the ceiling of the Sistine Chapel."],
+ fact:"The Sistine ceiling showed how the human body could carry huge spiritual meaning in Renaissance art."},
+{id:"nightwatch",cat:"paint",name:"Rembrandt",work:"The Night Watch",date:"1642",year:1642,wiki:"The Night Watch",
+ hints:["He painted close to 100 self-portraits over his life.","A master of dramatic light and shadow in Amsterdam during the Dutch Golden Age.","This huge group portrait shows a city militia company marching out."],
+ fact:"It turned a stiff group portrait into a scene full of movement, and shows the wealth of the Dutch Republic."},
+{id:"pearl",cat:"paint",name:"Johannes Vermeer",work:"Girl with a Pearl Earring",date:"c. 1665",year:1665,wiki:"Girl with a Pearl Earring",
+ hints:["Only about 35 paintings by this Dutch artist survive.","He lived in the city of Delft and painted quiet scenes of light coming through windows.","A young woman in a blue and yellow turban glances over her shoulder, wearing one large earring."],
+ fact:"Vermeer's handling of light made ordinary moments feel timeless."},
+{id:"meninas",cat:"paint",name:"Diego Velázquez",work:"Las Meninas",date:"1656",year:1656,wiki:"Las Meninas",
+ hints:["Court painter to King Philip IV of Spain.","He painted himself into this picture, standing beside a giant canvas.","A young Spanish princess stands with her maids of honor while the king and queen appear in a mirror."],
+ fact:"Its puzzle of who is looking at whom has made it one of the most studied paintings in the world."},
+{id:"thirdmay",cat:"paint",name:"Francisco Goya",work:"The Third of May 1808",date:"1814",year:1814,wiki:"The Third of May 1808",
+ hints:["A Spanish court painter who went deaf after a serious illness.","He made a set of prints called “The Disasters of War.”","French soldiers execute Spanish civilians after the uprising against Napoleon's army."],
+ fact:"One of the first great paintings to show war's victims instead of glorifying its heroes."},
+{id:"liberty",cat:"paint",name:"Eugène Delacroix",work:"Liberty Leading the People",date:"1830",year:1830,wiki:"Liberty Leading the People",
+ hints:["A leader of French Romantic painting, known for bold color and drama.","He painted it to honor the July Revolution of 1830 in Paris.","A woman holding the French tricolor flag leads fighters over a barricade."],
+ fact:"Its figure of Liberty became a lasting symbol of the French Republic and of revolution."},
+{id:"impression",cat:"paint",name:"Claude Monet",work:"Impression, Sunrise",date:"1872",year:1872,wiki:"Impression, Sunrise",
+ hints:["He later spent decades painting the water lilies in his garden at Giverny.","A critic mocked this painting's title, and the insult became the name of a whole art movement.","A hazy French harbor at dawn with a bright orange sun."],
+ fact:"It gave Impressionism its name and its focus on quick brushwork and changing light."},
+{id:"grandejatte",cat:"paint",name:"Georges Seurat",work:"A Sunday Afternoon on the Island of La Grande Jatte",date:"1884–1886",year:1885,wiki:"A Sunday Afternoon on the Island of La Grande Jatte",
+ hints:["This French painter died at just 31.","He spent two years on this one canvas, now at the Art Institute of Chicago.","He built the whole picture out of tiny dots of color, a method called pointillism."],
+ fact:"It applied scientific ideas about color and vision to painting."},
+{id:"scream",cat:"paint",name:"Edvard Munch",work:"The Scream",date:"1893",year:1893,wiki:"The Scream",
+ hints:["A Norwegian artist whose work often explored anxiety, illness, and loss.","He made several versions of this image in paint, pastel, and print.","A figure under a blood-red sky clutches its face on a bridge."],
+ fact:"It became a universal symbol of modern anxiety and helped launch Expressionism."},
+{id:"kiss",cat:"paint",name:"Gustav Klimt",work:"The Kiss",date:"1907–1908",year:1908,wiki:"The Kiss (Klimt)",
+ hints:["He led a group of Austrian artists called the Vienna Secession.","During his “Golden Phase” he put real gold leaf in his paintings.","A couple embraces, wrapped in a glittering gold robe."],
+ fact:"It blends painting with decorative art and is a highlight of Vienna around 1900."},
+{id:"delaware",cat:"paint",name:"Emanuel Leutze",work:"Washington Crossing the Delaware",date:"1851",year:1851,wiki:"Washington Crossing the Delaware (1851 painting)",
+ hints:["A German-American painter who made this in Düsseldorf, Germany.","He also painted a giant mural in the U.S. Capitol called “Westward the Course of Empire Takes Its Way.”","A general stands in a rowboat among chunks of ice on Christmas night, 1776."],
+ fact:"Painted to inspire European revolutionaries after 1848, it shaped how Americans picture the Revolution."},
+{id:"whistler",cat:"paint",name:"James McNeill Whistler",work:"Whistler's Mother (Arrangement in Grey and Black No. 1)",date:"1871",year:1871,wiki:"Whistler's Mother",
+ hints:["An American painter who spent most of his career in London and Paris. He was kicked out of West Point.","He sued the critic John Ruskin for libel in 1878 and won one farthing.","He titled this portrait of his elderly mother “Arrangement in Grey and Black.”"],
+ fact:"Whistler cared about color and design more than storytelling, but the public saw a symbol of motherhood."},
+{id:"grossclinic",cat:"paint",name:"Thomas Eakins",work:"The Gross Clinic",date:"1875",year:1875,wiki:"The Gross Clinic",
+ hints:["A Philadelphia painter who taught at the Pennsylvania Academy of the Fine Arts.","He studied anatomy at Jefferson Medical College and used photography to study motion.","A famous surgeon lectures to students in a Philadelphia operating theater."],
+ fact:"Its unflinching realism shocked viewers; it is now one of the great American paintings."},
+{id:"qingming",cat:"paint",name:"Zhang Zeduan",work:"Along the River During the Qingming Festival",date:"early 1100s",year:1100,wiki:"Along the River During the Qingming Festival",
+ hints:["A Chinese painter of the Song dynasty about whom almost nothing else is known.","This handscroll is over 5 meters (17 feet) long and is unrolled one section at a time.","It shows daily life in the capital: boats, a rainbow-shaped bridge, shops, and hundreds of people."],
+ fact:"It is a priceless record of city life in Song dynasty China, often called China's Mona Lisa."},
+{id:"gayumars",cat:"paint",name:"Sultan Muhammad",work:"The Court of Gayumars (Shahnameh of Shah Tahmasp)",date:"c. 1522–1525",year:1523,wiki:"The Court of Gayumars",
+ hints:["A leading painter at the court of the Safavid shahs of Persia (Iran).","He painted it for a lavish copy of the Shahnameh, Persia's “Book of Kings.”","The first legendary king of Persia sits on a jewel-colored mountain among courtiers dressed in leopard skins."],
+ fact:"It is considered a masterpiece of Persian miniature painting, with incredibly fine detail."},
+{id:"oxbow",cat:"paint",name:"Thomas Cole",work:"The Oxbow",date:"1836",year:1836,wiki:"The Oxbow",
+ hints:["Born in England, he moved to the U.S. and painted a five-part series called “The Course of Empire.”","He is considered the founder of the Hudson River School of American landscape painting.","A view from a Massachusetts mountain: stormy wilderness on one side, farmland around a looping river on the other."],
+ fact:"It captures the tension between wilderness and settlement in a growing nation."},
+{id:"trumbull",cat:"paint",name:"John Trumbull",work:"Declaration of Independence",date:"1818",year:1818,wiki:"Declaration of Independence (painting)",
+ hints:["He served as an aide to George Washington during the Revolutionary War.","Four of his huge paintings hang in the U.S. Capitol Rotunda.","The drafting committee presents the Declaration to Congress. The scene is on the back of the $2 bill."],
+ fact:"He painted many of the delegates from life, making it a key visual record of the founders."},
+{id:"gulfstream",cat:"paint",name:"Winslow Homer",work:"The Gulf Stream",date:"1899",year:1899,wiki:"The Gulf Stream (painting)",
+ hints:["He began as an illustrator, sketching Civil War soldiers for Harper's Weekly.","He spent his later years painting the sea from his studio in Prouts Neck, Maine.","A man lies on a broken boat surrounded by sharks, with a waterspout behind him."],
+ fact:"It puts a Black sailor at the center of a heroic struggle against nature, unusual for its time."},
+{id:"banjo",cat:"paint",name:"Henry Ossawa Tanner",work:"The Banjo Lesson",date:"1893",year:1893,wiki:"The Banjo Lesson",
+ hints:["He studied with Thomas Eakins at the Pennsylvania Academy of the Fine Arts.","He became the first African American painter to win international fame, working mostly in Paris.","An older man teaches a young boy to play a stringed instrument in a firelit room."],
+ fact:"It countered racist stereotypes with a warm, dignified scene of learning across generations."},
+{id:"matthew",cat:"paint",name:"Caravaggio",work:"The Calling of Saint Matthew",date:"1599–1600",year:1600,wiki:"The Calling of Saint Matthew",
+ hints:["An Italian Baroque painter who fled Rome after killing a man in a fight.","Famous for tenebrism: figures lit by a harsh beam of light out of deep darkness.","Jesus points at a tax collector seated at a table counting coins."],
+ fact:"His dramatic lighting and real-looking people changed European painting."},
+{id:"arnolfini",cat:"paint",name:"Jan van Eyck",work:"Arnolfini Portrait",date:"1434",year:1434,wiki:"Arnolfini Portrait",
+ hints:["A Flemish painter who helped perfect oil painting in the 1400s.","He signed this work on the back wall with the words “was here, 1434.”","A couple stands in a room with a small dog and a round mirror that reflects two more people."],
+ fact:"Its detail and glowing color show what oil paint could do."},
+{id:"hunters",cat:"paint",name:"Pieter Bruegel the Elder",work:"The Hunters in the Snow",date:"1565",year:1565,wiki:"The Hunters in the Snow",
+ hints:["A Flemish painter nicknamed “Peasant” for his scenes of village life.","Part of a series showing the seasons and the work of each time of year.","Tired hunters and their dogs trudge downhill toward a frozen valley full of skaters."],
+ fact:"It made everyday peasant life a worthy subject for great art."},
+{id:"childsbath",cat:"paint",name:"Mary Cassatt",work:"The Child's Bath",date:"1893",year:1893,wiki:"The Child's Bath",
+ hints:["Born near Pittsburgh, Pennsylvania, she spent most of her career in France.","She was the only American invited to exhibit with the French Impressionists.","Famous for tender scenes of mothers and children; here a woman washes a child's feet."],
+ fact:"It shows the influence of Japanese prints on her bold patterns and high viewpoint."},
+{id:"pittura",cat:"paint",name:"Artemisia Gentileschi",work:"Self-Portrait as the Allegory of Painting",date:"c. 1638–1639",year:1638,wiki:"Self-Portrait as the Allegory of Painting",
+ hints:["The first woman admitted to Florence's Academy of the Arts of Drawing.","An Italian Baroque painter influenced by Caravaggio, she worked for King Charles I in England.","She painted herself as the symbol of Painting, brush raised, with a gold chain around her neck."],
+ fact:"Only a woman painter could be both the artist and the female symbol of Painting at once."},
+{id:"medusa",cat:"paint",name:"Théodore Géricault",work:"The Raft of the Medusa",date:"1818–1819",year:1819,wiki:"The Raft of the Medusa",
+ hints:["A French Romantic painter who loved horses and died at 32 after riding accidents.","He interviewed survivors and studied the sick and dying to make this scene realistic.","Shipwreck survivors on a makeshift raft wave at a tiny ship on the horizon."],
+ fact:"It exposed a real government scandal and became an icon of French Romanticism."},
+{id:"wanderer",cat:"paint",name:"Caspar David Friedrich",work:"Wanderer above the Sea of Fog",date:"c. 1818",year:1818,wiki:"Wanderer above the Sea of Fog",
+ hints:["A German Romantic painter known for lonely figures in vast landscapes.","He often painted people from behind so viewers see what they see.","A man in a dark coat stands on a rocky peak looking out over clouds of fog."],
+ fact:"It sums up the Romantic idea of the individual facing the power of nature."},
+
+/* ===================== DRAWING & PRINTS ===================== */
+{id:"vitruvian",cat:"draw",name:"Leonardo da Vinci",work:"Vitruvian Man",date:"c. 1490",year:1490,wiki:"Vitruvian Man",
+ hints:["The notes around this drawing are written in mirror script, right to left.","It is based on ideas about perfect body proportions from the ancient Roman architect Vitruvius.","A man with outstretched arms and legs fits inside both a circle and a square."],
+ fact:"It links art, math, and the human body, a key Renaissance idea."},
+{id:"greatwave",cat:"draw",name:"Katsushika Hokusai",work:"The Great Wave off Kanagawa",date:"c. 1831",year:1831,wiki:"The Great Wave off Kanagawa",
+ hints:["A Japanese artist who used more than 30 different names during his career.","Part of the series “Thirty-six Views of Mount Fuji,” made as woodblock prints.","A giant claw-like wave curls over boats, with Mount Fuji small in the distance."],
+ fact:"Thousands of copies were printed, and it inspired European artists like Monet and Van Gogh."},
+{id:"tokaido",cat:"draw",name:"Utagawa Hiroshige",work:"The Fifty-three Stations of the Tōkaidō",date:"1833–1834",year:1833,wiki:"The Fifty-three Stations of the Tōkaidō",
+ hints:["A Japanese woodblock artist whose prints Vincent van Gogh copied in oil paint.","He made his name with landscape prints of travelers in rain and snow.","This series shows the rest stops along the great highway between Edo (Tokyo) and Kyoto."],
+ fact:"Cheap, mass-produced prints like these let ordinary people collect art in Edo-period Japan."},
+{id:"rhino",cat:"draw",name:"Albrecht Dürer",work:"Rhinoceros",date:"1515",year:1515,wiki:"Dürer's Rhinoceros",
+ hints:["A German Renaissance artist from Nuremberg who signed his work with an “AD” monogram.","He never saw the animal. He worked from a written description and a sketch sent from Lisbon.","A woodcut of an armored rhinoceros with plates like a knight, plus an extra little horn on its back."],
+ fact:"For about 250 years, many Europeans believed rhinos really looked like this print."},
+{id:"massacre",cat:"draw",name:"Paul Revere",work:"The Bloody Massacre",date:"1770",year:1770,wiki:"Boston Massacre",
+ hints:["A Boston silversmith and engraver who also made false teeth.","His engraving copied a design by the artist Henry Pelham without permission.","British soldiers fire on colonists on King Street. He is better known for a midnight ride in 1775."],
+ fact:"Its one-sided picture of the event became powerful Patriot propaganda."},
+{id:"joinordie",cat:"draw",name:"Benjamin Franklin",work:"Join, or Die.",date:"1754",year:1754,wiki:"Join, or Die.",
+ hints:["He printed it in his own newspaper, the Pennsylvania Gazette.","He made it to promote the Albany Plan of Union during the French and Indian War.","A snake cut into eight pieces, each labeled with the initials of a colony."],
+ fact:"Often called the first American political cartoon; colonists reused it during the Revolution."},
+{id:"nast",cat:"draw",name:"Thomas Nast",work:"The “Brains” (Boss Tweed)",date:"1871",year:1871,img:"Boss Tweed, Thomas Nast.jpg",
+ hints:["Called the “Father of the American Cartoon,” he was born in Germany.","He popularized the Republican elephant, the Democratic donkey, and the modern look of Santa Claus.","His Harper's Weekly cartoons helped bring down Boss Tweed of Tammany Hall."],
+ fact:"Tweed reportedly said he didn't care about newspaper stories, but voters could see “them damn pictures.”"},
+{id:"flamingo",cat:"draw",name:"John James Audubon",work:"American Flamingo (The Birds of America)",date:"1838",year:1838,img:"431 American Flamingo.jpg",
+ hints:["Born in Haiti, he wandered the American frontier with a gun, a notebook, and paints.","His giant book printed every bird life-size; its pages are about three feet tall.","A national bird-conservation society is named after him."],
+ fact:"The Birds of America is one of the most valuable printed books in the world."},
+
+/* ===================== SCULPTURE ===================== */
+{id:"pieta",cat:"sculpt",name:"Michelangelo",work:"Pietà",date:"1498–1499",year:1498,wiki:"Pietà (Michelangelo)",
+ hints:["He carved this when he was only about 24 years old.","It is the only work he ever signed, carved on a sash across Mary's chest.","A marble sculpture in St. Peter's Basilica: Mary holds the body of Jesus across her lap."],
+ fact:"It made the young sculptor famous across Italy."},
+{id:"thinker",cat:"sculpt",name:"Auguste Rodin",work:"The Thinker",date:"1904 (designed 1880)",year:1880,wiki:"The Thinker",
+ hints:["A French sculptor who was rejected three times by Paris's top art school.","This figure began as part of a giant doorway called “The Gates of Hell,” based on Dante's poem.","A bronze man sits with his chin resting on his hand, deep in thought."],
+ fact:"Rodin's rough, expressive surfaces helped open the way to modern sculpture."},
+{id:"statueliberty",cat:"sculpt",name:"Frédéric Auguste Bartholdi",work:"Statue of Liberty",date:"1886",year:1886,wiki:"Statue of Liberty",
+ hints:["A French sculptor; Gustave Eiffel's company built the iron skeleton inside his most famous work.","Americans paid for the pedestal with help from Joseph Pulitzer's newspaper campaign.","A gift from France: a robed woman with a torch and a tablet in New York Harbor."],
+ fact:"It became a symbol of welcome for millions of immigrants arriving at Ellis Island."},
+{id:"rushmore",cat:"sculpt",name:"Gutzon Borglum",work:"Mount Rushmore",date:"1927–1941",year:1927,wiki:"Mount Rushmore",
+ hints:["He began carving a Confederate memorial on Stone Mountain, Georgia, but was fired from the job.","He died in 1941, and his son Lincoln finished the project.","Four presidents' faces carved into a mountain in South Dakota's Black Hills."],
+ fact:"The Black Hills are sacred to the Lakota, who say the land was taken from them in violation of an 1868 treaty."},
+{id:"nefertiti",cat:"sculpt",name:"Thutmose",work:"Bust of Nefertiti",date:"c. 1345 BCE",year:-1345,wiki:"Nefertiti Bust",
+ hints:["An ancient Egyptian royal sculptor whose workshop was found in the ruins of Amarna.","German archaeologists dug it up in 1912, and Egypt has asked for it back.","A painted bust of a queen with a tall blue crown, wife of Pharaoh Akhenaten."],
+ fact:"It is one of the most copied works of ancient Egyptian art and is now in Berlin."},
+{id:"discobolus",cat:"sculpt",name:"Myron",work:"Discobolus (Discus Thrower)",date:"c. 460–450 BCE",year:-455,wiki:"Discobolus",
+ hints:["An ancient Greek sculptor from Athens whose bronze originals are lost; we know them through Roman marble copies.","He was famous for catching an athlete at the instant before motion.","An athlete twists back mid-swing, about to hurl a discus."],
+ fact:"It shows the Greek ideal of the balanced, athletic human body."},
+{id:"daphne",cat:"sculpt",name:"Gian Lorenzo Bernini",work:"Apollo and Daphne",date:"1622–1625",year:1622,wiki:"Apollo and Daphne (Bernini)",
+ hints:["He also designed the giant colonnade that wraps around St. Peter's Square in Rome.","He started this sculpture at about 23; it tells a myth from the Roman poet Ovid.","As a god reaches her, a nymph's fingers sprout leaves and her feet turn into roots."],
+ fact:"Bernini made hard marble look like skin, hair, and leaves in motion."},
+{id:"littledancer",cat:"sculpt",name:"Edgar Degas",work:"Little Dancer Aged Fourteen",date:"1881",year:1881,wiki:"Little Dancer of Fourteen Years",
+ hints:["A French artist best known for paintings and pastels of ballet rehearsals.","The only sculpture he showed in his lifetime; critics were shocked that it wore a real fabric skirt and hair ribbon.","A young ballet student stands with her hands clasped behind her back."],
+ fact:"Its realism, using real cloth and hair, broke the rules of 19th-century sculpture."},
+{id:"shaw",cat:"sculpt",name:"Augustus Saint-Gaudens",work:"Robert Gould Shaw Memorial",date:"1884–1897",year:1884,wiki:"Robert Gould Shaw Memorial",
+ hints:["He also designed the $20 “Double Eagle” gold coin, often called the most beautiful U.S. coin.","He spent about 14 years on this bronze relief across from the Massachusetts State House in Boston.","It honors the 54th Massachusetts, one of the first African American regiments in the Civil War."],
+ fact:"It was one of the first public monuments to show Black soldiers as individuals."},
+{id:"cleopatra",cat:"sculpt",name:"Edmonia Lewis",work:"The Death of Cleopatra",date:"1876",year:1876,wiki:"The Death of Cleopatra (Edmonia Lewis)",
+ hints:["Of African American and Ojibwe descent, she studied at Oberlin College before moving to Rome.","This two-ton marble was shown at the 1876 Centennial Exposition in Philadelphia, then lost for about 100 years.","An Egyptian queen slumps on her throne after the bite of a snake."],
+ fact:"Lewis was the first sculptor of African American and Native American heritage to win international fame."},
+{id:"gattamelata",cat:"sculpt",name:"Donatello",work:"Equestrian statue of Gattamelata",date:"1453",year:1453,wiki:"Equestrian statue of Gattamelata",
+ hints:["A Florentine sculptor who also made the first free-standing bronze nude figure since ancient times.","The first life-size bronze horse-and-rider statue made since ancient Rome.","It honors a mercenary general nicknamed “Honeyed Cat.” A Ninja Turtle shares the sculptor's name."],
+ fact:"It revived the ancient Roman tradition of honoring leaders with statues on horseback."},
+
+/* ===================== ARCHITECTURE ===================== */
+{id:"florence",cat:"arch",name:"Filippo Brunelleschi",work:"Dome of Florence Cathedral",date:"1420–1436",year:1420,wiki:"Florence Cathedral",
+ hints:["He lost a contest to design bronze doors for Florence's Baptistery, then turned to architecture.","He is also credited with working out linear perspective for painters.","He built the largest brick dome in the world without wooden supports underneath."],
+ fact:"His engineering solved a problem builders had left unsolved for decades and launched Renaissance architecture."},
+{id:"taj",cat:"arch",name:"Ustad Ahmad Lahori",work:"Taj Mahal",date:"1632–1653",year:1632,wiki:"Taj Mahal",
+ hints:["A Persian-trained master builder; historians still debate how much of the design was his.","He worked for the Mughal emperor Shah Jahan in Agra, India.","A white marble tomb the emperor built for his wife Mumtaz Mahal."],
+ fact:"Most often credited as chief architect. It blends Persian, Indian, and Islamic design."},
+{id:"hagiasophia",cat:"arch",name:"Anthemius of Tralles & Isidore of Miletus",work:"Hagia Sophia",date:"532–537",year:532,wiki:"Hagia Sophia",
+ hints:["Two Greek mathematicians and engineers, not trained builders.","They built it in about five years for the Byzantine emperor Justinian in Constantinople.","Its huge dome seems to float on a ring of windows. It has been a church, a mosque, a museum, and a mosque again."],
+ fact:"For nearly 1,000 years it was the largest church in the world."},
+{id:"parthenon",cat:"arch",name:"Ictinus & Callicrates",work:"The Parthenon",date:"447–432 BCE",year:-447,wiki:"Parthenon",
+ hints:["Two Greek architects who worked alongside the sculptor Phidias.","It was built when Pericles led Athens after the Persian Wars.","A marble temple to the goddess Athena on the Acropolis, ringed by Doric columns."],
+ fact:"It became the model for classical buildings, from banks to the U.S. Supreme Court."},
+{id:"monticello",cat:"arch",name:"Thomas Jefferson",work:"Monticello",date:"1772–1809",year:1772,wiki:"Monticello",
+ hints:["He taught himself architecture from the books of the Italian architect Andrea Palladio.","He kept redesigning his Virginia hilltop home for about 40 years; enslaved people built and ran it.","Main author of the Declaration of Independence. The house is on the back of the nickel."],
+ fact:"It shows Jefferson's love of classical design and the contradiction of a founder who enslaved over 600 people."},
+{id:"capitol",cat:"arch",name:"William Thornton",work:"United States Capitol (original design)",date:"1793",year:1793,wiki:"United States Capitol",
+ hints:["A physician and amateur architect born in the British Virgin Islands.","He won a 1793 design contest; George Washington praised his plan's “grandeur, simplicity and convenience.”","He designed the original building where Congress meets. Its famous cast-iron dome came later."],
+ fact:"Later architects (Latrobe, Bulfinch, Walter) expanded it; Thomas U. Walter designed the dome in the 1850s."},
+{id:"eiffel",cat:"arch",name:"Gustave Eiffel",work:"Eiffel Tower",date:"1887–1889",year:1887,wiki:"Eiffel Tower",
+ hints:["His company also built the iron framework inside the Statue of Liberty.","Built for the 1889 World's Fair, 100 years after the French Revolution; many Paris artists signed a protest against it.","A wrought-iron tower that was the tallest structure in the world for 41 years."],
+ fact:"Engineers Maurice Koechlin and Émile Nouguier drew the first design for Eiffel's company."},
+{id:"fallingwater",cat:"arch",name:"Frank Lloyd Wright",work:"Fallingwater",date:"1936–1939",year:1936,wiki:"Fallingwater",
+ hints:["He also designed the spiral-shaped Guggenheim Museum in New York.","He called his style “organic architecture,” meaning buildings in harmony with nature.","A house in western Pennsylvania built right over a waterfall."],
+ fact:"Often called the best all-time work of American architecture."},
+{id:"sagrada",cat:"arch",name:"Antoni Gaudí",work:"Sagrada Família",date:"1882–today",year:1882,wiki:"Sagrada Família",
+ hints:["A Catalan architect inspired by shapes in nature; he died after being hit by a tram in 1926.","Asked about the slow progress, he reportedly said, “My client is not in a hurry.”","A huge basilica in Barcelona, still under construction more than 140 years after it began."],
+ fact:"Its towers and tree-like columns show how far architecture can borrow from nature."},
+{id:"sydney",cat:"arch",name:"Jørn Utzon",work:"Sydney Opera House",date:"1959–1973",year:1959,wiki:"Sydney Opera House",
+ hints:["A Danish architect who won an international design contest in 1957.","He quit the project in 1966 over costs and never returned to see it finished.","A performing arts center in Australia whose roof looks like white sails or shells."],
+ fact:"It is one of the few buildings named a World Heritage Site while its architect was alive."},
+{id:"bilbao",cat:"arch",name:"Frank Gehry",work:"Guggenheim Museum Bilbao",date:"1997",year:1997,wiki:"Guggenheim Museum Bilbao",
+ hints:["A Canadian-American architect who once made furniture out of corrugated cardboard.","He used aerospace design software to plan his twisting shapes.","A museum in Spain covered in shimmering titanium curves."],
+ fact:"It revived a struggling industrial city; planners now talk about the “Bilbao effect.”"},
+{id:"washmon",cat:"arch",name:"Robert Mills",work:"Washington Monument",date:"1848–1884",year:1848,wiki:"Washington Monument",
+ hints:["Often called the first American-born professional architect; he also designed the Treasury Building.","Construction stopped for over 20 years, partly due to the Civil War. Look for the change in stone color.","A 555-foot marble obelisk on the National Mall honoring the first president."],
+ fact:"When finished in 1884 it was the tallest structure in the world, until the Eiffel Tower."},
+{id:"brooklyn",cat:"arch",name:"John A. Roebling",alt:"Washington & Emily Roebling",work:"Brooklyn Bridge",date:"1869–1883",year:1869,wiki:"Brooklyn Bridge",
+ hints:["A German immigrant who made his fortune making wire rope.","He died after an accident before construction began; his son Washington and daughter-in-law Emily finished it.","A steel-wire suspension bridge connecting Manhattan and Brooklyn, opened in 1883."],
+ fact:"When it opened it was the longest suspension bridge in the world. Accept any Roebling."},
+{id:"wainwright",cat:"arch",name:"Louis Sullivan",work:"Wainwright Building",date:"1891",year:1891,wiki:"Wainwright Building",
+ hints:["A Chicago architect who mentored Frank Lloyd Wright.","He coined the phrase “form follows function.”","Called the “father of skyscrapers”; this early steel-frame tower is in St. Louis."],
+ fact:"It showed how a tall office building could look tall and unified instead of like stacked boxes."},
+{id:"suleymaniye",cat:"arch",name:"Mimar Sinan",work:"Süleymaniye Mosque",date:"1550–1557",year:1550,wiki:"Süleymaniye Mosque",
+ hints:["He began as a military engineer in the Ottoman army, building bridges during campaigns.","Chief architect for three sultans, he is credited with hundreds of buildings.","He designed this great mosque in Istanbul for Suleiman the Magnificent."],
+ fact:"Sinan defined classical Ottoman architecture, with stacked domes and slender minarets."},
+{id:"djoser",cat:"arch",name:"Imhotep",work:"Pyramid of Djoser",date:"c. 2670 BCE",year:-2670,wiki:"Pyramid of Djoser",
+ hints:["Later Egyptians worshipped him as a god of medicine and wisdom.","He served as chancellor to a pharaoh of Egypt's Third Dynasty.","He designed the step pyramid at Saqqara, the oldest large cut-stone building in Egypt."],
+ fact:"He is one of the first architects in history known by name."},
+{id:"lincolnmem",cat:"arch",name:"Henry Bacon",work:"Lincoln Memorial",date:"1914–1922",year:1914,wiki:"Lincoln Memorial",
+ hints:["He won the American Institute of Architects' Gold Medal in 1923 for this project.","He modeled it on a Greek temple, with 36 columns for the states in the Union when the president died.","Martin Luther King Jr. gave the “I Have a Dream” speech on its steps."],
+ fact:"Daniel Chester French sculpted the giant seated statue inside."},
+{id:"independencehall",cat:"arch",name:"Andrew Hamilton & Edmund Woolley",work:"Independence Hall",date:"1732–1753",year:1732,wiki:"Independence Hall",
+ hints:["A Philadelphia lawyer famous for defending printer John Peter Zenger, working with a master carpenter.","It was built as the Pennsylvania State House.","Both the Declaration of Independence and the Constitution were signed here."],
+ fact:"It is a World Heritage Site because of the founding documents debated inside."},
+{id:"petronas",cat:"arch",name:"César Pelli",work:"Petronas Towers",date:"1998",year:1998,wiki:"Petronas Towers",
+ hints:["An Argentine-American architect who led Yale's School of Architecture.","The floor plan is based on an eight-pointed star from Islamic geometric design.","Twin skyscrapers in Kuala Lumpur, Malaysia, the tallest buildings in the world from 1998 to 2004."],
+ fact:"They took the “world's tallest building” title from Chicago's Sears Tower."},
+{id:"vietnammem",cat:"arch",name:"Maya Lin",work:"Vietnam Veterans Memorial",date:"1982",year:1982,wiki:"Vietnam Veterans Memorial",
+ hints:["She won a national design contest of 1,421 entries while still a college student at Yale.","Her design was controversial at first; one critic called it a “black gash of shame.”","A black granite wall in Washington, D.C., carved with more than 58,000 names."],
+ fact:"Its reflective wall changed how Americans design memorials to loss."},
+{id:"stpauls",cat:"arch",name:"Christopher Wren",work:"St Paul's Cathedral",date:"1675–1710",year:1675,wiki:"St Paul's Cathedral",
+ hints:["He was an astronomy professor at Oxford before he became an architect.","He rebuilt more than 50 London churches after the Great Fire of 1666.","His great domed cathedral survived the bombing of London in World War II."],
+ fact:"Its dome became a symbol of London's survival during the Blitz."},
+
+/* ===================== INVENTIONS ===================== */
+{id:"gutenberg",cat:"invent",name:"Johannes Gutenberg",work:"Movable-type printing press",date:"c. 1440",year:1440,wiki:"Printing press",
+ hints:["A goldsmith from Mainz, Germany, who went broke after his big project.","He combined metal movable type, oil-based ink, and a press adapted from wine presses.","He printed a famous Bible around 1455 that launched Europe's printing revolution."],
+ fact:"Cheap printed books spread the Renaissance, the Reformation, and the Scientific Revolution."},
+{id:"bell",cat:"invent",name:"Alexander Graham Bell",work:"Telephone (patent drawing)",date:"1876",year:1876,img:"Alexander Graham Bell's Telephone Patent Drawing and Oath - NARA - 302052 (page 2).jpg",
+ hints:["A teacher of deaf students; his mother and his wife were both deaf.","His patent application arrived the same day as rival inventor Elisha Gray's in 1876.","His first words over the device: “Mr. Watson, come here. I want to see you.”"],
+ fact:"His patent became one of the most valuable, and most fought-over, in history."},
+{id:"edison",cat:"invent",name:"Thomas Edison",work:"Long-lasting incandescent light bulb",date:"1879",year:1879,wiki:"Incandescent light bulb",
+ hints:["He held more than 1,000 U.S. patents and ran an “invention factory” in Menlo Park, New Jersey.","He also invented the phonograph, which recorded and played back sound.","His team tested thousands of materials to make an electric bulb that would glow for many hours."],
+ fact:"Others (like Joseph Swan) made bulbs too; Edison's system of power plants and wiring brought electric light to cities."},
+{id:"morse",cat:"invent",name:"Samuel Morse",work:"Electric telegraph",date:"1844",year:1844,wiki:"Telegraph key",
+ hints:["He was a portrait painter before he became an inventor; he painted the Marquis de Lafayette.","He sent “What hath God wrought” from the U.S. Capitol to Baltimore in 1844.","His code of dots and dashes is still named after him."],
+ fact:"The telegraph made news travel in minutes instead of weeks. Alfred Vail was a key partner."},
+{id:"cottongin",cat:"invent",name:"Eli Whitney",work:"Cotton gin",date:"1793",year:1793,wiki:"Cotton gin",
+ hints:["A Yale graduate who also promoted interchangeable parts for making muskets.","He built this machine while staying on a Georgia plantation.","It pulled seeds out of cotton fast, and led to a huge expansion of slavery in the South."],
+ fact:"It made cotton king, deepening the South's dependence on enslaved labor before the Civil War."},
+{id:"flyer",cat:"invent",name:"Wilbur & Orville Wright",work:"Wright Flyer",date:"1903",year:1903,wiki:"Wright Flyer",
+ hints:["Two brothers who ran a bicycle shop in Dayton, Ohio.","They tested gliders and built their own wind tunnel before adding an engine.","They made the first powered airplane flights at Kitty Hawk, North Carolina, in 1903."],
+ fact:"The first flight lasted 12 seconds; within 15 years airplanes were fighting in World War I."},
+{id:"watt",cat:"invent",name:"James Watt",work:"Watt steam engine",date:"1776",year:1776,wiki:"Watt steam engine",
+ hints:["A Scottish instrument maker at the University of Glasgow.","He added a separate condenser that made engines far more efficient than Newcomen's.","A unit of power is named after him. Look on any light bulb."],
+ fact:"His engine powered factories, mines, and mills and drove the Industrial Revolution."},
+{id:"franklinstove",cat:"invent",name:"Benjamin Franklin",work:"Franklin stove",date:"1742",year:1742,wiki:"Franklin stove",
+ hints:["He refused to patent his inventions, saying they should be shared freely.","He also invented the lightning rod and bifocal glasses.","A Philadelphia printer and founder who flew a kite in a thunderstorm."],
+ fact:"His metal stove heated homes better and used less wood than an open fireplace."},
+{id:"modelt",cat:"invent",name:"Henry Ford",work:"Model T (assembly-line car)",date:"1908",year:1908,wiki:"Ford Model T",
+ hints:["He started as an engineer at an Edison electric company in Detroit.","His moving assembly line (1913) cut the time to build one car from about 12 hours to about 90 minutes.","He said buyers could have it in “any color so long as it is black.”"],
+ fact:"He didn't invent the car, but mass production made cars affordable for ordinary families."},
+{id:"seismoscope",cat:"invent",name:"Zhang Heng",work:"Seismoscope (modern replica)",date:"132 CE",year:132,img:"EastHanSeismograph.JPG",
+ hints:["A Chinese astronomer, mathematician, and poet of the Han dynasty.","He also built a water-powered globe of the heavens (an armillary sphere).","His bronze jar had eight dragons; when an earthquake struck, a ball dropped into a toad's mouth to show its direction."],
+ fact:"It is the first known instrument for detecting earthquakes, over 1,700 years before modern seismographs."},
+{id:"elephantclock",cat:"invent",name:"Ismail al-Jazari",work:"Elephant clock",date:"1206",year:1206,wiki:"Elephant clock",
+ hints:["An engineer at the Artuqid court in what is now southeastern Turkey.","His illustrated “Book of Knowledge of Ingenious Mechanical Devices” explains how to build dozens of machines.","He designed a water clock shaped like an elephant, mixing Indian, Persian, Greek, and Chinese symbols."],
+ fact:"His designs for gears, valves, and automata were centuries ahead of Europe."},
+{id:"babbage",cat:"invent",name:"Charles Babbage",work:"Difference Engine",date:"1822 (design)",year:1822,wiki:"Difference engine",
+ hints:["A Cambridge mathematics professor famous for hating street musicians.","Ada Lovelace wrote what is often called the first computer program for his later machine.","Often called the “father of the computer” for his mechanical calculating engines."],
+ fact:"His machine was never finished in his lifetime; London's Science Museum built one from his plans in 1991, and it worked."},
+{id:"jacquard",cat:"invent",name:"Joseph Marie Jacquard",work:"Jacquard loom",date:"1804",year:1804,wiki:"Jacquard machine",
+ hints:["A French weaver from Lyon, the center of France's silk industry.","Angry silk weavers reportedly attacked his machines, afraid of losing their jobs.","His loom used punched cards to weave patterns, an idea later used in early computers."],
+ fact:"Punched cards carried “instructions” to machines for the next 150 years."},
+{id:"archscrew",cat:"invent",name:"Archimedes",work:"Archimedes' screw",date:"c. 250 BCE",year:-250,wiki:"Archimedes' screw",
+ hints:["A Greek mathematician from Syracuse, Sicily, killed by a Roman soldier.","He supposedly shouted “Eureka!” after a discovery in his bath.","A screw turning inside a tube lifts water uphill."],
+ fact:"Versions of this simple pump are still used today for irrigation and wastewater."},
+{id:"teslacoil",cat:"invent",name:"Nikola Tesla",work:"Tesla coil",date:"1891",year:1891,wiki:"Tesla coil",
+ hints:["A Serbian-American engineer who once worked for Thomas Edison, then became his rival.","He championed alternating current (AC), which powers homes today.","An electric car company is named after him."],
+ fact:"His coil produces huge voltages and helped early experiments in radio and wireless power."},
+{id:"jenny",cat:"invent",name:"James Hargreaves",work:"Spinning jenny",date:"c. 1764",year:1764,wiki:"Spinning jenny",
+ hints:["A weaver from Lancashire, England, at the start of the Industrial Revolution.","Local spinners broke into his home and smashed machines, fearing for their jobs.","His machine let one worker spin eight or more threads at once."],
+ fact:"It moved cloth-making from homes toward factories."},
+
+/* ===================== PHOTOGRAPHY ===================== */
+{id:"legras",cat:"photo",name:"Nicéphore Niépce",work:"View from the Window at Le Gras",date:"c. 1826–1827",year:1826,wiki:"View from the Window at Le Gras",
+ hints:["A French inventor who also built an early internal combustion engine with his brother.","The exposure may have taken hours or even days.","He made the oldest surviving camera photograph: rooftops seen from his country house."],
+ fact:"It marks the birth of photography."},
+{id:"temple",cat:"photo",name:"Louis Daguerre",work:"Boulevard du Temple",date:"1838",year:1838,wiki:"Boulevard du Temple (photograph)",
+ hints:["A French theater set painter who ran a popular show called the Diorama in Paris.","He partnered with Niépce; France bought his process and gave it to the world in 1839.","The first known photo of a person: a man getting his boots shined. The process is named after him."],
+ fact:"The busy street looks empty because moving carriages and people didn't stay still long enough to show."},
+{id:"sharpshooter",cat:"photo",name:"Alexander Gardner",work:"Home of a Rebel Sharpshooter, Gettysburg",date:"1863",year:1863,wiki:"Home of a Rebel Sharpshooter",
+ hints:["A Scottish immigrant who worked for Mathew Brady before opening his own studio.","He photographed Abraham Lincoln several times, including one of the last portraits before the assassination.","Historians found he moved a dead soldier's body to stage this Gettysburg photo."],
+ fact:"Civil War photographs brought the reality of battle home; this one raises questions about staging."},
+{id:"breaker",cat:"photo",name:"Lewis Hine",work:"Breaker Boys",date:"1911",year:1911,wiki:"Breaker boy",
+ hints:["A teacher who used his camera as a tool for social reform.","He worked for the National Child Labor Committee, sometimes disguised as a salesman or inspector.","His photos of children in coal mines and mills helped pass child labor laws."],
+ fact:"Breaker boys sorted coal by hand in Pennsylvania mines, some as young as eight."},
+{id:"migrant",cat:"photo",name:"Dorothea Lange",work:"Migrant Mother",date:"1936",year:1936,wiki:"Migrant Mother",
+ hints:["A San Francisco portrait photographer who left her studio to photograph people in the streets.","She worked for a New Deal agency, and later photographed the incarceration of Japanese Americans.","Her photo of a worried mother in a California pea-pickers' camp became the face of the Great Depression."],
+ fact:"Its publication led the government to rush food to the starving workers at the camp."},
+{id:"tetons",cat:"photo",name:"Ansel Adams",work:"The Tetons and the Snake River",date:"1942",year:1942,wiki:"The Tetons and the Snake River",
+ hints:["He trained as a concert pianist before turning to photography.","He helped invent the “Zone System” for controlling light in black-and-white photos.","Famous for dramatic black-and-white photos of Yosemite and other national parks."],
+ fact:"This photo was sent into space on the Voyager Golden Record in 1977."},
+{id:"earthrise",cat:"photo",name:"William Anders",work:"Earthrise",date:"1968",year:1968,wiki:"Earthrise",
+ hints:["An Air Force pilot and nuclear engineer chosen as an astronaut in 1963.","He took this on Christmas Eve 1968 during Apollo 8, the first crewed mission to orbit the Moon.","Our blue planet rises over the Moon's gray horizon."],
+ fact:"It helped inspire the environmental movement and the first Earth Day in 1970."}
+];
+BUILT_IN.push(
+{id:"lastsupper",cat:"paint",name:"Leonardo da Vinci",work:"The Last Supper",date:"c. 1495–1498",year:1495,wiki:"The Last Supper (Leonardo)",
+ hints:["He painted this on a monastery dining-room wall in Milan for Duke Ludovico Sforza.","He used an experimental paint mix that began flaking off within his lifetime.","Jesus sits at the center of a long table as his twelve apostles react to the news that one will betray him."],
+ fact:"Its balanced composition and dramatic reactions made it a model for Renaissance storytelling."},
+{id:"waterlilies",cat:"paint",name:"Claude Monet",work:"Water Lilies (series)",date:"1896–1926",year:1906,wiki:"Water Lilies (Monet series)",
+ hints:["He painted about 250 versions of this subject in the last 30 years of his life, even as cataracts clouded his eyesight.","He designed the pond and Japanese-style bridge himself at his home in Giverny, France.","The founder of Impressionism painted floating flowers on a pond again and again."],
+ fact:"The huge late canvases, with no horizon line, pointed toward abstract art."},
+{id:"sunflowers",cat:"paint",name:"Vincent van Gogh",work:"Sunflowers (series)",date:"1888–1889",year:1888,wiki:"Sunflowers (Van Gogh series)",
+ hints:["He painted these to decorate a room for his friend Paul Gauguin in Arles, France.","He used new, bright yellow paints made possible by modern chemistry.","A vase of big yellow flowers by the Dutch painter famous for The Starry Night."],
+ fact:"In 1987 one version sold for nearly $40 million, a record at the time."},
+{id:"tulp",cat:"paint",name:"Rembrandt",work:"The Anatomy Lesson of Dr. Nicolaes Tulp",date:"1632",year:1632,wiki:"The Anatomy Lesson of Dr. Nicolaes Tulp",
+ hints:["He was only about 26 when he painted this group portrait for the Amsterdam surgeons' guild.","The body on the table belonged to a criminal executed earlier that day.","A Dutch doctor shows students the muscles of a forearm, painted by the master of The Night Watch."],
+ fact:"It reflects the Scientific Revolution's new interest in studying the human body directly."},
+{id:"galette",cat:"paint",name:"Pierre-Auguste Renoir",work:"Bal du moulin de la Galette",date:"1876",year:1876,wiki:"Bal du moulin de la Galette",
+ hints:["He started as a teenager painting designs on porcelain plates.","Late in life arthritis crippled his hands, and he reportedly painted with brushes strapped to them.","A sunny Sunday dance at an outdoor café in Montmartre, Paris, full of dappled light."],
+ fact:"It captures the Impressionist love of everyday leisure in modern Paris."},
+{id:"folies",cat:"paint",name:"Édouard Manet",work:"A Bar at the Folies-Bergère",date:"1882",year:1882,wiki:"A Bar at the Folies-Bergère",
+ hints:["His earlier painting of a picnic was rejected by the official Paris Salon and caused a scandal.","This was the last major work he finished before he died in 1883.","A barmaid stares out at us while a mirror behind her reflects a crowded Paris nightclub."],
+ fact:"Its puzzling mirror reflection has been debated by art historians for over a century."},
+{id:"cardplayers",cat:"paint",name:"Paul Cézanne",work:"The Card Players",date:"1890s",year:1892,wiki:"The Card Players",
+ hints:["A French painter from Aix-en-Provence whom Picasso called “the father of us all.”","He said artists should treat nature in terms of the cylinder, the sphere, and the cone.","Farmers sit at a table concentrating on their game; one version sold for over $250 million."],
+ fact:"His blocky, geometric approach led directly to Cubism."},
+{id:"sermon",cat:"paint",name:"Paul Gauguin",work:"Vision after the Sermon",date:"1888",year:1888,wiki:"Vision after the Sermon",
+ hints:["A former stockbroker who later moved to Tahiti to paint.","He shared a stormy house in Arles with Van Gogh for nine weeks.","Women in white bonnets in Brittany imagine Jacob wrestling an angel on a bright red field."],
+ fact:"Its flat areas of unrealistic color broke with Impressionism and opened the way to Symbolism."},
+{id:"temeraire",cat:"paint",name:"J. M. W. Turner",work:"The Fighting Temeraire",date:"1839",year:1839,wiki:"The Fighting Temeraire",
+ hints:["An English painter of light and storms, nicknamed “the painter of light.”","He reportedly had himself tied to a ship's mast to experience a snowstorm.","A small black steam tugboat tows an old warship from the Battle of Trafalgar to be scrapped at sunset."],
+ fact:"It became a symbol of the Industrial Age replacing the age of sail; it appears on Britain's £20 note."},
+{id:"haywain",cat:"paint",name:"John Constable",work:"The Hay Wain",date:"1821",year:1821,wiki:"The Hay Wain",
+ hints:["An English landscape painter who made hundreds of quick sketches of clouds.","He painted the countryside of Suffolk where his father owned a mill.","A horse-drawn farm wagon stands in a shallow river beside a cottage."],
+ fact:"It won a gold medal in Paris and influenced French painters toward natural landscapes."},
+{id:"blueboy",cat:"paint",name:"Thomas Gainsborough",work:"The Blue Boy",date:"c. 1770",year:1770,wiki:"The Blue Boy",
+ hints:["An English portrait and landscape painter and founding member of the Royal Academy.","When this painting left Britain for California in 1922, about 90,000 people came to see it off.","A boy in a shining blue satin outfit stands with one hand on his hip."],
+ fact:"It became one of the most famous portraits in British art."},
+{id:"napoleonalps",cat:"paint",name:"Jacques-Louis David",work:"Napoleon Crossing the Alps",date:"1801–1805",year:1801,wiki:"Napoleon Crossing the Alps",
+ hints:["A French painter who voted for the execution of King Louis XVI during the Revolution.","He later became the official painter of Emperor Napoleon.","A general on a rearing horse points upward on a stormy mountain pass."],
+ fact:"Napoleon actually crossed on a mule; the painting was pure propaganda."},
+{id:"ingresnap",cat:"paint",name:"Jean-Auguste-Dominique Ingres",work:"Napoleon I on His Imperial Throne",date:"1806",year:1806,wiki:"Napoleon I on His Imperial Throne",
+ hints:["A student of Jacques-Louis David known for perfectly smooth, polished paint.","Critics at the time thought this portrait looked old-fashioned, like a medieval icon.","An emperor sits on a throne in ermine robes holding scepters, crowned with gold laurel leaves."],
+ fact:"It borrows symbols from Charlemagne and ancient Rome to make Napoleon look like a timeless ruler."},
+{id:"gleaners",cat:"paint",name:"Jean-François Millet",work:"The Gleaners",date:"1857",year:1857,wiki:"The Gleaners",
+ hints:["A French painter of the Barbizon school who grew up on a farm in Normandy.","Wealthy viewers were uneasy because the painting seemed to sympathize with the poor.","Three peasant women bend over to pick up leftover grain after a harvest."],
+ fact:"It gave dignity to rural laborers and was linked to socialist ideas after 1848."},
+{id:"ornans",cat:"paint",name:"Gustave Courbet",work:"A Burial at Ornans",date:"1849–1850",year:1849,wiki:"A Burial at Ornans",
+ hints:["He said, “Show me an angel and I'll paint one,” meaning he only painted what he could see.","He was jailed for his role in pulling down the Vendôme Column during the Paris Commune.","A huge, life-size painting of an ordinary village funeral in the French countryside."],
+ fact:"It launched Realism by giving common people the scale usually saved for kings and heroes."},
+{id:"bacchus",cat:"paint",name:"Titian",work:"Bacchus and Ariadne",date:"1520–1523",year:1520,wiki:"Bacchus and Ariadne",
+ hints:["A Venetian painter famous for rich color who lived to about 86.","Emperor Charles V reportedly bent down to pick up a brush he had dropped.","The god of wine leaps from his chariot pulled by two cheetahs toward a startled princess."],
+ fact:"Venetian painters like him made color, not line, the heart of painting."},
+{id:"maesta",cat:"paint",name:"Duccio",work:"Maestà",date:"1308–1311",year:1308,wiki:"Maestà (Duccio)",
+ hints:["A painter from Siena, Italy, in the early 1300s.","When this altarpiece was finished, the whole city paraded it to the cathedral with music and candles.","Mary sits on a throne holding baby Jesus, surrounded by rows of saints and angels on a gold background."],
+ fact:"It shows the Gothic style just before the Renaissance began to add realistic space."},
+{id:"tribute",cat:"paint",name:"Masaccio",work:"The Tribute Money",date:"c. 1425",year:1425,wiki:"The Tribute Money (Masaccio)",
+ hints:["A Florentine painter whose nickname means something like “Clumsy Tom”; he died at about 26.","His frescoes in the Brancacci Chapel were studied by young Michelangelo.","Jesus and his apostles meet a tax collector; Peter appears three times in one scene."],
+ fact:"He was among the first painters to use linear perspective and real-looking light."},
+{id:"ambassadors",cat:"paint",name:"Hans Holbein the Younger",work:"The Ambassadors",date:"1533",year:1533,wiki:"The Ambassadors (Holbein)",
+ hints:["A German painter who became court painter to King Henry VIII of England.","He painted portraits of Henry's possible brides so the king could choose.","Two Frenchmen stand by a shelf of globes and instruments; a stretched skull hides across the floor."],
+ fact:"The hidden skull reminds viewers that death comes for everyone, even the powerful."},
+{id:"elevation",cat:"paint",name:"Peter Paul Rubens",work:"The Elevation of the Cross",date:"1610–1611",year:1610,wiki:"The Elevation of the Cross (Rubens)",
+ hints:["A Flemish painter who was also a diplomat who helped negotiate peace between England and Spain.","His busy workshop in Antwerp produced hundreds of paintings.","Muscular men strain to raise a cross in this huge, dramatic Baroque altarpiece."],
+ fact:"It shows the energy and emotion of Baroque art used to inspire Catholic faith."},
+{id:"orgaz",cat:"paint",name:"El Greco",work:"The Burial of the Count of Orgaz",date:"1586",year:1586,wiki:"The Burial of the Count of Orgaz",
+ hints:["Born on the island of Crete, he worked in Venice and Rome before settling in Toledo, Spain.","His nickname simply means “The Greek.”","Saints lower a knight's body into his tomb while heaven opens above, full of long, stretched figures."],
+ fact:"His elongated figures looked strange then but inspired modern artists centuries later."},
+{id:"cavalier",cat:"paint",name:"Frans Hals",work:"The Laughing Cavalier",date:"1624",year:1624,wiki:"The Laughing Cavalier",
+ hints:["A Dutch portrait painter from Haarlem known for loose, lively brushwork.","Van Gogh admired him for using as many as 27 shades of black.","A confident man with a curled mustache and a big hat smirks at us."],
+ fact:"His quick brushstrokes made portraits feel alive, influencing the Impressionists."},
+{id:"travelers",cat:"paint",name:"Fan Kuan",work:"Travelers Among Mountains and Streams",date:"c. 1000",year:1000,wiki:"Travelers Among Mountains and Streams",
+ hints:["A Chinese painter of the Northern Song dynasty who lived as a hermit in the mountains.","His signature was hidden in the leaves and only discovered in 1958.","A giant mountain towers over a tiny line of travelers and mules on a path."],
+ fact:"It is a masterpiece of Chinese landscape painting showing how small people are compared to nature."},
+{id:"cranes",cat:"paint",name:"Emperor Huizong",work:"Auspicious Cranes",date:"1112",year:1112,wiki:"Auspicious Cranes",
+ hints:["A Song dynasty ruler who loved art so much he neglected his government.","He was captured by invaders from the north and died a prisoner in 1135.","White cranes circle above a palace roof against a blue sky, said to be a lucky sign."],
+ fact:"He founded an imperial painting academy and created his own style of calligraphy."},
+{id:"watsonshark",cat:"paint",name:"John Singleton Copley",work:"Watson and the Shark",date:"1778",year:1778,wiki:"Watson and the Shark",
+ hints:["A colonial Boston portrait painter who painted Paul Revere and Samuel Adams before moving to London.","He based this painting on a true story told to him by the man who survived.","Sailors in a rowboat try to rescue a swimmer from a shark in Havana Harbor."],
+ fact:"It turned a real-life event into a heroic history painting and included a Black sailor at its center."},
+{id:"lansdowne",cat:"paint",name:"Gilbert Stuart",work:"Lansdowne portrait",date:"1796",year:1796,wiki:"Lansdowne portrait",
+ hints:["A Rhode Island painter who left many portraits unfinished, including his most famous one.","His unfinished portrait of the same man is on the $1 bill.","The first president stands with an outstretched arm, a full-length portrait in the White House."],
+ fact:"Dolley Madison is credited with saving a copy from the White House before the British burned it in 1814."},
+{id:"wolfe",cat:"paint",name:"Benjamin West",work:"The Death of General Wolfe",date:"1770",year:1770,wiki:"The Death of General Wolfe",
+ hints:["A Pennsylvania-born painter who became president of the Royal Academy in London.","He shocked people by dressing figures in modern uniforms instead of ancient robes.","A British general lies dying after victory at Quebec in the French and Indian War."],
+ fact:"It changed history painting by showing a recent event in modern dress."},
+{id:"progress",cat:"paint",name:"John Gast",work:"American Progress",date:"1872",year:1872,wiki:"American Progress",
+ hints:["A Brooklyn painter and lithographer hired by a publisher of Western travel guides.","Copies were printed and sold widely to promote settlement of the West.","A giant floating woman carrying a telegraph wire leads settlers and trains west while Native Americans flee."],
+ fact:"It is the classic image of Manifest Destiny and the costs it brought to Native nations."},
+{id:"sierra",cat:"paint",name:"Albert Bierstadt",work:"Among the Sierra Nevada, California",date:"1868",year:1868,wiki:"Among the Sierra Nevada, California",
+ hints:["A German-born painter who traveled west with government survey expeditions.","His huge canvases sold for record prices and drew crowds back East.","A glowing, dramatic view of mountains, a lake, and wildlife in the American West."],
+ fact:"His paintings encouraged westward settlement and support for national parks."},
+{id:"furtraders",cat:"paint",name:"George Caleb Bingham",work:"Fur Traders Descending the Missouri",date:"c. 1845",year:1845,wiki:"Fur Traders Descending the Missouri",
+ hints:["A Missouri painter and politician who also served as the state's treasurer.","He painted riverboatmen, elections, and life on the frontier.","A man and a boy drift down a misty river in a canoe with a chained animal at the front."],
+ fact:"It records the fur trade and frontier life just before steamboats changed the river."},
+{id:"andes",cat:"paint",name:"Frederic Edwin Church",work:"The Heart of the Andes",date:"1859",year:1859,wiki:"The Heart of the Andes",
+ hints:["A student of Thomas Cole and a leader of the Hudson River School.","Visitors paid 25 cents and used opera glasses to study this painting's tiny details.","A huge view of South American mountains, waterfalls, and jungle inspired by the explorer Humboldt."],
+ fact:"Over 12,000 people paid to see it in its first three weeks in New York."},
+{id:"madamex",cat:"paint",name:"John Singer Sargent",work:"Madame X",date:"1884",year:1884,wiki:"Portrait of Madame X",
+ hints:["An American painter born in Florence, Italy, who painted wealthy people on both sides of the Atlantic.","The scandal over this portrait pushed him to move from Paris to London.","A pale woman in a black evening gown poses in profile; one strap originally slipped off her shoulder."],
+ fact:"He later called it the best thing he had ever done."},
+{id:"museum",cat:"paint",name:"Charles Willson Peale",work:"The Artist in His Museum",date:"1822",year:1822,wiki:"The Artist in His Museum",
+ hints:["He painted George Washington from life and fought in the Revolution.","He named his sons after famous painters, including Raphaelle, Rembrandt, and Rubens.","He lifts a curtain to show his Philadelphia museum, including the skeleton of a mastodon."],
+ fact:"His museum was one of the first public natural history museums in America."},
+{id:"sharkeys",cat:"paint",name:"George Bellows",work:"Stag at Sharkey's",date:"1909",year:1909,wiki:"Stag at Sharkey's",
+ hints:["An Ohio-born painter of gritty New York City life in the Ashcan School.","He painted illegal boxing matches held in private clubs.","Two boxers slam into each other under hard light as a crowd watches."],
+ fact:"Its rough, fast brushwork captured the energy and violence of the modern city."},
+{id:"airpump",cat:"paint",name:"Joseph Wright of Derby",work:"An Experiment on a Bird in the Air Pump",date:"1768",year:1768,wiki:"An Experiment on a Bird in the Air Pump",
+ hints:["An English painter known as the first artist to show the spirit of the Industrial Revolution.","He loved scenes lit by a single candle or a glowing forge.","A traveling scientist pumps air out of a glass bowl holding a bird while a family watches."],
+ fact:"It shows Enlightenment science as wonder, and its cost."},
+{id:"swing",cat:"paint",name:"Jean-Honoré Fragonard",work:"The Swing",date:"1767",year:1767,wiki:"The Swing (Fragonard)",
+ hints:["A French Rococo painter whose career ended when the Revolution swept away his rich clients.","Later in life the Louvre's directors hired him to help organize the museum.","A young woman in a frothy pink dress kicks off her shoe on a swing in a leafy garden."],
+ fact:"It sums up the playful, luxurious Rococo style of the French aristocracy before 1789."},
+{id:"antoinette",cat:"paint",name:"Élisabeth Vigée Le Brun",work:"Marie Antoinette and Her Children",date:"1787",year:1787,wiki:"Marie Antoinette and Her Children",
+ hints:["One of the most successful women painters of the 1700s, she painted the queen about 30 times.","She fled France at the start of the Revolution and worked in Italy, Austria, and Russia.","The queen of France sits with her children, including an empty cradle for a baby who had died."],
+ fact:"It was propaganda, meant to show the unpopular queen as a loving mother."},
+{id:"compvii",cat:"paint",name:"Wassily Kandinsky",work:"Composition VII",date:"1913",year:1913,wiki:"Composition VII",
+ hints:["A Russian painter who trained as a lawyer before becoming an artist.","He said colors and shapes could work like music, and he named paintings like symphonies.","An explosion of colors and shapes with no recognizable objects, one of the first abstract paintings."],
+ fact:"He is considered one of the founders of abstract art."},
+{id:"womanhat",cat:"paint",name:"Henri Matisse",work:"Woman with a Hat",date:"1905",year:1905,wiki:"Woman with a Hat",
+ hints:["A French painter who, late in life, made art by cutting shapes from painted paper.","A critic called his group “les Fauves,” French for “the wild beasts.”","A portrait of his wife in a huge hat, with her face painted green, purple, and orange."],
+ fact:"It launched Fauvism, using color for emotion instead of realism."},
+{id:"gypsy",cat:"paint",name:"Henri Rousseau",work:"The Sleeping Gypsy",date:"1897",year:1897,wiki:"The Sleeping Gypsy",
+ hints:["A French tax collector who taught himself to paint, nicknamed “the Customs Officer.”","He never left France but painted jungles after visiting Paris's botanical gardens.","A lion sniffs a woman asleep in the desert under a full moon."],
+ fact:"Mocked in his time, his dreamlike style later inspired the Surrealists."},
+{id:"yellowstone",cat:"paint",name:"Thomas Moran",work:"The Grand Canyon of the Yellowstone",date:"1872",year:1872,wiki:"The Grand Canyon of the Yellowstone",
+ hints:["An English-born painter who joined the 1871 Hayden expedition to explore the West.","Congress bought this painting for $10,000 and hung it in the Capitol.","A golden canyon and waterfall in the area that became America's first national park."],
+ fact:"His paintings helped persuade Congress to create Yellowstone National Park in 1872."},
+{id:"horsefair",cat:"paint",name:"Rosa Bonheur",work:"The Horse Fair",date:"1852–1855",year:1853,wiki:"The Horse Fair",
+ hints:["The most famous woman painter of the 1800s; she needed a police permit to wear pants while sketching.","She was the first woman awarded France's Legion of Honor for art.","Powerful horses rear and stamp as handlers lead them through a Paris horse market."],
+ fact:"Its huge scale and energy proved a woman could master a subject seen as a man's specialty."},
+{id:"ghent",cat:"paint",name:"Jan van Eyck",work:"Ghent Altarpiece",date:"1432",year:1432,wiki:"Ghent Altarpiece",
+ hints:["He worked on it with his brother Hubert, who died before it was finished.","It has been stolen several times, including by the Nazis; one panel stolen in 1934 is still missing.","A huge Flemish altarpiece of folding panels showing the Adoration of the Mystic Lamb."],
+ fact:"It is considered the first great oil painting, with jewel-like detail."},
+{id:"babel",cat:"paint",name:"Pieter Bruegel the Elder",work:"The Tower of Babel",date:"1563",year:1563,wiki:"The Tower of Babel (Bruegel)",
+ hints:["A Flemish painter famous for crowded scenes of village life.","He based the building's shape on the ruins of the Colosseum in Rome.","A giant, spiraling tower under construction rises into the clouds above a port city."],
+ fact:"It warns about human pride, using the Bible story of a tower built to reach heaven."},
+{id:"milkmaid",cat:"paint",name:"Johannes Vermeer",work:"The Milkmaid",date:"c. 1658",year:1658,wiki:"The Milkmaid (Vermeer)",
+ hints:["He may have used a camera obscura, a darkened box that projects images, to study light.","He painted only a few pictures a year and died in debt.","A kitchen maid in a yellow top and blue apron pours milk from a jug by a window."],
+ fact:"It turned a simple household task into a calm, monumental image."},
+{id:"adele",cat:"paint",name:"Gustav Klimt",work:"Portrait of Adele Bloch-Bauer I",date:"1907",year:1907,wiki:"Portrait of Adele Bloch-Bauer I",
+ hints:["The Nazis stole this painting from a Jewish family in Vienna.","Her niece won it back in a famous court case in 2006; the story became the film Woman in Gold.","A woman's face and hands peek out from a dazzling sea of gold patterns."],
+ fact:"It was sold in 2006 for a then-record $135 million."},
+{id:"montmartre",cat:"paint",name:"Camille Pissarro",work:"The Boulevard Montmartre at Night",date:"1897",year:1897,wiki:"The Boulevard Montmartre at Night",
+ hints:["Born in the Caribbean on St. Thomas, he was the only artist to show in all eight Impressionist exhibitions.","He mentored younger painters like Cézanne and Gauguin.","Painted from a hotel window, a rainy Paris boulevard glows with streetlights at night."],
+ fact:"He painted the same street more than a dozen times in different weather and light."},
+{id:"rainyday",cat:"paint",name:"Gustave Caillebotte",work:"Paris Street; Rainy Day",date:"1877",year:1877,wiki:"Paris Street; Rainy Day",
+ hints:["A wealthy French painter who bought his friends' paintings and left them to the nation.","He painted the new wide streets that Baron Haussmann cut through old Paris.","Well-dressed people with umbrellas walk across a wet, gray Paris intersection."],
+ fact:"It shows modern city life created by the rebuilding of Paris in the 1800s."},
+{id:"cradle",cat:"paint",name:"Berthe Morisot",work:"The Cradle",date:"1872",year:1872,wiki:"The Cradle (Morisot)",
+ hints:["A founding member of the Impressionists and one of only a few women in the group.","She married Eugène Manet, brother of the painter Édouard Manet, who painted her several times.","A mother watches over a sleeping baby through a white gauzy cradle curtain."],
+ fact:"It was shown in the very first Impressionist exhibition in 1874."},
+{id:"volga",cat:"paint",name:"Ilya Repin",work:"Barge Haulers on the Volga",date:"1870–1873",year:1870,wiki:"Barge Haulers on the Volga",
+ hints:["A Russian Realist painter born in what is now Ukraine.","He spent summers sketching workers along a great river before painting this.","Exhausted men in harnesses drag a heavy boat along a riverbank."],
+ fact:"It exposed the harsh lives of laborers in Tsarist Russia."},
+{id:"apotheosis",cat:"paint",name:"Vasily Vereshchagin",work:"The Apotheosis of War",date:"1871",year:1871,wiki:"The Apotheosis of War",
+ hints:["A Russian painter who traveled with armies and was killed when a battleship sank in 1904.","He dedicated this painting to “all great conquerors, past, present and to come.”","A pyramid of skulls sits in a desert with crows and a ruined city behind it."],
+ fact:"It is one of the most famous anti-war paintings ever made."},
+{id:"durerself",cat:"paint",name:"Albrecht Dürer",work:"Self-Portrait (1500)",date:"1500",year:1500,wiki:"Self-Portrait (Dürer, Munich)",
+ hints:["A German artist from Nuremberg who traveled to Italy to learn Renaissance ideas.","Famous for woodcuts and engravings, he signed his work with a monogram.","He painted himself facing straight ahead with long curly hair, a pose usually used for Christ."],
+ fact:"It was a bold statement that artists were creative geniuses, not just craftsmen."},
+{id:"sistinemadonna",cat:"paint",name:"Raphael",work:"Sistine Madonna",date:"1512",year:1512,wiki:"Sistine Madonna",
+ hints:["He painted this for a church in Piacenza, Italy; it now hangs in Dresden, Germany.","Soviet troops took it to Moscow after World War II; it came back to Germany in 1955.","Two bored-looking little angels lean on a ledge at the bottom of this painting of Mary and the baby Jesus."],
+ fact:"Those two little angels became one of the most copied images in the world."},
+{id:"tempest",cat:"paint",name:"Giorgione",work:"The Tempest",date:"c. 1508",year:1508,wiki:"The Tempest (Giorgione)",
+ hints:["A mysterious Venetian painter who died young, probably of plague, around 1510.","Very few paintings are certainly his, and no one agrees on what this one means.","A soldier and a mother with a baby sit in a landscape as lightning flashes over a town."],
+ fact:"It may be the first European painting where the landscape and weather are the main subject."},
+{id:"romano",cat:"paint",name:"Paolo Uccello",work:"The Battle of San Romano",date:"c. 1438–1440",year:1438,wiki:"The Battle of San Romano",
+ hints:["A Florentine painter so obsessed with perspective that he reportedly stayed up all night working on it.","His nickname means “bird” because he loved painting animals.","Knights on horseback clash, with broken lances lined up on the ground in perfect perspective."],
+ fact:"The three panels once decorated the Medici family's palace in Florence."},
+{id:"windgod",cat:"paint",name:"Tawaraya Sōtatsu",work:"Wind God and Thunder God Screens",date:"early 1600s",year:1620,wiki:"Wind God and Thunder God Screens",
+ hints:["A Japanese painter from Kyoto who helped found the Rinpa school of decorative art.","Later artists copied this design more than once as a tribute.","Two wild gods, one with a bag of wind and one with drums, fly on gold folding screens."],
+ fact:"It is a National Treasure of Japan."},
+{id:"annunciation",cat:"paint",name:"Henry Ossawa Tanner",work:"The Annunciation",date:"1898",year:1898,wiki:"The Annunciation (Tanner)",
+ hints:["Born in Pittsburgh and raised in Philadelphia, he traveled to Palestine to study light and people there.","The Philadelphia Museum of Art bought this, making him one of the first Black artists in a major U.S. museum.","A young Mary sits on her bed as the angel appears as a glowing column of light."],
+ fact:"His realistic Bible scenes earned him international fame."},
+{id:"snapwhip",cat:"paint",name:"Winslow Homer",work:"Snap the Whip",date:"1872",year:1872,wiki:"Snap the Whip",
+ hints:["He covered the Civil War as an illustrator before turning to painting.","After the war he painted scenes of rural childhood and schools.","Barefoot boys hold hands and play a running game in front of a one-room schoolhouse."],
+ fact:"It looks back with nostalgia at a simpler America after the trauma of the Civil War."},
+{id:"pollice",cat:"paint",name:"Jean-Léon Gérôme",work:"Pollice Verso",date:"1872",year:1872,wiki:"Pollice Verso (Gérôme)",
+ hints:["A French academic painter known for very detailed, historical scenes.","This painting inspired the filmmakers of the movie Gladiator.","A gladiator stands over a fallen opponent as the crowd in the Colosseum gives a thumbs-down."],
+ fact:"It helped create the popular image of thumbs-up and thumbs-down in the arena, though historians debate it."},
+{id:"socrates",cat:"paint",name:"Jacques-Louis David",work:"The Death of Socrates",date:"1787",year:1787,wiki:"The Death of Socrates",
+ hints:["A Neoclassical painter who later painted Napoleon.","It was shown at the Paris Salon of 1787, two years before the French Revolution began.","An old philosopher points upward as he reaches for a cup of poison while his followers weep."],
+ fact:"It praised standing by your principles even in death, ideas that fed the French Revolution."}
+);
+BUILT_IN.push(
+/* ---------- Drawing & Prints ---------- */
+{id:"redfuji",cat:"draw",name:"Katsushika Hokusai",work:"Fine Wind, Clear Morning (Red Fuji)",date:"c. 1831",year:1831,wiki:"Fine Wind, Clear Morning",
+ hints:["He moved houses about 93 times and lived to almost 90, still saying he was learning to draw.","Part of the same woodblock series as his famous giant wave.","A huge red mountain glows against a blue sky full of little clouds."],
+ fact:"It shows Mount Fuji turned red by early-morning sun in late summer."},
+{id:"threebeauties",cat:"draw",name:"Kitagawa Utamaro",work:"Three Beauties of the Present Day",date:"c. 1793",year:1793,wiki:"Three Beauties of the Present Day",
+ hints:["A Japanese printmaker who was jailed and handcuffed for 50 days for prints that angered the shogun's government.","He was famous for close-up portraits of women, called bijin-ga.","A woodblock print of three famous young women of Edo, faces close together."],
+ fact:"His elegant portraits influenced European artists like Toulouse-Lautrec."},
+{id:"melencolia",cat:"draw",name:"Albrecht Dürer",work:"Melencolia I",date:"1514",year:1514,wiki:"Melencolia I",
+ hints:["He made this engraving the same year his mother died.","It contains a magic square where every row and column adds up to 34.","A gloomy winged figure sits surrounded by tools, a ladder, an hourglass, and a strange stone block."],
+ fact:"It is one of the most studied prints ever made, full of puzzles about genius and creativity."},
+{id:"guilder",cat:"draw",name:"Rembrandt",work:"The Hundred Guilder Print",date:"c. 1648",year:1648,wiki:"The Hundred Guilder Print",
+ hints:["He was one of history's greatest etchers, scratching designs into wax-covered copper plates.","The print got its nickname from the huge price someone reportedly paid for a copy.","Jesus heals the sick and blesses children in a crowded, dramatically lit scene."],
+ fact:"It shows the Dutch master's skill with light and shadow in black and white."},
+{id:"sleepreason",cat:"draw",name:"Francisco Goya",work:"The Sleep of Reason Produces Monsters",date:"c. 1799",year:1799,wiki:"The Sleep of Reason Produces Monsters",
+ hints:["Part of a set of 80 prints called Los Caprichos that mocked Spanish society.","He pulled the set from sale after only a few days, possibly fearing the Inquisition.","A man sleeps at his desk while owls and bats swarm out of the darkness behind him."],
+ fact:"It sums up Enlightenment fears of what happens when people stop thinking clearly."},
+{id:"carceri",cat:"draw",name:"Giovanni Battista Piranesi",work:"Imaginary Prisons (Carceri)",date:"c. 1750",year:1750,wiki:"Imaginary Prisons",
+ hints:["An Italian printmaker and architect famous for huge etchings of the ruins of Rome.","His views of Rome were bought as souvenirs by wealthy tourists on the Grand Tour.","Gigantic, impossible dungeons with endless staircases, bridges, and chains."],
+ fact:"These nightmare spaces inspired later writers, filmmakers, and even video game designers."},
+{id:"ginlane",cat:"draw",name:"William Hogarth",work:"Gin Lane",date:"1751",year:1751,wiki:"Gin Lane",
+ hints:["An English artist who created picture stories like “A Rake's Progress.”","He pushed Parliament to pass a law protecting artists' copyrights.","A drunken mother drops her baby down a staircase in a collapsing London slum."],
+ fact:"It supported the Gin Act of 1751, which cut down cheap gin sales in London."},
+{id:"gibsongirl",cat:"draw",name:"Charles Dana Gibson",work:"The Gibson Girl",date:"1890s",year:1895,wiki:"Gibson Girl",
+ hints:["An American illustrator whose pen drawings appeared in Life and Collier's magazines.","During World War I he led the government's Division of Pictorial Publicity, making posters.","His drawings of tall, confident young women set the fashion ideal of the 1890s."],
+ fact:"His ideal “new woman” was athletic and independent, a sign of changing roles for women."},
+{id:"wecandoit",cat:"draw",name:"J. Howard Miller",work:"We Can Do It!",date:"1943",year:1943,wiki:"We Can Do It!",
+ hints:["A Pittsburgh artist who made posters for the Westinghouse Electric company.","The poster was shown inside factories for only two weeks in 1943 and was nearly forgotten.","A woman in a red polka-dot bandana flexes her arm; today she's linked with “Rosie the Riveter.”"],
+ fact:"Rediscovered in the 1980s, it became a symbol of women's work in World War II and of feminism."},
+{id:"unclesam",cat:"draw",name:"James Montgomery Flagg",work:"I Want You (Uncle Sam poster)",date:"1917",year:1917,wiki:"Uncle Sam",
+ hints:["An American illustrator who used his own face as the model, adding a white beard.","About four million copies were printed to recruit soldiers for World War I.","A stern man in a star-spangled top hat points straight at the viewer."],
+ fact:"It was reused in World War II and became one of the most famous posters in history."},
+{id:"lagoulue",cat:"draw",name:"Henri de Toulouse-Lautrec",work:"Moulin Rouge: La Goulue",date:"1891",year:1891,wiki:"Moulin Rouge: La Goulue",
+ hints:["A French aristocrat whose legs stopped growing after he broke both of them as a teen.","He became the most famous poster artist of Paris nightlife.","A bold poster for a Montmartre dance hall, with a dancer kicking up her skirts."],
+ fact:"It helped turn the advertising poster into an art form."},
+{id:"bosses",cat:"draw",name:"Joseph Keppler",work:"The Bosses of the Senate",date:"1889",year:1889,wiki:"The Bosses of the Senate",
+ hints:["An Austrian-born cartoonist who founded Puck, America's first successful humor magazine.","His cartoons attacked big business during the Gilded Age.","Giant money-bag men labeled as trusts tower over tiny senators in the Senate chamber."],
+ fact:"It shows Gilded Age fears that monopolies controlled Congress, leading to the Sherman Antitrust Act."},
+{id:"merian",cat:"draw",name:"Maria Sibylla Merian",work:"Metamorphosis insectorum Surinamensium",date:"1705",year:1705,wiki:"Metamorphosis insectorum Surinamensium",
+ hints:["A German-born artist and naturalist who sold her own paintings to pay for a trip to South America in 1699.","She was among the first to show insects with the plants they eat in every life stage.","Her book shows caterpillars, cocoons, and butterflies on tropical plants from Suriname."],
+ fact:"Her careful observation helped prove that insects come from eggs, not from mud."},
+{id:"haeckel",cat:"draw",name:"Ernst Haeckel",work:"Kunstformen der Natur (Art Forms in Nature)",date:"1899–1904",year:1899,wiki:"Kunstformen der Natur",
+ hints:["A German biologist who named thousands of new species and coined the word “ecology.”","He was an early supporter of Charles Darwin's ideas in Germany.","Plates of jellyfish, sea creatures, and tiny shells drawn as perfect, symmetrical patterns."],
+ fact:"His drawings inspired Art Nouveau designers and buildings."},
+{id:"takiyasha",cat:"draw",name:"Utagawa Kuniyoshi",work:"Takiyasha the Witch and the Skeleton Spectre",date:"c. 1844",year:1844,wiki:"Takiyasha the Witch and the Skeleton Spectre",
+ hints:["A Japanese printmaker known for warriors, cats, and supernatural monsters.","He spread one image across three printed sheets placed side by side.","A princess summons an enormous skeleton that crawls out of a ruined palace."],
+ fact:"Its giant skeleton is one of the most famous monster images in Japanese art."},
+{id:"nemo",cat:"draw",name:"Winsor McCay",work:"Little Nemo in Slumberland",date:"1905–1914",year:1905,wiki:"Little Nemo",
+ hints:["He also made one of the first animated cartoons, “Gertie the Dinosaur,” in 1914.","His full-page Sunday comic ran in the New York Herald.","A little boy has wild dream adventures, and every strip ends with him falling out of bed."],
+ fact:"Its creative page layouts influenced comics and animation for the next century."},
+
+/* ---------- Sculpture ---------- */
+{id:"moses",cat:"sculpt",name:"Michelangelo",work:"Moses",date:"c. 1513–1515",year:1513,wiki:"Moses (Michelangelo)",
+ hints:["He carved this for the tomb of Pope Julius II, a project he worked on for 40 years.","Because of a Bible translation mistake, the figure has two small horns on its head.","A muscular, bearded prophet sits holding the tablets of the Ten Commandments."],
+ fact:"Legend says the sculptor struck the knee with his hammer and shouted, “Why don't you speak?”"},
+{id:"fourrivers",cat:"sculpt",name:"Gian Lorenzo Bernini",work:"Fountain of the Four Rivers",date:"1651",year:1651,wiki:"Fountain of the Four Rivers",
+ hints:["The leading sculptor of Baroque Rome, who also designed the colonnade at St. Peter's.","Built for Pope Innocent X in front of his family palace in Piazza Navona.","Four giant figures represent the Nile, Ganges, Danube, and Río de la Plata around an Egyptian obelisk."],
+ fact:"The four rivers stood for the four continents known to Europeans where the Church had spread."},
+{id:"burghers",cat:"sculpt",name:"Auguste Rodin",work:"The Burghers of Calais",date:"1889",year:1889,wiki:"The Burghers of Calais",
+ hints:["The same French sculptor made a famous seated man thinking with his chin on his hand.","He put the figures at ground level so people could walk among them.","Six town leaders with ropes around their necks offer to die to save their city during the Hundred Years' War."],
+ fact:"It honors self-sacrifice, but shows fear and doubt instead of easy heroism."},
+{id:"saliera",cat:"sculpt",name:"Benvenuto Cellini",work:"Cellini Salt Cellar",date:"1540–1543",year:1540,wiki:"Cellini Salt Cellar",
+ hints:["An Italian goldsmith who wrote a wild autobiography full of fights and adventures.","He made this for King Francis I of France.","A gold dish for salt and pepper with sea god Neptune and Earth goddess; it was stolen from a Vienna museum in 2003."],
+ fact:"Found buried in a forest in 2006, it is worth around $60 million."},
+{id:"houdonwashington",cat:"sculpt",name:"Jean-Antoine Houdon",work:"George Washington",date:"1785–1792",year:1785,wiki:"George Washington (Houdon)",
+ hints:["A French sculptor who also made famous busts of Voltaire, Franklin, and Jefferson.","He sailed to Mount Vernon and made a plaster life mask of his subject's face.","A life-size marble statue of the first president in the Virginia State Capitol."],
+ fact:"It is considered the most accurate likeness of George Washington."},
+{id:"minuteman",cat:"sculpt",name:"Daniel Chester French",work:"The Minute Man",date:"1874",year:1874,wiki:"The Minute Man",
+ hints:["He later carved the giant seated statue in the Lincoln Memorial.","This statue was cast from melted-down Civil War cannons.","A farmer-soldier with a musket and plow stands at the North Bridge in Concord, Massachusetts."],
+ fact:"It honors the militia who fought on April 19, 1775, the first day of the Revolutionary War."},
+{id:"bronco",cat:"sculpt",name:"Frederic Remington",work:"The Bronco Buster",date:"1895",year:1895,wiki:"The Bronco Buster",
+ hints:["An American illustrator who covered the Spanish-American War in Cuba.","When the Rough Riders disbanded in 1898, they gave a copy to their colonel, Theodore Roosevelt.","A cowboy clings to a wild horse rearing on its hind legs."],
+ fact:"A copy sits in the Oval Office, chosen by many presidents."},
+{id:"uniqueforms",cat:"sculpt",name:"Umberto Boccioni",work:"Unique Forms of Continuity in Space",date:"1913",year:1913,wiki:"Unique Forms of Continuity in Space",
+ hints:["An Italian Futurist who died after falling from a horse during World War I training in 1916.","The Futurists loved speed, machines, and modern cities.","A striding figure seems to melt and stream in the wind; it's on Italy's 20-cent euro coin."],
+ fact:"It tries to show motion itself in solid bronze."},
+{id:"wellofmoses",cat:"sculpt",name:"Claus Sluter",work:"Well of Moses",date:"1395–1405",year:1395,wiki:"Well of Moses",
+ hints:["A Dutch sculptor who worked for the Duke of Burgundy.","He made it for a monastery near Dijon, France; it was once painted in bright colors.","Life-size prophets, including Moses, stand around the base of what was once a large crucifix."],
+ fact:"Its very realistic, heavy figures broke from the slender Gothic style."},
+{id:"stoss",cat:"sculpt",name:"Veit Stoss",work:"Altarpiece of St. Mary's Basilica, Kraków",date:"1477–1489",year:1477,wiki:"Veit Stoss altarpiece",
+ hints:["A German sculptor who spent 12 years in Kraków, Poland, on this project.","The Nazis took it to Germany in World War II; it came back to Poland in 1946.","The largest Gothic altarpiece in the world, with carved and painted wooden figures."],
+ fact:"It is a national treasure of Poland."},
+{id:"olowe",cat:"sculpt",name:"Olowe of Ise",work:"Carved veranda posts and palace doors",date:"c. 1910–1914",year:1910,wiki:"Olowe of Ise",
+ hints:["A Yoruba master carver from what is now Nigeria, known by name, which is rare for African artists of his time.","He carved for kings' palaces, and one of his doors was shown in London in 1924.","Tall wooden figures carved so they seem to stand out from the post, with a queen at the center."],
+ fact:"He is considered one of the greatest African sculptors of the 20th century."},
+{id:"titanicmem",cat:"sculpt",name:"Gertrude Vanderbilt Whitney",work:"Titanic Memorial",date:"1931",year:1931,wiki:"Titanic Memorial",
+ hints:["A wealthy sculptor who founded a famous museum of American art in New York.","Paid for by American women, it honors the men who gave up lifeboat seats.","A granite figure with outstretched arms stands by the river in Washington, D.C."],
+ fact:"The pose was later echoed in a famous scene in the 1997 movie Titanic."},
+{id:"fountaintime",cat:"sculpt",name:"Lorado Taft",work:"Fountain of Time",date:"1922",year:1922,wiki:"Fountain of Time",
+ hints:["A Chicago sculptor and teacher who trained many women sculptors.","Inspired by a poem line: “Time goes, you say? Ah no! Alas, Time stays, we go.”","Over 100 figures march past a hooded figure of Time in Chicago's Washington Park."],
+ fact:"It also marks 100 years of peace between the U.S. and Britain after the Treaty of Ghent."},
+{id:"colleoni",cat:"sculpt",name:"Andrea del Verrocchio",work:"Equestrian statue of Bartolomeo Colleoni",date:"1480s",year:1480,wiki:"Equestrian statue of Bartolomeo Colleoni",
+ hints:["A Florentine artist whose workshop trained young Leonardo da Vinci.","He died before it was cast; another artist finished the bronze.","A fierce mercenary general on a striding horse in a square in Venice."],
+ fact:"Its powerful energy made it a model for later horse-and-rider statues."},
+{id:"lucerne",cat:"sculpt",name:"Bertel Thorvaldsen",work:"Lion of Lucerne",date:"1820–1821",year:1820,wiki:"Lion of Lucerne",
+ hints:["A Danish Neoclassical sculptor who worked in Rome for 40 years.","It honors Swiss Guards killed defending King Louis XVI in Paris in 1792.","A dying lion lies on a shield, carved into a rock cliff in Switzerland."],
+ fact:"Mark Twain called it the most mournful and moving piece of stone in the world."},
+{id:"teresa",cat:"sculpt",name:"Gian Lorenzo Bernini",work:"Ecstasy of Saint Teresa",date:"1647–1652",year:1647,wiki:"Ecstasy of Saint Teresa",
+ hints:["He designed the whole chapel like a theater, with family members watching from box seats.","Hidden windows send real light down golden rays onto the figures.","An angel holding a golden spear stands over a Spanish nun in a cloud of marble."],
+ fact:"It combines sculpture, architecture, and light into one dramatic Baroque experience."},
+{id:"balzac",cat:"sculpt",name:"Auguste Rodin",work:"Monument to Balzac",date:"1898",year:1898,wiki:"Monument to Balzac",
+ hints:["The writers' society that ordered it rejected it as a “shapeless mass.”","It wasn't cast in bronze until 22 years after the sculptor's death.","A towering, robed writer with a wild head of hair, by the sculptor of The Thinker."],
+ fact:"It is now seen as a starting point of modern sculpture."},
+{id:"adamsmemorial",cat:"sculpt",name:"Augustus Saint-Gaudens",work:"Adams Memorial",date:"1891",year:1891,wiki:"Adams Memorial (Saint-Gaudens)",
+ hints:["An Irish-born American sculptor who designed a famous $20 gold coin.","Historian Henry Adams ordered it for his wife's grave and refused to give it a title.","A hooded, seated bronze figure sits in silence in a Washington, D.C., cemetery."],
+ fact:"Eleanor Roosevelt often visited it for quiet reflection."},
+{id:"belfort",cat:"sculpt",name:"Frédéric Auguste Bartholdi",work:"Lion of Belfort",date:"1880",year:1880,wiki:"Lion of Belfort",
+ hints:["The same French sculptor designed a famous statue in New York Harbor.","It honors a French town that held out during a long siege in the Franco-Prussian War.","A huge red sandstone lion is carved into the cliff beneath a fortress."],
+ fact:"It became a symbol of French resistance."},
+{id:"matureage",cat:"sculpt",name:"Camille Claudel",work:"The Mature Age",date:"1890s–1913",year:1899,wiki:"The Mature Age",
+ hints:["A French sculptor who worked as a student and partner of Auguste Rodin.","Her family had her committed to a mental hospital for the last 30 years of her life.","An old man is led away by an old woman while a young woman kneels, reaching for him."],
+ fact:"Many see it as a story of her own painful breakup with Rodin."},
+{id:"freedomstatue",cat:"sculpt",name:"Thomas Crawford",work:"Statue of Freedom",date:"1863",year:1863,wiki:"Statue of Freedom",
+ hints:["An American sculptor who worked in Rome and died before his statue was cast.","Enslaved worker Philip Reid figured out how to separate the plaster model for casting.","A bronze woman in a feathered helmet stands on top of the U.S. Capitol dome."],
+ fact:"Jefferson Davis objected to a liberty cap in the design because it was a symbol of freed slaves."},
+{id:"ethiopiaawakening",cat:"sculpt",name:"Meta Vaux Warrick Fuller",work:"Ethiopia Awakening",date:"c. 1921",year:1921,wiki:"Ethiopia Awakening",
+ hints:["A Philadelphia-born sculptor who studied in Paris and met Auguste Rodin.","She was an important artist of the Harlem Renaissance.","A woman wrapped like a mummy at the legs awakens and rises, standing for Africa and its people."],
+ fact:"It became a symbol of Pan-African pride and the New Negro movement."}
+);
+BUILT_IN.push(
+{id:"pantheon",cat:"arch",name:"Apollodorus of Damascus",work:"Pantheon, Rome",date:"c. 113–125 CE",year:118,wiki:"Pantheon, Rome",
+ hints:["A Greek engineer from Syria who also built a giant bridge over the Danube for Emperor Trajan.","Many historians credit him with this design, though Emperor Hadrian finished the building.","A Roman temple with a huge concrete dome and an open hole at the top called the oculus."],
+ fact:"Most often credited. Its dome is still the largest unreinforced concrete dome in the world."},
+{id:"rotonda",cat:"arch",name:"Andrea Palladio",work:"Villa La Rotonda",date:"1567–1592",year:1567,wiki:"Villa La Rotonda",
+ hints:["An Italian architect whose book “The Four Books of Architecture” spread classical design across Europe.","Thomas Jefferson called his book “the Bible” and copied his ideas at Monticello.","A square country house with a temple front on all four sides and a dome in the middle, near Vicenza."],
+ fact:"His style shaped buildings from English country houses to the U.S. Capitol."},
+{id:"stpeterssq",cat:"arch",name:"Gian Lorenzo Bernini",work:"St. Peter's Square",date:"1656–1667",year:1656,wiki:"St. Peter's Square",
+ hints:["Better known as a sculptor, he also designed fountains and churches all over Rome.","He said the curved rows of columns were like the arms of the Church embracing the faithful.","A giant oval plaza with 284 columns in front of the main church of Vatican City."],
+ fact:"It can hold hundreds of thousands of people for papal events."},
+{id:"versailles",cat:"arch",name:"Louis Le Vau & Jules Hardouin-Mansart",work:"Palace of Versailles",date:"1661–1710",year:1661,wiki:"Palace of Versailles",
+ hints:["Two French royal architects; the second designed the famous Hall of Mirrors.","Built for King Louis XIV, who moved his whole government there to control the nobles.","An enormous palace outside Paris where the treaty ending World War I was signed."],
+ fact:"It became the model of absolute monarchy that other European kings tried to copy."},
+{id:"saintdenis",cat:"arch",name:"Abbot Suger",work:"Basilica of Saint-Denis (choir)",date:"1140–1144",year:1140,wiki:"Basilica of Saint-Denis",
+ hints:["A French monk who was also an adviser to two kings.","He wanted light to fill the church because he believed light brought people closer to God.","He rebuilt this church near Paris, where French kings were buried, launching the Gothic style."],
+ fact:"It is considered the first Gothic building, with pointed arches and huge stained-glass windows."},
+{id:"westminster",cat:"arch",name:"Charles Barry & Augustus Pugin",work:"Palace of Westminster",date:"1840–1870",year:1840,wiki:"Palace of Westminster",
+ hints:["Two English architects; one planned the building and the other designed its Gothic details.","It was rebuilt after a huge fire destroyed the old palace in 1834.","Britain's Houses of Parliament, with the clock tower that holds Big Ben."],
+ fact:"It made the Gothic Revival a symbol of British government."},
+{id:"crystalpalace",cat:"arch",name:"Joseph Paxton",work:"The Crystal Palace",date:"1851",year:1851,wiki:"The Crystal Palace",
+ hints:["A gardener who designed greenhouses for a duke before this project.","His design was inspired by the ribbed leaves of a giant water lily.","A huge iron-and-glass hall built in London for the Great Exhibition of 1851."],
+ fact:"Built from mass-produced parts in months, it showed off the Industrial Revolution."},
+{id:"arcdetriomphe",cat:"arch",name:"Jean Chalgrin",work:"Arc de Triomphe",date:"1806–1836",year:1806,wiki:"Arc de Triomphe",
+ hints:["A French architect who died long before the project was finished.","Ordered by Napoleon after his victory at Austerlitz.","A giant arch in Paris where 12 avenues meet, over the Tomb of the Unknown Soldier."],
+ fact:"It honors those who fought for France in the Revolutionary and Napoleonic Wars."},
+{id:"garnier",cat:"arch",name:"Charles Garnier",work:"Palais Garnier (Paris Opera)",date:"1861–1875",year:1861,wiki:"Palais Garnier",
+ hints:["A young, unknown French architect who beat about 170 rivals in a design contest.","An underground water tank beneath it inspired the story The Phantom of the Opera.","A lavish opera house in Paris covered in gold, marble, and statues; it carries his name."],
+ fact:"It became the symbol of Paris under Napoleon III."},
+{id:"empirestate",cat:"arch",name:"William F. Lamb",work:"Empire State Building",date:"1930–1931",year:1930,wiki:"Empire State Building",
+ hints:["He was the chief designer at the firm Shreve, Lamb & Harmon.","Built in about 13 months during the Great Depression.","A New York Art Deco skyscraper that was the tallest building in the world for nearly 40 years."],
+ fact:"It became a symbol of American ambition even as the economy collapsed."},
+{id:"chrysler",cat:"arch",name:"William Van Alen",work:"Chrysler Building",date:"1928–1930",year:1928,wiki:"Chrysler Building",
+ hints:["An architect who secretly built a spire inside the building and raised it to beat a rival tower.","His client never paid his full fee, and his career faded afterward.","A shiny Art Deco skyscraper in New York with a stainless steel crown and car-themed decorations."],
+ fact:"It was the world's tallest building for 11 months before the Empire State Building."},
+{id:"flatiron",cat:"arch",name:"Daniel Burnham",work:"Flatiron Building",date:"1902",year:1902,wiki:"Flatiron Building",
+ hints:["A Chicago architect who led the planning of the 1893 World's Fair, the “White City.”","He said, “Make no little plans; they have no magic to stir men's blood.”","A narrow triangular skyscraper on a wedge-shaped corner in New York."],
+ fact:"It became one of New York's most photographed buildings."},
+{id:"guggenheimny",cat:"arch",name:"Frank Lloyd Wright",work:"Solomon R. Guggenheim Museum",date:"1959",year:1959,wiki:"Solomon R. Guggenheim Museum",
+ hints:["He died six months before it opened.","Visitors take an elevator up and walk down one long spiral ramp.","A white spiral-shaped art museum in New York by the architect of Fallingwater."],
+ fact:"Some artists complained that the curved walls made it hard to hang paintings."},
+{id:"seagram",cat:"arch",name:"Ludwig Mies van der Rohe",work:"Seagram Building",date:"1958",year:1958,wiki:"Seagram Building",
+ hints:["The last director of Germany's Bauhaus school before it closed under the Nazis.","He is famous for the motto “Less is more.”","A sleek bronze-and-glass office tower in New York set back behind an open plaza."],
+ fact:"It became the model for modern glass office towers worldwide."},
+{id:"savoye",cat:"arch",name:"Le Corbusier",work:"Villa Savoye",date:"1928–1931",year:1928,wiki:"Villa Savoye",
+ hints:["A Swiss-French architect who called a house “a machine for living in.”","His real name was Charles-Édouard Jeanneret.","A white box house raised on thin columns with long strip windows outside Paris."],
+ fact:"It shows his “Five Points of Architecture,” key ideas of modernism."},
+{id:"fagus",cat:"arch",name:"Walter Gropius",work:"Fagus Factory",date:"1911–1913",year:1911,wiki:"Fagus Factory",
+ hints:["A German architect who founded the Bauhaus school of art and design in 1919.","He later taught at Harvard after leaving Nazi Germany.","A shoe-last factory with glass walls that wrap around its corners."],
+ fact:"It is considered one of the first modernist buildings."},
+{id:"gatewayarch",cat:"arch",name:"Eero Saarinen",work:"Gateway Arch",date:"1963–1965",year:1963,wiki:"Gateway Arch",
+ hints:["A Finnish-American architect who also designed the TWA terminal at JFK Airport and the famous Tulip Chair.","He won the design contest in 1948 but died before construction began.","A 630-foot stainless steel arch in St. Louis honoring westward expansion."],
+ fact:"It is the tallest human-made monument in the Western Hemisphere."},
+{id:"bankofchina",cat:"arch",name:"I. M. Pei",work:"Bank of China Tower",date:"1990",year:1990,wiki:"Bank of China Tower (Hong Kong)",
+ hints:["A Chinese-American architect who also designed the glass pyramid at the Louvre in Paris.","He said the design was based on bamboo shoots, which grow higher with each section.","A sharp, triangular glass skyscraper in Hong Kong."],
+ fact:"It was the tallest building in Asia when it opened."},
+{id:"burj",cat:"arch",name:"Adrian Smith",work:"Burj Khalifa",date:"2004–2010",year:2004,wiki:"Burj Khalifa",
+ hints:["An American architect who designed it while working at the Chicago firm SOM.","Its Y-shaped floor plan was inspired by a desert flower, the spider lily.","The tallest building in the world, in Dubai, United Arab Emirates."],
+ fact:"At about 828 meters (2,717 feet), it has held the height record since 2010."},
+{id:"lotus",cat:"arch",name:"Fariborz Sahba",work:"Lotus Temple",date:"1986",year:1986,wiki:"Lotus Temple",
+ hints:["An Iranian-born architect who later designed the terraces on Mount Carmel in Israel.","Built as a Baháʼí House of Worship, open to people of all religions.","A building in New Delhi, India, shaped like a white flower with 27 petals."],
+ fact:"It is one of the most visited buildings in the world."},
+{id:"brasilia",cat:"arch",name:"Oscar Niemeyer",work:"Cathedral of Brasília",date:"1958–1970",year:1958,wiki:"Cathedral of Brasília",
+ hints:["A Brazilian architect who lived to 104 and said he loved curves, not straight lines.","He designed most of the main buildings of Brazil's new capital city.","A cathedral made of 16 curved concrete columns that look like hands reaching to heaven."],
+ fact:"Brasília was built from scratch in the 1950s to move Brazil's capital inland."},
+{id:"heydar",cat:"arch",name:"Zaha Hadid",work:"Heydar Aliyev Center",date:"2012",year:2012,wiki:"Heydar Aliyev Center",
+ hints:["An Iraqi-British architect nicknamed the “Queen of the Curve.”","She was the first woman to win the Pritzker Prize, architecture's top honor, in 2004.","A flowing white building in Baku, Azerbaijan, with no straight lines or sharp corners."],
+ fact:"Her designs used computers to make shapes that once seemed impossible to build."},
+{id:"birdsnest",cat:"arch",name:"Herzog & de Meuron",work:"Beijing National Stadium (Bird's Nest)",date:"2008",year:2008,wiki:"Beijing National Stadium",
+ hints:["A Swiss architecture firm that also turned a London power station into the Tate Modern museum.","Chinese artist Ai Weiwei advised on the design.","The main stadium of the 2008 Beijing Olympics, wrapped in a tangle of steel beams."],
+ fact:"It became a symbol of China's rise on the world stage."},
+{id:"pompidou",cat:"arch",name:"Renzo Piano & Richard Rogers",work:"Centre Pompidou",date:"1977",year:1977,wiki:"Centre Pompidou",
+ hints:["Two young architects, Italian and British, who beat about 680 other entries.","They put the pipes, ducts, and escalators on the outside, color-coded by use.","A Paris art center that looks like a building turned inside out."],
+ fact:"It launched the “high-tech” style of architecture."},
+{id:"gherkin",cat:"arch",name:"Norman Foster",work:"30 St Mary Axe (The Gherkin)",date:"2004",year:2004,wiki:"30 St Mary Axe",
+ hints:["A British architect who also designed the glass dome on Germany's parliament building.","Its spiral design lets air flow naturally and uses about half the energy of similar towers.","A London office tower nicknamed after a pickle."],
+ fact:"It became a symbol of London's modern skyline."},
+{id:"whitehouse",cat:"arch",name:"James Hoban",work:"The White House",date:"1792–1800",year:1792,wiki:"White House",
+ hints:["An Irish-born architect who won a design contest chosen by George Washington.","He also rebuilt it after the British burned it in 1814.","The home of every U.S. president since John Adams."],
+ fact:"Enslaved and free workers, along with Scottish stonemasons, built it."},
+{id:"phlcityhall",cat:"arch",name:"John McArthur Jr.",work:"Philadelphia City Hall",date:"1871–1901",year:1871,wiki:"Philadelphia City Hall",
+ hints:["A Scottish-born Philadelphia architect who also designed hospitals for the Union Army.","It took 30 years to build and was the tallest building in the world from 1894 to 1908.","A giant government building at Broad and Market topped by a statue of William Penn."],
+ fact:"For decades, an unofficial rule kept Philadelphia buildings lower than Penn's hat."},
+{id:"easternstate",cat:"arch",name:"John Haviland",work:"Eastern State Penitentiary",date:"1829",year:1829,wiki:"Eastern State Penitentiary",
+ hints:["An English-born Philadelphia architect who designed prisons across the U.S. and Europe.","Its design kept every prisoner in solitary confinement to encourage “penitence.”","A Philadelphia prison with cell blocks spreading out from the center like spokes of a wheel."],
+ fact:"About 300 prisons worldwide copied its design; Al Capone was once held there."},
+{id:"secondbank",cat:"arch",name:"William Strickland",work:"Second Bank of the United States",date:"1818–1824",year:1818,wiki:"Second Bank of the United States",
+ hints:["A Philadelphia architect who later designed the Tennessee State Capitol, where he is buried.","President Andrew Jackson's “Bank War” destroyed the institution this building housed.","A Greek temple-style bank building with marble columns on Chestnut Street in Philadelphia."],
+ fact:"It helped make Greek Revival the national style of early American public buildings."},
+{id:"scotus",cat:"arch",name:"Cass Gilbert",work:"United States Supreme Court Building",date:"1935",year:1935,wiki:"United States Supreme Court Building",
+ hints:["He also designed the Woolworth Building, once the tallest in the world.","Until 1935, the Court had no building of its own and met inside the Capitol.","A marble temple in Washington, D.C., with “Equal Justice Under Law” carved above the entrance."],
+ fact:"Chief Justice (and former president) William Howard Taft pushed Congress to build it."},
+{id:"biltmore",cat:"arch",name:"Richard Morris Hunt",work:"Biltmore Estate",date:"1889–1895",year:1889,wiki:"Biltmore Estate",
+ hints:["The first American to study at the famous École des Beaux-Arts in Paris.","He also designed the pedestal of the Statue of Liberty.","The largest private home in the United States, a French-style château in North Carolina."],
+ fact:"Built for George Vanderbilt, it shows the extreme wealth of the Gilded Age."},
+{id:"trinityboston",cat:"arch",name:"H. H. Richardson",work:"Trinity Church, Boston",date:"1872–1877",year:1872,wiki:"Trinity Church (Boston)",
+ hints:["An architect from Louisiana whose heavy stone style was named after him.","His style used rough stone, round arches, and massive towers.","A reddish stone church in Copley Square, Boston."],
+ fact:"His “Richardsonian Romanesque” style spread to courthouses, libraries, and train stations nationwide."},
+{id:"goldengate",cat:"arch",name:"Joseph Strauss",work:"Golden Gate Bridge",date:"1933–1937",year:1933,wiki:"Golden Gate Bridge",
+ hints:["A Chicago engineer who had built about 400 drawbridges before this project.","A safety net under the bridge saved 19 workers, who called themselves the “Halfway to Hell Club.”","An orange suspension bridge across the entrance to San Francisco Bay."],
+ fact:"Engineers Charles Ellis and Leon Moisseiff and architect Irving Morrow did much of the design work."},
+{id:"forbiddencity",cat:"arch",name:"Kuai Xiang",work:"The Forbidden City",date:"1406–1420",year:1406,wiki:"Forbidden City",
+ hints:["A carpenter from a family of builders who rose to become a high government official.","Built for the Yongle Emperor of the Ming dynasty.","The imperial palace in Beijing, home to 24 emperors, with nearly 1,000 buildings."],
+ fact:"Most often credited as chief architect. Ordinary people were forbidden to enter for 500 years."},
+{id:"shahmosque",cat:"arch",name:"Ali Akbar Isfahani",work:"Shah Mosque, Isfahan",date:"1611–1629",year:1611,wiki:"Shah Mosque (Isfahan)",
+ hints:["A Persian master architect working for Shah Abbas I of the Safavid dynasty.","It sits on one side of a giant public square, one of the largest in the world.","A mosque in Iran covered in brilliant blue tiles, with a dome that echoes sound."],
+ fact:"It is a masterpiece of Persian architecture."},
+{id:"bluemosque",cat:"arch",name:"Sedefkâr Mehmed Ağa",work:"Sultan Ahmed Mosque (Blue Mosque)",date:"1609–1616",year:1609,wiki:"Sultan Ahmed Mosque",
+ hints:["An Ottoman architect who trained as a student of Mimar Sinan and was also a mother-of-pearl craftsman.","Built for Sultan Ahmed I across from Hagia Sophia.","An Istanbul mosque with six minarets and over 20,000 blue tiles inside."],
+ fact:"It is still an active mosque and one of Istanbul's most visited sites."},
+{id:"spaceneedle",cat:"arch",name:"John Graham Jr. & Edward Carlson",work:"Space Needle",date:"1962",year:1962,wiki:"Space Needle",
+ hints:["A hotel executive sketched the first idea on a placemat; an architect turned it into a real design.","It was built in about 400 days for a World's Fair.","A tower in Seattle with a flying-saucer-shaped top, built for the 1962 World's Fair."],
+ fact:"It reflected Space Age excitement during the race to the Moon."},
+{id:"stbasils",cat:"arch",name:"Barma & Postnik Yakovlev",work:"Saint Basil's Cathedral",date:"1555–1561",year:1555,wiki:"Saint Basil's Cathedral",
+ hints:["Russian builders; a legend says the tsar blinded the architect so he could never build anything as beautiful again.","Ordered by Ivan the Terrible to celebrate capturing the city of Kazan.","A cathedral on Moscow's Red Square with colorful onion domes."],
+ fact:"Historians are not sure if Barma and Postnik were one person or two. The blinding story is a myth."},
+{id:"winterpalace",cat:"arch",name:"Bartolomeo Rastrelli",work:"Winter Palace",date:"1754–1762",year:1754,wiki:"Winter Palace",
+ hints:["An Italian-born architect who designed lavish palaces for Russian empresses.","Built for Empress Elizabeth and later the home of Catherine the Great.","A huge green-and-white palace in St. Petersburg, stormed by the Bolsheviks in 1917."],
+ fact:"Today it is part of the Hermitage, one of the largest museums in the world."},
+{id:"habitat67",cat:"arch",name:"Moshe Safdie",work:"Habitat 67",date:"1967",year:1967,wiki:"Habitat 67",
+ hints:["An Israeli-Canadian architect who started this design as his college thesis.","He later designed the Marina Bay Sands hotel in Singapore.","Concrete apartment boxes stacked at angles like toy blocks in Montreal, built for Expo 67."],
+ fact:"It tested the idea of giving every apartment a garden and privacy in a dense city."},
+{id:"taipei101",cat:"arch",name:"C. Y. Lee",work:"Taipei 101",date:"2004",year:2004,wiki:"Taipei 101",
+ hints:["A Taiwanese architect who blended Chinese symbols into modern skyscrapers.","Inside hangs a 660-ton steel ball that swings to steady the tower in typhoons and earthquakes.","A skyscraper in Taiwan shaped like a stalk of bamboo, the world's tallest from 2004 to 2010."],
+ fact:"Its eight stacked sections use eight, a lucky number in Chinese culture."},
+{id:"jeffersonmem",cat:"arch",name:"John Russell Pope",work:"Jefferson Memorial",date:"1939–1943",year:1939,wiki:"Jefferson Memorial",
+ hints:["He also designed the National Archives building and the National Gallery of Art.","He died in 1937, before construction began; his partners completed the project.","A round, domed memorial on the Tidal Basin in Washington, D.C., modeled on the Pantheon."],
+ fact:"Its dome style echoes Monticello, the home its honoree designed."}
+);
+BUILT_IN.push(
+/* ---------- Inventions ---------- */
+{id:"clermont",cat:"invent",name:"Robert Fulton",work:"North River Steamboat (Clermont)",date:"1807",year:1807,wiki:"North River Steamboat",
+ hints:["A Pennsylvania-born painter who switched to engineering and also designed an early submarine for Napoleon.","Critics nicknamed his boat “Fulton's Folly.”","The first commercially successful steamboat, carrying passengers up the Hudson River from New York to Albany."],
+ fact:"Steamboats opened America's rivers to fast two-way trade and travel."},
+{id:"rocket",cat:"invent",name:"George & Robert Stephenson",work:"Stephenson's Rocket",date:"1829",year:1829,wiki:"Stephenson's Rocket",
+ hints:["A father and son from northern England; the father was called the “Father of Railways.”","Their locomotive won the Rainhill Trials, a contest to choose engines for a new railway.","An early steam locomotive that reached about 30 miles per hour on the Liverpool and Manchester Railway."],
+ fact:"Its design became the basic model for steam locomotives for 150 years."},
+{id:"newcomen",cat:"invent",name:"Thomas Newcomen",work:"Newcomen atmospheric engine",date:"1712",year:1712,wiki:"Newcomen atmospheric engine",
+ hints:["An English ironmonger and Baptist lay preacher.","James Watt later improved this engine after repairing a model of it.","The first practical steam engine, used to pump water out of coal mines."],
+ fact:"It made deeper coal mines possible, fueling the start of the Industrial Revolution."},
+{id:"waterframe",cat:"invent",name:"Richard Arkwright",work:"Water frame",date:"1769",year:1769,wiki:"Water frame",
+ hints:["A former barber and wig-maker from Lancashire, England.","He built Cromford Mill, often called the first modern factory.","A spinning machine powered by a waterwheel that made strong cotton thread."],
+ fact:"Samuel Slater memorized its design and built America's first textile mill in Rhode Island."},
+{id:"flyingshuttle",cat:"invent",name:"John Kay",work:"Flying shuttle",date:"1733",year:1733,wiki:"Flying shuttle",
+ hints:["An English inventor whose house was attacked by weavers afraid of losing their jobs.","He spent much of his money in court fighting people who copied his invention.","A device that let a weaver shoot the thread across a loom, doubling weaving speed."],
+ fact:"It made weaving so fast that spinners couldn't keep up, pushing new spinning inventions."},
+{id:"powerloom",cat:"invent",name:"Edmund Cartwright",work:"Power loom",date:"1785",year:1785,wiki:"Power loom",
+ hints:["An English clergyman and poet with no mechanical training.","A mill using his machines was burned down by angry handloom weavers.","A loom driven by steam or water power instead of human hands."],
+ fact:"Power looms moved weaving into factories and put many handloom weavers out of work."},
+{id:"bessemer",cat:"invent",name:"Henry Bessemer",work:"Bessemer process",date:"1856",year:1856,wiki:"Bessemer process",
+ hints:["An English inventor who held more than 100 patents.","His idea came while trying to make stronger cannons during the Crimean War.","He blasted air through melted iron to make cheap steel quickly."],
+ fact:"Cheap steel built railroads, skyscrapers, and fortunes like Andrew Carnegie's."},
+{id:"dynamite",cat:"invent",name:"Alfred Nobel",work:"Dynamite",date:"1867",year:1867,wiki:"Dynamite",
+ hints:["A Swedish chemist whose younger brother was killed in an explosion at the family factory.","A newspaper mistakenly printed his obituary calling him the “merchant of death.”","He left his fortune to create prizes for peace, science, and literature."],
+ fact:"It made mining and tunneling much safer than using liquid nitroglycerin."},
+{id:"typewriter",cat:"invent",name:"Christopher Latham Sholes",work:"Sholes and Glidden typewriter",date:"1873",year:1873,wiki:"Sholes and Glidden typewriter",
+ hints:["A Wisconsin newspaper publisher and politician.","The machine was sold by the Remington company, which also made guns and sewing machines.","The first commercially successful typewriter, which introduced the QWERTY keyboard."],
+ fact:"Typewriters opened office jobs to many women in the late 1800s."},
+{id:"kinetoscope",cat:"invent",name:"Thomas Edison & William Dickson",work:"Kinetoscope",date:"1891",year:1891,wiki:"Kinetoscope",
+ hints:["A famous New Jersey inventor and his assistant, who did much of the real work.","Customers paid to look through a peephole at the top of a wooden cabinet.","An early machine for watching moving pictures, one person at a time."],
+ fact:"It launched the American movie industry."},
+{id:"cinematographe",cat:"invent",name:"Auguste & Louis Lumière",work:"Cinématographe",date:"1895",year:1895,wiki:"Cinématographe",
+ hints:["Two French brothers whose father ran a photography supply company.","Legend says audiences ran from a film of a train pulling into a station.","A device that was a movie camera, printer, and projector in one, used for the first public film shows."],
+ fact:"Their 1895 Paris screening is often called the birth of cinema."},
+{id:"motorwagen",cat:"invent",name:"Karl Benz",work:"Benz Patent-Motorwagen",date:"1885–1886",year:1886,wiki:"Benz Patent-Motorwagen",
+ hints:["A German engineer whose wife, Bertha, secretly drove 106 km (66 miles) to prove the machine worked.","His name is still part of a famous car company.","A three-wheeled vehicle with a gasoline engine, considered the first true automobile."],
+ fact:"Bertha's trip in 1888 was the first long-distance car journey."},
+{id:"zeppelin",cat:"invent",name:"Ferdinand von Zeppelin",work:"Zeppelin rigid airship",date:"1900",year:1900,wiki:"Zeppelin",
+ hints:["A German count and army officer who watched balloons during the American Civil War.","Germany later used his airships to bomb London in World War I.","Giant cigar-shaped airships with a metal frame, named after him."],
+ fact:"The Hindenburg disaster in 1937 ended the age of passenger airships."},
+{id:"leeuwenhoek",cat:"invent",name:"Antonie van Leeuwenhoek",work:"Single-lens microscope",date:"1670s",year:1673,wiki:"Van Leeuwenhoek's microscopes",
+ hints:["A Dutch cloth merchant with no university training who ground his own lenses.","He wrote hundreds of letters to the Royal Society of London about what he saw.","With his tiny handheld microscopes he was the first to see bacteria, which he called “animalcules.”"],
+ fact:"He is called the “Father of Microbiology.”"},
+{id:"pendulumclock",cat:"invent",name:"Christiaan Huygens",work:"Pendulum clock",date:"1656",year:1656,wiki:"Pendulum clock",
+ hints:["A Dutch scientist who also discovered Titan, the largest moon of Saturn.","He proposed that light travels as a wave.","He built the first clock regulated by a swinging weight, far more accurate than earlier clocks."],
+ fact:"It was the world's most accurate timekeeper for nearly 300 years."},
+{id:"xray",cat:"invent",name:"Wilhelm Röntgen",work:"First medical X-ray (Hand mit Ringen)",date:"1895",year:1895,wiki:"Hand mit Ringen",
+ hints:["A German physicist who won the very first Nobel Prize in Physics in 1901.","He called the new rays “X” because they were unknown.","The first X-ray image of a human body part: his wife's hand, showing her bones and wedding ring."],
+ fact:"Within a year, doctors were using X-rays to find broken bones and bullets."},
+{id:"voltaicpile",cat:"invent",name:"Alessandro Volta",work:"Voltaic pile",date:"1800",year:1800,wiki:"Voltaic pile",
+ hints:["An Italian physicist who argued with Luigi Galvani over whether frog legs made electricity.","Napoleon made him a count for his work.","He stacked discs of zinc and copper with salty cloth to make the first battery; a unit of electricity is named for him."],
+ fact:"It gave scientists a steady electric current for the first time."},
+{id:"kevlar",cat:"invent",name:"Stephanie Kwolek",work:"Kevlar",date:"1965",year:1965,wiki:"Kevlar",
+ hints:["A chemist at the DuPont company who planned to go to medical school.","She noticed a cloudy, runny liquid that others might have thrown out.","She invented a super-strong fiber, five times stronger than steel by weight, used in bulletproof vests."],
+ fact:"Her invention has saved thousands of police officers and soldiers."},
+{id:"eniac",cat:"invent",name:"J. Presper Eckert & John Mauchly",work:"ENIAC",date:"1945",year:1945,wiki:"ENIAC",
+ hints:["Two engineers at the University of Pennsylvania in Philadelphia.","Six women programmed it by plugging cables and setting switches.","One of the first general-purpose electronic computers, filling a whole room with 17,000 vacuum tubes."],
+ fact:"Built to calculate artillery tables for World War II, it launched the computer age."},
+{id:"transistor",cat:"invent",name:"John Bardeen, Walter Brattain & William Shockley",work:"Transistor",date:"1947",year:1947,wiki:"Transistor",
+ hints:["Three scientists at Bell Labs in New Jersey who shared the 1956 Nobel Prize in Physics.","One of them later started a company in California that helped create Silicon Valley.","A tiny device that switches and strengthens electric signals, replacing vacuum tubes."],
+ fact:"Billions of them sit inside every smartphone today."},
+{id:"applei",cat:"invent",name:"Steve Wozniak",work:"Apple I",date:"1976",year:1976,wiki:"Apple I",
+ hints:["An engineer who built it by hand and first showed it at the Homebrew Computer Club.","His partner Steve Jobs sold his van to help pay for the first batch.","The first computer sold by a company named after a fruit; it was just a circuit board."],
+ fact:"It helped launch the personal computer revolution."},
+{id:"vs300",cat:"invent",name:"Igor Sikorsky",work:"Vought-Sikorsky VS-300 helicopter",date:"1939",year:1939,wiki:"Vought-Sikorsky VS-300",
+ hints:["A Russian-born engineer who built the world's first four-engine airplane in 1913.","He fled the Russian Revolution and moved to the United States.","He flew the first practical single-rotor helicopter, with a small tail rotor for control."],
+ fact:"Its design is still the basic layout of most helicopters."},
+{id:"mule",cat:"invent",name:"Samuel Crompton",work:"Spinning mule",date:"1779",year:1779,wiki:"Spinning mule",
+ hints:["An English inventor who couldn't afford a patent and earned little from his idea.","He named it a “mule” because it combined two earlier machines.","A spinning machine that made fine, strong thread by mixing the jenny and the water frame."],
+ fact:"It became the main machine in cotton mills during the Industrial Revolution."},
+{id:"pascaline",cat:"invent",name:"Blaise Pascal",work:"Pascal's calculator (Pascaline)",date:"1642",year:1642,wiki:"Pascal's calculator",
+ hints:["A French mathematician and philosopher; a programming language and a unit of pressure are named after him.","He built it at about 19 to help his father, a tax collector.","A brass box of gears and dials that could add and subtract."],
+ fact:"It was one of the first mechanical calculators."},
+{id:"reckoner",cat:"invent",name:"Gottfried Wilhelm Leibniz",work:"Stepped reckoner",date:"1670s",year:1673,wiki:"Stepped reckoner",
+ hints:["A German thinker who invented calculus around the same time as Isaac Newton.","He also worked out binary numbers, the 1s and 0s computers use.","A mechanical calculator that could multiply and divide, not just add."],
+ fact:"Its stepped drum design was used in calculators for 200 years."},
+{id:"aeolipile",cat:"invent",name:"Hero of Alexandria",work:"Aeolipile",date:"1st century CE",year:50,wiki:"Aeolipile",
+ hints:["A Greek engineer in Roman Egypt who also designed a coin-operated holy water machine.","He wrote books describing automatic doors and mechanical theaters.","A metal ball that spins as steam shoots out of two bent tubes, the first known steam engine."],
+ fact:"The idea of steam power sat mostly unused for about 1,600 years."},
+{id:"fardier",cat:"invent",name:"Nicolas-Joseph Cugnot",work:"Fardier à vapeur",date:"1769–1770",year:1769,wiki:"Fardier à vapeur",
+ hints:["A French army engineer.","His machine was built to haul heavy cannons and may have caused the first vehicle crash.","A huge three-wheeled steam wagon, the first self-propelled road vehicle."],
+ fact:"It moved at walking speed and had to stop often to build up steam."},
+{id:"newtonscope",cat:"invent",name:"Isaac Newton",work:"Newtonian telescope",date:"1668",year:1668,wiki:"Newtonian telescope",
+ hints:["An English scientist who also discovered that white light is made of a rainbow of colors.","He described three laws of motion and the law of gravity.","He built a telescope that used curved mirrors instead of lenses."],
+ fact:"Most big research telescopes today use mirrors, following his idea."},
+{id:"masonjar",cat:"invent",name:"John Landis Mason",work:"Mason jar",date:"1858",year:1858,wiki:"Mason jar",
+ hints:["A New Jersey-born tinsmith who was only 26 when he got his patent.","His patent expired in 1879, so other companies copied his design freely.","A glass jar with a screw-on lid used for canning food at home."],
+ fact:"It let families preserve food safely all year."},
+{id:"bunsen",cat:"invent",name:"Robert Bunsen",work:"Bunsen burner",date:"1855",year:1855,wiki:"Bunsen burner",
+ hints:["A German chemist who lost sight in one eye in a lab explosion.","With Gustav Kirchhoff he discovered the elements cesium and rubidium.","A gas burner with an adjustable air hole, found in nearly every school science lab."],
+ fact:"Its clean, hot flame let chemists study the colors that each element gives off."},
+{id:"leydenjar",cat:"invent",name:"Pieter van Musschenbroek",work:"Leyden jar",date:"1745",year:1745,wiki:"Leyden jar",
+ hints:["A Dutch professor who got such a powerful shock testing it that he said he wouldn't repeat it for the kingdom of France.","Benjamin Franklin later used this device in his electricity experiments.","A glass jar coated in metal that stores static electricity, named after a Dutch university town."],
+ fact:"It was the first capacitor. Ewald von Kleist built one independently in Germany around the same time."},
+{id:"braille",cat:"invent",name:"Louis Braille",work:"Braille writing system",date:"1824",year:1824,wiki:"Braille",
+ hints:["He was blinded in an accident in his father's workshop at age 3.","He based his idea on a French army code for reading messages in the dark.","At 15 he created a system of raised dots that blind people read with their fingers."],
+ fact:"It is used in nearly every language in the world."},
+
+/* ---------- Photography ---------- */
+{id:"banditsroost",cat:"photo",name:"Jacob Riis",work:"Bandit's Roost",date:"1888",year:1888,wiki:"Bandit's Roost",
+ hints:["A Danish immigrant who worked as a police reporter in New York City.","He was one of the first to use flash powder to photograph dark slums at night.","His book “How the Other Half Lives” showed the poverty of tenements."],
+ fact:"His work pushed reforms like New York's Tenement House Act of 1901."},
+{id:"horsemotion",cat:"photo",name:"Eadweard Muybridge",work:"The Horse in Motion",date:"1878",year:1878,wiki:"The Horse in Motion",
+ hints:["An English photographer hired by railroad tycoon Leland Stanford.","He used a row of 12 cameras with tripwires along a racetrack.","His photos proved that a galloping horse lifts all four hooves off the ground."],
+ fact:"His motion studies were a key step toward motion pictures."},
+{id:"steerage",cat:"photo",name:"Alfred Stieglitz",work:"The Steerage",date:"1907",year:1907,wiki:"The Steerage",
+ hints:["An American photographer who ran galleries in New York and married painter Georgia O'Keeffe.","He fought to have photography accepted as fine art.","Passengers crowd the lower decks of a ship in a photo linked with immigration."],
+ fact:"It is considered one of the first modernist photographs."},
+{id:"parksgothic",cat:"photo",name:"Gordon Parks",work:"American Gothic, Washington, D.C.",date:"1942",year:1942,wiki:"American Gothic, Washington, D.C.",
+ hints:["A self-taught photographer from Kansas who later directed the movie Shaft.","He was the first African American staff photographer at Life magazine.","A government cleaning woman holds a mop and broom in front of an American flag."],
+ fact:"It made a pointed statement about racism in the nation's capital."},
+{id:"bluemarble",cat:"photo",name:"Apollo 17 crew (Harrison Schmitt)",work:"The Blue Marble",date:"1972",year:1972,wiki:"The Blue Marble",
+ hints:["Astronauts took it about 29,000 kilometers (18,000 miles) from Earth on the last crewed Moon mission.","Historians credit geologist-astronaut Harrison Schmitt, though the crew shared credit.","A full view of Earth, with Africa and Antarctica visible under swirling clouds."],
+ fact:"It is one of the most reproduced photographs in history."},
+{id:"palebluedot",cat:"photo",name:"Carl Sagan",work:"Pale Blue Dot (Voyager 1)",date:"1990",year:1990,wiki:"Pale Blue Dot",
+ hints:["An astronomer and TV host of the series Cosmos.","He convinced NASA to turn a spacecraft's camera back toward home from 6 billion kilometers away.","Earth appears as a tiny speck in a beam of sunlight."],
+ fact:"He wrote that it shows our responsibility to “cherish the pale blue dot, the only home we've ever known.”"},
+{id:"pillars",cat:"photo",name:"Jeff Hester & Paul Scowen",work:"Pillars of Creation (Hubble)",date:"1995",year:1995,wiki:"Pillars of Creation",
+ hints:["Two Arizona State University astronomers who used a famous space telescope.","The telescope launched in 1990 needed a repair mission to fix its blurry mirror.","Towering columns of gas and dust where new stars are being born in the Eagle Nebula."],
+ fact:"It became the most famous image taken by the Hubble Space Telescope."},
+{id:"photo51",cat:"photo",name:"Rosalind Franklin",work:"Photo 51",date:"1952",year:1952,wiki:"Photo 51",
+ hints:["A British chemist who died of cancer at 37, before the Nobel Prize was given for the discovery she helped make.","Her student Raymond Gosling helped take this X-ray image.","An X-shaped pattern that revealed the double-helix shape of DNA."],
+ fact:"Watson and Crick saw it without her permission while building their model of DNA."},
+{id:"opendoor",cat:"photo",name:"William Henry Fox Talbot",work:"The Open Door",date:"1844",year:1844,wiki:"The Open Door",
+ hints:["An English scientist who invented the negative, letting many prints be made from one photo.","He published the first book illustrated with photographs.","A broom leans in an open stone doorway, one of the first artistic photographs."],
+ fact:"His calotype process was the ancestor of film photography."},
+{id:"valleyshadow",cat:"photo",name:"Roger Fenton",work:"The Valley of the Shadow of Death",date:"1855",year:1855,wiki:"The Valley of the Shadow of Death (photograph)",
+ hints:["One of the first war photographers, sent to cover the Crimean War.","He hauled a horse-drawn darkroom van across the battlefield.","Cannonballs litter an empty road through a valley; historians debate whether he moved them."],
+ fact:"It may be one of the first staged photographs in history."},
+{id:"powerhouse",cat:"photo",name:"Lewis Hine",work:"Power House Mechanic Working on Steam Pump",date:"1920",year:1920,wiki:"Power house mechanic working on steam pump",
+ hints:["Earlier he photographed child labor in mills and mines.","In the 1920s he switched to “work portraits” celebrating skilled laborers.","A muscular worker bends over a giant wrench and machine in a power plant."],
+ fact:"It turned the industrial worker into a heroic figure."},
+{id:"endurance",cat:"photo",name:"Frank Hurley",work:"Endurance trapped in the ice",date:"1915",year:1915,wiki:"Endurance (1912 ship)",
+ hints:["An Australian photographer on Ernest Shackleton's Antarctic expedition.","He dove into icy water to rescue his glass plate negatives from the sinking ship.","A wooden ship frozen in the Antarctic sea ice, glowing in the polar night."],
+ fact:"The ship's wreck was finally found in 2022, three kilometers deep."},
+{id:"drowned",cat:"photo",name:"Hippolyte Bayard",work:"Self Portrait as a Drowned Man",date:"1840",year:1840,wiki:"Self Portrait as a Drowned Man",
+ hints:["A French civil servant who invented his own photo process before Daguerre went public.","He felt the government ignored him in favor of Daguerre.","As a protest, he staged a photo pretending he had drowned himself."],
+ fact:"It is considered the first staged photograph and the first photo hoax."},
+{id:"cornelius",cat:"photo",name:"Robert Cornelius",work:"Self-portrait",date:"1839",year:1839,wiki:"Robert Cornelius",
+ hints:["A Philadelphia lamp maker and metalworker.","He had to sit still for several minutes in his family's shop yard.","He took the oldest known photographic portrait of a person, the first “selfie.”"],
+ fact:"He opened one of the first photography studios in America in Philadelphia."}
+);
+
+
+const ERAS = [
+  {k:"ancient",label:"Ancient (before 500 CE)",test:y=>y<500},
+  {k:"medren",label:"500–1600: Medieval & Renaissance",test:y=>y>=500&&y<1600},
+  {k:"early",label:"1600–1850",test:y=>y>=1600&&y<1850},
+  {k:"modern",label:"1850–today",test:y=>y>=1850}
+];
+const STORE_KEY="masterpieceMystery_v1";
+function loadStore(){ try{ const r=localStorage.getItem(STORE_KEY); if(r) return JSON.parse(r); }catch(e){} return {}; }
+let store=loadStore();
+store.custom=store.custom||[]; store.photos=store.photos||{}; store.teams=store.teams||null;
+function saveStore(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(store)); return true; }catch(e){ toast("Couldn't save in this browser (storage is full or blocked)."); return false; } }
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+let toastTimer=null;
+function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{t.hidden=true;},2800); }
+
+function allWorks(){ return BUILT_IN.concat(store.custom); }
+function eraOf(W){ const y=+W.year; if(!isFinite(y)) return "modern"; return (ERAS.find(e=>e.test(y))||ERAS[3]).k; }
+function initials(n){ return String(n).split(/\s+/).filter(w=>/^[A-ZÀ-Ž]/.test(w)).slice(0,2).map(w=>w[0]).join("")||"?"; }
+
+/* ---------- Images ---------- */
+function commonsUrl(f){ return "https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(f)+"?width=1000"; }
+const wikiThumbs={};
+function loadWiki(titles){
+  const need=titles.filter(t=>t && !(t in wikiThumbs));
+  if(!need.length) return Promise.resolve();
+  const chunks=[]; for(let i=0;i<need.length;i+=40) chunks.push(need.slice(i,i+40));
+  return Promise.all(chunks.map(ch=>{
+    const u="https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=1000&titles="+encodeURIComponent(ch.join("|"));
+    return Promise.resolve().then(()=>fetch(u)).then(r=>r.json()).then(j=>{
+      const q=j.query||{}, norm={}, red={}, byTitle={};
+      (q.normalized||[]).forEach(n=>{norm[n.from]=n.to;});
+      (q.redirects||[]).forEach(r=>{red[r.from]=r.to;});
+      Object.keys(q.pages||{}).forEach(k=>{ const pg=q.pages[k]; if(pg.thumbnail) byTitle[pg.title]=pg.thumbnail.source; });
+      ch.forEach(t=>{ let f=norm[t]||t; f=red[f]||f; wikiThumbs[t]=byTitle[f]||""; });
+    }).catch(()=>{ ch.forEach(t=>{ if(!(t in wikiThumbs)) wikiThumbs[t]=""; }); });
+  }));
+}
+function sources(W){
+  const out=[];
+  if(store.photos[W.id]) out.push(store.photos[W.id]);
+  if(W.url) out.push(W.url);
+  if(W.img) out.push(commonsUrl(W.img));
+  if(W.wiki && wikiThumbs[W.wiki]) out.push(wikiThumbs[W.wiki]);
+  return out;
+}
+function loadImage(W,onOk,onFail){
+  const list=sources(W); let i=0, triedWiki=false;
+  const im=new Image();
+  const next=()=>{
+    if(i<list.length){ im.src=list[i++]; return; }
+    if(!triedWiki && W.wiki){
+      triedWiki=true;
+      loadWiki([W.wiki]).then(()=>{ const w=wikiThumbs[W.wiki]; if(w && list.indexOf(w)<0){ list.push(w); next(); } else onFail(); });
+      return;
+    }
+    onFail();
+  };
+  im.addEventListener("load",()=>onOk(im));
+  im.addEventListener("error",next);
+  next();
+}
+
+/* ---------- Setup UI ---------- */
+const DEFAULT_TEAMS=["Team 1","Team 2","Team 3","Team 4","Team 5","Team 6"];
+let teamNames=(store.teams&&store.teams.length===6)?store.teams.slice():DEFAULT_TEAMS.slice();
+function renderTeamInputs(){
+  const n=+$("teamCount").value, box=$("teamInputs"); box.innerHTML="";
+  for(let i=0;i<n;i++){
+    const w=document.createElement("div"); w.className="field"; w.style.marginBottom="0";
+    w.innerHTML='<label for="tname'+i+'">Team '+(i+1)+' name <kbd>'+(i+1)+'</kbd></label><input id="tname'+i+'">';
+    box.appendChild(w);
+    const inp=w.querySelector("input"); inp.value=teamNames[i];
+    inp.addEventListener("input",()=>{ teamNames[i]=inp.value; store.teams=teamNames; saveStore(); });
+  }
+}
+function renderFilters(){
+  const list=allWorks();
+  const cb=$("catChecks"); cb.innerHTML="";
+  Object.keys(CATS).forEach(k=>{
+    const n=list.filter(W=>W.cat===k).length;
+    const l=document.createElement("label"); l.className="check";
+    l.innerHTML='<input type="checkbox" id="cat_'+k+'" checked><span>'+esc(CATS[k])+'</span><span class="count">'+n+'</span>';
+    cb.appendChild(l); l.querySelector("input").addEventListener("change",renderRoundOptions);
+  });
+  const eb=$("eraChecks"); eb.innerHTML="";
+  ERAS.forEach(e=>{
+    const n=list.filter(W=>eraOf(W)===e.k).length;
+    const l=document.createElement("label"); l.className="check";
+    l.innerHTML='<input type="checkbox" id="era_'+e.k+'" checked><span>'+esc(e.label)+'</span><span class="count">'+n+'</span>';
+    eb.appendChild(l); l.querySelector("input").addEventListener("change",renderRoundOptions);
+  });
+  renderRoundOptions();
+}
+function pool(){
+  const cats=Object.keys(CATS).filter(k=>$("cat_"+k)&&$("cat_"+k).checked);
+  const eras=ERAS.map(e=>e.k).filter(k=>$("era_"+k)&&$("era_"+k).checked);
+  return allWorks().filter(W=>cats.includes(W.cat)&&eras.includes(eraOf(W)));
+}
+function renderRoundOptions(){
+  const sel=$("roundCount"), max=pool().length, prev=+sel.value||10;
+  sel.innerHTML="";
+  const opts=[5,10,15,20,30].filter(v=>v<max); if(max) opts.push(max);
+  opts.forEach(v=>{ const o=document.createElement("option"); o.value=v; o.textContent=v===max?("All "+v):v; sel.appendChild(o); });
+  sel.value=opts.includes(prev)?prev:(opts.includes(10)?10:max);
+  $("setupMsg").textContent=max?"":"No works match. Check at least one type and one time period.";
+  $("startBtn").disabled=!max;
+}
+
+/* ---------- Roster ---------- */
+let pasteTarget=null;
+function renderRoster(){
+  const box=$("roster"); box.innerHTML="";
+  allWorks().forEach(W=>{
+    const it=document.createElement("div"); it.className="r-item";
+    it.innerHTML='<div class="r-mono">'+esc(initials(W.name))+'</div>'+
+      '<div class="r-body"><div class="r-name">'+esc(W.work||"Untitled")+'</div>'+
+      '<div class="r-meta">'+esc(W.name)+' · '+esc(CATS[W.cat]||"")+'</div>'+
+      '<div class="r-status">Checking image…</div>'+
+      '<div class="r-actions">'+
+        '<label class="btn small" style="display:inline-block">Upload<input type="file" accept="image/*" hidden data-up="'+esc(W.id)+'"></label>'+
+        '<button class="btn small" data-paste="'+esc(W.id)+'">Paste</button>'+
+        (store.photos[W.id]?'<button class="btn small ghost" data-reset="'+esc(W.id)+'">Use default</button>':'')+
+        (W.custom?'<button class="btn small ghost" data-edit="'+esc(W.id)+'">Edit</button><button class="btn small ghost" data-del="'+esc(W.id)+'">Delete</button>':'')+
+      '</div></div>';
+    box.appendChild(it);
+    const mono=it.querySelector(".r-mono"), st=it.querySelector(".r-status");
+    loadImage(W,im=>{ im.className="r-thumb"; im.alt=""; mono.replaceWith(im); st.textContent="Image OK"; st.className="r-status ok"; },
+      ()=>{ st.textContent="No image loaded. Upload one."; st.className="r-status bad"; });
+  });
+  box.querySelectorAll("[data-up]").forEach(inp=>inp.addEventListener("change",()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    compress(f).then(u=>{ store.photos[inp.dataset.up]=u; if(saveStore()) toast("Image saved."); renderRoster(); }).catch(()=>toast("That file couldn't be read as an image."));
+  }));
+  box.querySelectorAll("[data-paste]").forEach(b=>b.addEventListener("click",()=>{
+    pasteTarget=b.dataset.paste;
+    box.querySelectorAll(".r-item").forEach(x=>x.classList.remove("armed"));
+    b.closest(".r-item").classList.add("armed");
+    toast("Now press Ctrl+V (or ⌘V) to paste the image.");
+  }));
+  box.querySelectorAll("[data-reset]").forEach(b=>b.addEventListener("click",()=>{ delete store.photos[b.dataset.reset]; saveStore(); renderRoster(); }));
+  box.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{
+    if(b.dataset.armed){ store.custom=store.custom.filter(W=>W.id!==b.dataset.del); delete store.photos[b.dataset.del]; saveStore(); renderRoster(); renderFilters(); toast("Work deleted."); }
+    else { b.dataset.armed="1"; b.textContent="Click again to delete"; }
+  }));
+  box.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEditor(b.dataset.edit)));
+}
+function compress(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader(); r.onerror=rej;
+    r.onload=()=>{ const im=new Image(); im.onerror=rej; im.onload=()=>{
+      const max=1000, s=Math.min(1,max/Math.max(im.width,im.height));
+      const c=document.createElement("canvas"); c.width=Math.round(im.width*s); c.height=Math.round(im.height*s);
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      res(c.toDataURL("image/jpeg",0.82));
+    }; im.src=r.result; };
+    r.readAsDataURL(file);
+  });
+}
+
+/* Editor */
+let editingId=null, pendingPhoto=null;
+function openEditor(id){
+  editingId=id||null; pendingPhoto=null;
+  const W=id?store.custom.find(x=>x.id===id):null;
+  $("edTitle").textContent=W?"Edit "+(W.work||W.name):"Add a work";
+  $("edName").value=W?W.name:""; $("edWork").value=W?W.work||"":""; $("edDate").value=W?W.date||"":"";
+  $("edYear").value=W&&isFinite(W.year)?W.year:""; $("edCat").value=W?W.cat:"paint";
+  $("edUrl").value=W&&W.url?W.url:""; $("edFile").value="";
+  $("edH1").value=W?W.hints[0]:""; $("edH2").value=W?W.hints[1]:""; $("edH3").value=W?W.hints[2]:"";
+  $("edFact").value=W?W.fact||"":""; $("edMsg").textContent="";
+  $("editor").hidden=false; $("edName").focus();
+}
+function saveEditor(){
+  const name=$("edName").value.trim(), h=[$("edH1").value.trim(),$("edH2").value.trim(),$("edH3").value.trim()];
+  if(!name||h.some(x=>!x)){ $("edMsg").textContent="Add a creator and all three clues."; return; }
+  const id=editingId||("c_"+Date.now().toString(36));
+  const yr=parseInt($("edYear").value,10);
+  const W={id,custom:true,cat:$("edCat").value,name,work:$("edWork").value.trim(),date:$("edDate").value.trim(),year:isFinite(yr)?yr:2000,url:$("edUrl").value.trim(),hints:h,fact:$("edFact").value.trim()};
+  const i=store.custom.findIndex(x=>x.id===id);
+  if(i>=0) store.custom[i]=W; else store.custom.push(W);
+  if(pendingPhoto) store.photos[id]=pendingPhoto;
+  if(saveStore()) toast((W.work||name)+" saved.");
+  $("editor").hidden=true; renderRoster(); renderFilters();
+}
+
+/* ---------- Game ---------- */
+let G=null, tick=null;
+const C=2*Math.PI*50;
+function startGame(){
+  const n=+$("teamCount").value;
+  const list=shuffle(pool().slice()).slice(0,+$("roundCount").value);
+  if(!list.length) return;
+  G={teams:teamNames.slice(0,n).map((t,i)=>({name:(t||"").trim()||("Team "+(i+1)),score:0})),list,idx:-1,secs:+$("hintSecs").value,log:[]};
+  $("setup").hidden=true; $("final").hidden=true; $("play").hidden=false;
+  renderBench(); nextWork();
+}
+function nextWork(){
+  stopTick(); G.idx++;
+  if(G.idx>=G.list.length){ showFinal(); return; }
+  const W=G.list[G.idx];
+  G.cur={W,stage:0,left:G.secs*1000,paused:false,done:false};
+  $("roundLabel").textContent="Work "+(G.idx+1)+" of "+G.list.length;
+  $("catLabel").textContent=CATS[W.cat]||"";
+  $("plate").classList.add("hidden-name");
+  $("plateWho").textContent="? ? ?";
+  $("plateWhat").textContent=W.cat==="arch"?"Who designed this?":W.cat==="invent"?"Who invented this?":W.cat==="photo"?"Who took this photo?":"Who made this?";
+  $("factBox").hidden=true; $("statusLine").textContent="";
+  $("nextBtn").hidden=true; $("revealBtn").hidden=false; $("hintBtn").hidden=false; $("pauseBtn").hidden=false; $("pauseBtn").textContent="Pause";
+  renderPortrait(W); preload(G.list[G.idx+1]); renderHints(-1); renderWorth(); renderBench(); renderChoices();
+  startTick();
+}
+function renderPortrait(W){
+  const box=$("portrait");
+  box.innerHTML='<div class="no-photo"><p>Loading image…</p></div>';
+  loadImage(W,im=>{ if(!(G&&G.cur&&G.cur.W===W)) return; im.alt="The mystery work"; box.innerHTML=""; box.appendChild(im); },
+    ()=>{ if(G&&G.cur&&G.cur.W===W) box.innerHTML='<div class="no-photo"><div class="q">?</div><p>Image did not load.<br>Go by the clues, or add an image in Manage works.</p></div>'; });
+}
+function preload(W){ if(W) loadImage(W,()=>{},()=>{}); }
+function renderHints(fresh){
+  const c=G.cur, box=$("hints"); box.innerHTML="";
+  for(let i=0;i<3;i++){
+    const open=i<c.stage||c.done;
+    const d=document.createElement("div");
+    d.className="hint "+(open?"open":"locked")+(i===fresh?" fresh":"");
+    d.innerHTML='<div class="num">'+(i+1)+'</div><div class="txt">'+(open?esc(c.W.hints[i]):(i===c.stage?"Unlocks when the timer runs out":"Locked"))+'</div>';
+    box.appendChild(d);
+  }
+}
+/* Multiple choice: three other creators from the same type of work; one crossed out at clue 2 */
+function makeOptions(W){
+  const seen=new Set([W.name]); const pick=arr=>{ const out=[]; shuffle(arr).forEach(x=>{ if(out.length<3&&!seen.has(x.name)){ seen.add(x.name); out.push(x.name);} }); return out; };
+  const others=allWorks().filter(x=>x.name!==W.name);
+  let wrong=pick(others.filter(x=>x.cat===W.cat));
+  if(wrong.length<3) wrong=wrong.concat(pick(others.filter(x=>x.cat!==W.cat)).slice(0,3-wrong.length));
+  const opts=shuffle([W.name].concat(wrong));
+  return {opts,cut:opts.indexOf(wrong[Math.floor(Math.random()*wrong.length)])};
+}
+function setMC(on){
+  store.mc=!!on; saveStore();
+  $("mcOn").checked=store.mc; $("mcBtn").textContent="Choices: "+(store.mc?"on":"off"); $("mcBtn").setAttribute("aria-pressed",String(store.mc));
+  if(G&&G.cur) renderChoices();
+}
+function renderChoices(){
+  const c=G.cur, box=$("mcBox");
+  box.hidden=!store.mc; if(!store.mc) return;
+  if(!c.opts){ const o=makeOptions(c.W); c.opts=o.opts; c.cut=o.cut; c.picked={}; }
+  box.innerHTML=c.opts.map((n,k)=>{
+    const right=n===c.W.name, picked=c.picked[k];
+    let cls="opt", mark="";
+    if((c.done||picked)&&right){ cls+=" right"; mark="✓"; }
+    else if(picked){ cls+=" wrong"; mark="✗"; }
+    else if(c.stage>=2&&k===c.cut) cls+=" out";
+    const off=c.done||picked||(c.stage>=2&&k===c.cut);
+    return '<button type="button" class="'+cls+'" data-opt="'+k+'"'+(off?' disabled':'')+'><span class="let">'+"ABCD"[k]+'</span><span>'+esc(n)+'</span><span class="mark">'+mark+'</span></button>';
+  }).join("");
+  box.querySelectorAll("[data-opt]").forEach(b=>b.addEventListener("click",()=>pickOption(+b.dataset.opt)));
+}
+/* Teacher clicks the choice a team called out: wrong ones get crossed off, the right one turns green */
+function pickOption(k){
+  const c=G&&G.cur; if(!c||c.done||!c.opts||c.picked[k]) return;
+  if(c.stage>=2&&k===c.cut) return;
+  c.picked[k]=true;
+  const right=c.opts[k]===c.W.name;
+  $("statusLine").textContent=right?("Correct! Click the team's Got it button (or press its number) to award "+worth()+(worth()===1?" point.":" points.")):("Not "+c.opts[k]+". Keep guessing!");
+  if(right){ c.paused=true; $("pauseBtn").textContent="Resume"; renderWorth(); }
+  renderChoices();
+}
+function worth(){ return Math.max(1,4-G.cur.stage); }
+function renderWorth(){
+  const c=G.cur, w=worth(), s=Math.ceil(c.left/1000);
+  $("pts").textContent=c.done?"—":(w+(w===1?" pt":" pts"));
+  $("secs").textContent=c.done?"0":s;
+  $("worthSub").textContent=c.done?"Round over":c.paused?"Paused":c.stage<3?("Next clue in "+s+" second"+(s===1?"":"s")):(s>0?"Last chance: "+s+"s":"Time's up. Reveal the answer.");
+  const frac=c.done?0:Math.max(0,c.left/(G.secs*1000));
+  $("ringBar").setAttribute("stroke-dashoffset",String(C*(1-frac)));
+  $("ring").classList.toggle("low",!c.done&&s<=5);
+  const sp=$("ladder").children;
+  for(let i=0;i<4;i++) sp[i].className=(i===c.stage&&!c.done)?"on":(i<c.stage?"past":"");
+}
+function startTick(){
+  stopTick(); let last=performance.now();
+  tick=setInterval(()=>{
+    const now=performance.now(), dt=now-last; last=now;
+    const c=G&&G.cur; if(!c||c.paused||c.done||c.left<=0) return;
+    c.left-=dt;
+    if(c.left<=0){ c.left=0; if(c.stage<3) advanceHint(); else $("statusLine").textContent="Time's up! Award a final guess or reveal the answer."; }
+    renderWorth();
+  },100);
+}
+function stopTick(){ if(tick){ clearInterval(tick); tick=null; } }
+function advanceHint(){
+  const c=G.cur; if(c.done||c.stage>=3) return;
+  c.stage++; c.left=G.secs*1000;
+  renderHints(c.stage-1); renderWorth(); renderChoices();
+  $("statusLine").textContent=(store.mc&&c.stage===2?"One wrong choice crossed out. ":"")+"Clue "+c.stage+" unlocked. Now worth "+worth()+(worth()===1?" point.":" points.");
+}
+function togglePause(){ const c=G&&G.cur; if(!c||c.done) return; c.paused=!c.paused; $("pauseBtn").textContent=c.paused?"Resume":"Pause"; renderWorth(); }
+function reveal(t){
+  const c=G.cur; if(c.done) return; c.done=true;
+  const pts=t>=0?worth():0;
+  if(t>=0) G.teams[t].score+=pts;
+  G.log.push({W:c.W,team:t>=0?G.teams[t].name:null,pts,hints:c.stage});
+  $("plate").classList.remove("hidden-name");
+  $("plateWho").textContent=c.W.name+(c.W.alt?" (or "+c.W.alt+")":"");
+  $("plateWhat").innerHTML=(c.W.work?'<i>'+esc(c.W.work)+'</i>':"")+(c.W.date?' · '+esc(c.W.date):"");
+  if(c.W.fact){ $("factBox").textContent="Why it matters: "+c.W.fact; $("factBox").hidden=false; }
+  $("statusLine").textContent=t>=0?(G.teams[t].name+" earns "+pts+(pts===1?" point!":" points!")):"No points this round.";
+  $("nextBtn").hidden=false; $("revealBtn").hidden=true; $("hintBtn").hidden=true; $("pauseBtn").hidden=true;
+  renderHints(-1); renderWorth(); renderBench(t); renderChoices(); $("nextBtn").focus({preventScroll:true});
+}
+function renderBench(flash){
+  const box=$("bench"); box.innerHTML="";
+  const done=G.cur&&G.cur.done;
+  G.teams.forEach((t,i)=>{
+    const d=document.createElement("div"); d.className="team"+(i===flash?" flash":"");
+    d.innerHTML='<div class="tn"><span>'+esc(t.name)+'</span><kbd class="key">'+(i+1)+'</kbd></div><div class="ts">'+t.score+'</div>'+
+      '<button class="btn primary award" data-award="'+i+'"'+(done?' disabled':'')+'>Got it</button>'+
+      '<div class="adj"><button class="btn small ghost" data-adj="'+i+'" data-d="-1" aria-label="Subtract a point from '+esc(t.name)+'">−1</button><button class="btn small ghost" data-adj="'+i+'" data-d="1" aria-label="Add a point to '+esc(t.name)+'">+1</button></div>';
+    box.appendChild(d);
+  });
+  box.querySelectorAll("[data-award]").forEach(b=>b.addEventListener("click",()=>reveal(+b.dataset.award)));
+  box.querySelectorAll("[data-adj]").forEach(b=>b.addEventListener("click",()=>{ const t=G.teams[+b.dataset.adj]; t.score=Math.max(0,t.score+(+b.dataset.d)); renderBench(); }));
+}
+function showFinal(){
+  stopTick(); $("play").hidden=true; $("final").hidden=false;
+  const ranked=G.teams.slice().sort((a,b)=>b.score-a.score);
+  const top=ranked[0].score, win=ranked.filter(t=>t.score===top);
+  $("winnerLine").textContent=top===0?"No points scored":win.length>1?("Tie: "+win.map(w=>w.name).join(" & ")):(win[0].name+" wins!");
+  $("podium").innerHTML=ranked.map(t=>'<div class="row'+(t.score===top&&top>0?' first':'')+'"><span>'+esc(t.name)+'</span><b>'+t.score+'</b></div>').join("");
+  $("recap").innerHTML='<h2 style="font-size:1.3rem;margin-bottom:8px">Works in this game</h2><ol>'+
+    G.log.map(e=>'<li><b>'+esc(e.W.name)+'</b>, <i>'+esc(e.W.work||"")+'</i> — '+(e.team?esc(e.team)+' (+'+e.pts+', after '+e.hints+' clue'+(e.hints===1?'':'s')+')':'<span class="muted">not named</span>')+'</li>').join("")+'</ol>';
+}
+function endGame(){
+  const b=$("endBtn");
+  if(b.dataset.armed){ b.dataset.armed=""; b.textContent="End game"; if(G.cur&&!G.cur.done) G.cur.done=true; showFinal(); }
+  else { b.dataset.armed="1"; b.textContent="Click again to end"; setTimeout(()=>{ b.dataset.armed=""; b.textContent="End game"; },3000); }
+}
+
+/* ---------- Wire up ---------- */
+$("teamCount").addEventListener("change",renderTeamInputs);
+$("startBtn").addEventListener("click",startGame);
+$("toggleRoster").addEventListener("click",()=>{ const p=$("rosterPanel"); p.hidden=!p.hidden; if(!p.hidden) renderRoster(); });
+$("addBtn").addEventListener("click",()=>openEditor(null));
+$("edCancel").addEventListener("click",()=>{ $("editor").hidden=true; });
+$("edSave").addEventListener("click",saveEditor);
+$("edFile").addEventListener("change",()=>{ const f=$("edFile").files[0]; if(f) compress(f).then(u=>{pendingPhoto=u;$("edMsg").textContent="Image ready.";}).catch(()=>{$("edMsg").textContent="That file couldn't be read as an image.";}); });
+Object.keys(CATS).forEach(k=>{ const o=document.createElement("option"); o.value=k; o.textContent=CATS[k]; $("edCat").appendChild(o); });
+$("pauseBtn").addEventListener("click",togglePause);
+$("hintBtn").addEventListener("click",()=>{ if(G&&G.cur&&G.cur.stage<3) advanceHint(); else if(G&&G.cur) $("statusLine").textContent="All three clues are showing."; });
+$("revealBtn").addEventListener("click",()=>reveal(-1));
+$("nextBtn").addEventListener("click",nextWork);
+$("endBtn").addEventListener("click",endGame);
+$("mcOn").addEventListener("change",()=>setMC($("mcOn").checked));
+$("mcBtn").addEventListener("click",()=>setMC(!store.mc));
+$("againBtn").addEventListener("click",()=>{ $("final").hidden=true; $("setup").hidden=false; G=null; });
+document.addEventListener("keydown",e=>{
+  if(e.target&&/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const k=e.key.toLowerCase();
+  if(k==="f"){ toggleFs(); return; }
+  if($("play").hidden||!G||!G.cur) return;
+  if(k===" "){ e.preventDefault(); togglePause(); }
+  else if(k==="h") $("hintBtn").click();
+  else if(k==="r") reveal(-1);
+  else if(k==="n"){ if(G.cur.done) nextWork(); }
+  else if(k==="m") setMC(!store.mc);
+  else if(/^[a-d]$/.test(k)&&store.mc&&!G.cur.done) pickOption("abcd".indexOf(k));
+  else if(/^[1-6]$/.test(k)&&+k<=G.teams.length) reveal(+k-1);
+});
+
+/* ---------- Bulk images, paste, image packs ---------- */
+function norm(x){ return String(x).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+function matchWork(fname){
+  const f=norm(fname.replace(/\.[a-z0-9]+$/i,"")); if(!f) return null;
+  const list=allWorks();
+  let hit=list.find(W=>norm(W.work||"")===f||norm(W.id)===f); if(hit) return hit;
+  hit=list.filter(W=>W.work&&norm(W.work).length>3&&(f.indexOf(norm(W.work))>=0||norm(W.work).indexOf(f)>=0)); if(hit.length===1) return hit[0];
+  hit=list.filter(W=>norm(W.name)===f||f.indexOf(norm(W.name))>=0); if(hit.length===1) return hit[0];
+  hit=list.filter(W=>{ const w=W.name.split(/\s+/); const ln=norm(w[w.length-1]); return ln.length>2&&f.indexOf(ln)>=0; });
+  return hit.length===1?hit[0]:null;
+}
+function bulkAdd(files){
+  const imgs=[...files].filter(f=>/^image\//.test(f.type)); if(!imgs.length) return;
+  const missed=[]; let done=0;
+  Promise.all(imgs.map(f=>{ const W=matchWork(f.name); if(!W){ missed.push(f.name); return null; }
+    return compress(f).then(u=>{ store.photos[W.id]=u; done++; }).catch(()=>missed.push(f.name)); }))
+  .then(()=>{ saveStore(); renderRoster();
+    toast("Added "+done+" image"+(done===1?"":"s")+(missed.length?". No match for: "+missed.slice(0,4).join(", ")+(missed.length>4?"…":"")+" (rename it or use Upload)":".")); });
+}
+const dz=$("dropZone");
+$("bulkFiles").addEventListener("change",e=>{ bulkAdd(e.target.files); e.target.value=""; });
+["dragenter","dragover"].forEach(t=>dz.addEventListener(t,e=>{ e.preventDefault(); dz.classList.add("over"); }));
+["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{ e.preventDefault(); dz.classList.remove("over"); }));
+dz.addEventListener("drop",e=>{ if(e.dataTransfer) bulkAdd(e.dataTransfer.files); });
+document.addEventListener("paste",e=>{
+  if(!pasteTarget||$("rosterPanel").hidden) return;
+  const items=(e.clipboardData&&e.clipboardData.items)||[]; let file=null;
+  for(const it of items){ if(it.kind==="file"&&/^image\//.test(it.type)){ file=it.getAsFile(); break; } }
+  if(!file){ toast("No picture on the clipboard. Right-click an image and choose Copy image first."); return; }
+  e.preventDefault(); const id=pasteTarget; pasteTarget=null;
+  compress(file).then(u=>{ store.photos[id]=u; if(saveStore()) toast("Image pasted."); renderRoster(); });
+});
+$("savePack").addEventListener("click",()=>{
+  const n=Object.keys(store.photos).length; if(!n){ toast("No uploaded images to save yet."); return; }
+  const blob=new Blob([JSON.stringify({type:"masterpiece-mystery-images",v:1,photos:store.photos,custom:store.custom})],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="masterpiece-mystery-images.json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast("Saved "+n+" images.");
+});
+$("loadPack").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d||d.type!=="masterpiece-mystery-images") throw 0;
+      Object.assign(store.photos,d.photos||{}); (d.custom||[]).forEach(W=>{ if(!store.custom.some(x=>x.id===W.id)) store.custom.push(W); });
+      saveStore(); renderRoster(); renderFilters(); toast("Loaded "+Object.keys(d.photos||{}).length+" images.");
+    }catch(err){ toast("That file isn't a Masterpiece Mystery image pack."); } };
+  r.readAsText(f); e.target.value="";
+});
+
+/* ---------- Full screen ---------- */
+function isFs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+function toggleFs(){
+  const el=document.documentElement;
+  try{ if(isFs()) (document.exitFullscreen||document.webkitExitFullscreen).call(document);
+    else { const req=el.requestFullscreen||el.webkitRequestFullscreen; if(!req){ toast("Full screen isn't available here. Press F11 instead."); return; } const r=req.call(el); if(r&&r.catch) r.catch(()=>toast("Full screen isn't available here. Press F11 instead.")); } }
+  catch(e){ toast("Full screen isn't available here. Press F11 instead."); }
+}
+function fsLabel(){ const t=isFs()?"Exit full screen":"Full screen"; $("fsBtn").textContent=t; $("fsBtn2").textContent=t; }
+$("fsBtn").addEventListener("click",toggleFs); $("fsBtn2").addEventListener("click",toggleFs);
+document.addEventListener("fullscreenchange",fsLabel); document.addEventListener("webkitfullscreenchange",fsLabel);
+
+renderTeamInputs(); renderFilters(); setMC(!!store.mc);
+loadWiki(BUILT_IN.map(W=>W.wiki).filter(Boolean));
+})();
+</script>
+</body>
+</html>
